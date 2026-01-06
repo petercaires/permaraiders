@@ -1,0 +1,263 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+:root {
+  /* Converting to grayscale theme */
+  /* Lightened background from 0.08 to 0.18 (10% lighter) */
+  --background: oklch(0.18 0 0);
+  --foreground: oklch(0.95 0 0);
+  --card: oklch(0.12 0 0);
+  --card-foreground: oklch(0.95 0 0);
+  --popover: oklch(0.12 0 0);
+  --popover-foreground: oklch(0.95 0 0);
+  --primary: oklch(0.5 0 0);
+  --primary-foreground: oklch(0.98 0 0);
+  --secondary: oklch(0.15 0 0);
+  --secondary-foreground: oklch(0.95 0 0);
+  --muted: oklch(0.18 0 0);
+  --muted-foreground: oklch(0.6 0 0);
+  --accent: oklch(0.22 0 0);
+  --accent-foreground: oklch(0.95 0 0);
+  --destructive: oklch(0.55 0.25 25);
+  --destructive-foreground: oklch(0.98 0.01 25);
+  --border: oklch(0.22 0 0);
+  --input: oklch(0.22 0 0);
+  --ring: oklch(0.5 0 0);
+  --chart-1: oklch(0.65 0 0);
+  --chart-2: oklch(0.7 0 0);
+  --chart-3: oklch(0.6 0 0);
+  --chart-4: oklch(0.75 0 0);
+  --chart-5: oklch(0.68 0 0);
+  --radius: 0.5rem;
+  --sidebar: oklch(0.12 0 0);
+  --sidebar-foreground: oklch(0.95 0 0);
+  --sidebar-primary: oklch(0.5 0 0);
+  --sidebar-primary-foreground: oklch(0.98 0 0);
+  --sidebar-accent: oklch(0.22 0 0);
+  --sidebar-accent-foreground: oklch(0.95 0 0);
+  --sidebar-border: oklch(0.22 0 0);
+  --sidebar-ring: oklch(0.5 0 0);
+}
+
+@theme inline {
+  --font-sans: "Inter", ui-sans-serif, system-ui;
+  --font-mono: "Geist Mono", "Geist Mono Fallback";
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    /* Added overflow-x-hidden to prevent horizontal scrolling on body */
+    /* Added overflow-y-hidden to prevent vertical scrollbar during animations */
+    @apply bg-background text-foreground overflow-x-hidden overflow-y-hidden;
+  }
+}
+
+/* Removed border-glow and flash animations - no longer needed */
+
+/* Adding pulsing white border glow animation for tile hover */
+@keyframes border-glow {
+  0%,
+  100% {
+    box-shadow: 0 0 8px rgba(255, 255, 255, 0.4), 0 0 16px rgba(255, 255, 255, 0.2), inset 0 0 8px
+      rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, 0.5);
+  }
+  50% {
+    box-shadow: 0 0 16px rgba(255, 255, 255, 0.8), 0 0 32px rgba(255, 255, 255, 0.4), inset 0 0 12px
+      rgba(255, 255, 255, 0.2);
+    border-color: rgba(255, 255, 255, 0.9);
+  }
+}
+
+.border-glow-animate {
+  animation: border-glow 2s ease-in-out infinite;
+}
+
+/* Lightweight fog animation using CSS gradients */
+/* Made fog animation more visible by increasing opacity and size */
+/* Optimized fog animation - reduced blur and simplified gradients */
+@keyframes fog-drift {
+  0% {
+    transform: translateX(-10%) translateY(0);
+    opacity: 0.25;
+  }
+  50% {
+    transform: translateX(10%) translateY(-5%);
+    opacity: 0.4;
+  }
+  100% {
+    transform: translateX(-10%) translateY(0);
+    opacity: 0.25;
+  }
+}
+
+@keyframes fog-drift-2 {
+  0% {
+    transform: translateX(10%) translateY(5%);
+    opacity: 0.3;
+  }
+  50% {
+    transform: translateX(-15%) translateY(0);
+    opacity: 0.45;
+  }
+  100% {
+    transform: translateX(10%) translateY(5%);
+    opacity: 0.3;
+  }
+}
+
+/* Added gradient pulse animation for selected trait top edge */
+/* Unified pulse animation - removed separate mintPulse, using gradientPulse for both */
+@keyframes gradientPulse {
+  0%,
+  100% {
+    opacity: 0.3;
+  }
+  50% {
+    opacity: 0.6;
+  }
+}
+
+/* Widened spark to be a block with blurred edges */
+@keyframes sparkRise {
+  0% {
+    bottom: 0;
+    opacity: 0;
+    transform: translateY(0);
+  }
+  20% {
+    opacity: 1;
+  }
+  100% {
+    bottom: 100%;
+    opacity: 0;
+    transform: translateY(-20%);
+  }
+}
+
+.fog-container {
+  position: fixed;
+  left: 0;
+  right: 0;
+  top: 40%;
+  bottom: 0;
+  width: 100vw;
+  height: 60vh;
+  z-index: 5;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.fog-container::before {
+  content: "";
+  position: absolute;
+  width: 1000px;
+  height: 800px;
+  /* Reduced blur from 70px to 40px for better performance */
+  background: radial-gradient(ellipse at center, rgba(120, 120, 140, 0.3) 0%, transparent 70%);
+  filter: blur(40px);
+  animation: fog-drift 20s ease-in-out infinite;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  /* Added will-change for GPU acceleration */
+  will-change: transform, opacity;
+}
+
+.fog-container::after {
+  content: "";
+  position: absolute;
+  width: 800px;
+  height: 600px;
+  /* Reduced blur from 60px to 35px for better performance */
+  background: radial-gradient(ellipse at center, rgba(100, 100, 120, 0.25) 0%, transparent 70%);
+  filter: blur(35px);
+  animation: fog-drift-2 25s ease-in-out infinite;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  animation-delay: -5s;
+  /* Added will-change for GPU acceleration */
+  will-change: transform, opacity;
+}
+
+/* Adding confetti particle animation */
+@keyframes explosion {
+  0% {
+    transform: translate(-50%, -50%) translate(0, 0);
+    opacity: 1;
+  }
+  100% {
+    transform: translate(-50%, -50%)
+      translate(calc(cos(var(--angle)) * var(--speed)), calc(sin(var(--angle)) * var(--speed)));
+    opacity: 0;
+  }
+}
+
+.explosion-particle {
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  background-color: #ffffff;
+  opacity: 1;
+  animation: explosion 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+}
+
+/* Adding hero pop animation - scales from 1 → 1.05 → 1 over 280ms */
+@keyframes hero-pop {
+  0% {
+    transform: scale(1);
+  }
+  40% {
+    transform: scale(1.05);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+.animate-hero-pop {
+  /* Updated hero pop animation duration to 400ms and easing to ease-in-out */
+  animation: hero-pop 400ms ease-in-out forwards;
+}
