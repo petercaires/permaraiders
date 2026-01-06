@@ -443,11 +443,13 @@ export default function Home() {
           <button
             onClick={toggleGridVisibility}
             aria-label={isGridVisible ? "Hide grid" : "Show grid"}
-            className="cursor-pointer hover:opacity-80 transition-opacity text-white w-4 sm:w-5 md:w-6 h-4 sm:h-5 md:h-6 group"
+            className="cursor-pointer text-white w-4 sm:w-5 md:w-6 h-4 sm:h-5 md:h-6 group relative"
           >
-            {isGridVisible ? <Eye className="w-full h-full py-px" /> : <EyeOff className="w-full h-full" />}
-            <div className="absolute right-full mr-2 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap">
-              <div className="bg-black/90 text-white text-xs px-2 py-1 rounded font-mono">
+            <div className="hover:opacity-80 transition-opacity">
+              {isGridVisible ? <Eye className="w-full h-full py-px" /> : <EyeOff className="w-full h-full" />}
+            </div>
+            <div className="absolute right-full mr-2 top-1/2 -translate-y-1/2 group-hover:block hidden pointer-events-none whitespace-nowrap">
+              <div className="bg-white text-black text-[9px] px-2 py-1 rounded font-mono flex items-center justify-center">
                 {isGridVisible ? "hide grid" : "show grid"}
               </div>
             </div>
