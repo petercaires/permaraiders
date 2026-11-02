@@ -528,8 +528,8 @@ export default function Home() {
           {/* Details + action row: one block, aligned to the menu's edges, fixed height so nothing shifts */}
           <div
             className={cn(
-              // clean 50% black box, flush with the menu + scrollbar, consistent 12px inset
-              "w-full shrink-0 flex flex-col gap-2 p-3 rounded-md bg-black/50 transition-opacity duration-300",
+              // clean 25% black box, flush with the menu + scrollbar, consistent 12px inset
+              "w-full shrink-0 flex flex-col gap-2 p-3 rounded-md bg-black/25 transition-opacity duration-300",
               !isGridVisible && "opacity-0 pointer-events-none",
             )}
             style={{ maxWidth: isWide ? PANEL_MAX_WIDTH : gridWidthPx + RAIL_WIDTH }}
