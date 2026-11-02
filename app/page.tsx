@@ -442,7 +442,7 @@ export default function Home() {
           {/* One visual block: character sheet + description in a single 25% black box, 12px inset all round */}
           <div
             className={cn(
-              "w-full min-h-0 flex flex-col gap-3 p-3 rounded-md bg-black/25 wide:flex-1 transition-opacity duration-300",
+              "w-full min-h-0 flex flex-col gap-3 p-3 rounded-md bg-black/20 wide:flex-1 transition-opacity duration-300",
               !isGridVisible && "opacity-0 pointer-events-none",
             )}
             style={{ maxWidth: (isWide ? PANEL_MAX_WIDTH : gridWidthPx + RAIL_WIDTH) + 24 }}
@@ -550,7 +550,7 @@ export default function Home() {
           >
             <CharacterDetails id={displayedHeroId === "000" ? null : displayedHeroId} isMinted={isDisplayedClaimed} />
 
-            <div className="flex items-center justify-between gap-3 h-10 wide:h-12">
+            <div className="flex items-center justify-between wide:justify-center gap-3 wide:gap-6 h-10 wide:h-12">
               <p
                 key={actionId ?? "none"}
                 className={cn(
