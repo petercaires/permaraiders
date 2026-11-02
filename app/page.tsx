@@ -347,6 +347,7 @@ export default function Home() {
   const isDisplayedClaimed = displayedHeroId !== "000" && claimedIds.includes(displayedHeroId)
   const isSelectedClaimed = selectedId ? claimedIds.includes(selectedId) : false
   const thumbRatio = visibleRows / totalRows
+  const actionId = selectedId ?? (hoveredId || null)
 
   return (
     <div className="h-[100svh] overflow-hidden bg-background relative flex flex-col wide:flex-row">
@@ -378,150 +379,162 @@ export default function Home() {
             e.currentTarget.src = heroUrls["hero000"]
           }}
         />
-        {displayedHeroId !== "000" && (
-          <p
-            key={displayedHeroId}
-            className="hidden wide:block absolute left-6 bottom-6 text-white font-bold tracking-wider text-[clamp(2.5rem,5vw,4rem)] leading-none animate-in slide-in-from-left-8 duration-300"
-            style={{
-              textShadow:
-                "-2px -2px 0 #000, 2px -2px 0 #000, -2px 2px 0 #000, 2px 2px 0 #000, -3px 0 0 #000, 3px 0 0 #000, 0 -3px 0 #000, 0 3px 0 #000",
-            }}
-          >
-            {displayedHeroId}
-          </p>
-        )}
       </section>
 
       {/* ---------- Content column (flattened into the page in portrait) ---------- */}
       <div className="contents wide:relative wide:z-20 wide:flex wide:flex-col wide:w-[58vw] wide:max-w-[1100px] wide:h-full wide:shrink-0 wide:pr-14">
-        <header className="order-1 wide:order-none relative z-30 flex flex-col items-center w-full pt-[clamp(10px,2.5svh,40px)] pb-1 wide:pb-3 select-none gap-0.5 shrink-0">
-          <img src="/header.png" alt="Perma Raiders" className="object-contain select-none h-[clamp(36px,7.5svh,120px)]" />
-          <p className="text-white font-mono tracking-wide text-[10px] sm:text-xs">pfp collection</p>
-          <p className="text-white/70 font-mono text-[9px] sm:text-[11px]">select character to mint</p>
+        {/*
+          Vertical rhythm (one spacing scale, grouped by proximity):
+            logo group  —(section gap)—  grid  —(12px)—  [details + action row, 8px apart]  —(bottom breathing room)
+          The details and the action row both describe the current raider, so they sit closest together.
+        */}
+        <header className="order-1 wide:order-none relative z-30 flex flex-col items-center w-full shrink-0 select-none gap-1 pt-[clamp(18px,4.5svh,64px)] pb-[clamp(12px,3svh,32px)]">
+          <img src="/header.png" alt="Perma Raiders" className="object-contain select-none h-[clamp(36px,7.5svh,112px)]" />
+          <p className="text-white/80 font-mono tracking-wide text-[10px] sm:text-xs">pfp collection</p>
         </header>
 
         <main
           className={cn(
             "order-3 wide:order-none relative z-20 shrink-0 wide:flex-1 wide:min-h-0 select-none",
-            "px-4 wide:px-0 w-full",
-            "transition-opacity duration-300",
-            !isGridVisible && "opacity-0 pointer-events-none",
+            "px-4 wide:px-0 w-full pb-[clamp(28px,6svh,72px)]",
+            "flex flex-col items-center gap-3",
           )}
         >
-          {/* Grid and description stacked as one block */}
-          <div className="h-full flex flex-col items-center gap-3">
-            {/* The grid measures this box */}
-            <div
-              ref={gridAreaRef}
-              className="relative w-full min-w-0 h-[clamp(130px,28svh,360px)] wide:h-auto wide:flex-1 wide:min-h-0"
-            >
-              <div className="absolute inset-0 flex items-end justify-center">
-                <div className="flex items-stretch" style={{ gap: GRID_GAP }}>
+          {/* The grid measures this box */}
+          <div
+            ref={gridAreaRef}
+            className={cn(
+              "relative w-full min-w-0 h-[clamp(130px,28svh,360px)] wide:h-auto wide:flex-1 wide:min-h-0",
+              "transition-opacity duration-300",
+              !isGridVisible && "opacity-0 pointer-events-none",
+            )}
+          >
+            <div className="absolute inset-0 flex items-end justify-center">
+              <div className="flex items-stretch" style={{ gap: GRID_GAP }}>
+                <div
+                  className="grid shrink-0"
+                  style={{
+                    gap: `${GRID_GAP}px`,
+                    gridTemplateColumns: `repeat(${gridCols}, ${tileSize}px)`,
+                    gridAutoRows: `${tileSize}px`,
+                    width: gridWidthPx,
+                    height: gridHeightPx,
+                    alignContent: "start",
+                  }}
+                >
+                  {visibleCharacters.map((char) => (
+                    <CharacterTile
+                      key={char.id}
+                      id={char.id}
+                      index={char.index}
+                      traitIds={char.traitIds}
+                      isSelected={selectedId === char.id}
+                      isClaimed={claimedIds.includes(char.id)}
+                      isRevealed
+                      onHover={() => handleTileHover(char.id)}
+                      onLeave={() => setHoveredId(null)}
+                      onClick={() => handleTileClick(char.id)}
+                    />
+                  ))}
+                </div>
+
+                <div
+                  className="flex flex-col items-center justify-between shrink-0"
+                  style={{ height: gridHeightPx, width: RAIL_WIDTH - GRID_GAP }}
+                >
+                  <button
+                    className="shrink-0 cursor-pointer text-white hover:text-white/80 disabled:opacity-30 disabled:cursor-default transition flex items-center justify-center w-6 h-6"
+                    onClick={() => handleScroll("up")}
+                    disabled={!showUpArrow}
+                    aria-label="Scroll up"
+                  >
+                    <ChevronUp className="w-5 h-5" />
+                  </button>
                   <div
-                    className="grid shrink-0"
-                    style={{
-                      gap: `${GRID_GAP}px`,
-                      gridTemplateColumns: `repeat(${gridCols}, ${tileSize}px)`,
-                      gridAutoRows: `${tileSize}px`,
-                      width: gridWidthPx,
-                      height: gridHeightPx,
-                      alignContent: "start",
+                    ref={scrollbarRef}
+                    className="relative w-1 my-1 bg-white/10 flex-1 cursor-pointer rounded-full"
+                    onMouseDown={(e) => {
+                      setIsDragging(true)
+                      e.preventDefault()
                     }}
                   >
-                    {visibleCharacters.map((char) => (
-                      <CharacterTile
-                        key={char.id}
-                        id={char.id}
-                        index={char.index}
-                        traitIds={char.traitIds}
-                        isSelected={selectedId === char.id}
-                        isClaimed={claimedIds.includes(char.id)}
-                        isRevealed
-                        onHover={() => handleTileHover(char.id)}
-                        onLeave={() => setHoveredId(null)}
-                        onClick={() => handleTileClick(char.id)}
-                      />
-                    ))}
-                  </div>
-
-                  <div
-                    className="flex flex-col items-center justify-between shrink-0"
-                    style={{ height: gridHeightPx, width: RAIL_WIDTH - GRID_GAP }}
-                  >
-                    <button
-                      className="shrink-0 cursor-pointer text-white hover:text-white/80 disabled:opacity-30 disabled:cursor-default transition flex items-center justify-center w-6 h-6"
-                      onClick={() => handleScroll("up")}
-                      disabled={!showUpArrow}
-                      aria-label="Scroll up"
-                    >
-                      <ChevronUp className="w-5 h-5" />
-                    </button>
                     <div
-                      ref={scrollbarRef}
-                      className="relative w-1 my-1 bg-white/10 flex-1 cursor-pointer rounded-full"
-                      onMouseDown={(e) => {
-                        setIsDragging(true)
-                        e.preventDefault()
+                      className="absolute left-0 right-0 bg-white/40 transition-all duration-200 rounded-full pointer-events-none"
+                      style={{
+                        height: `${thumbRatio * 100}%`,
+                        top: `${maxStartRow === 0 ? 0 : (startRow / maxStartRow) * (100 - thumbRatio * 100)}%`,
                       }}
-                    >
-                      <div
-                        className="absolute left-0 right-0 bg-white/40 transition-all duration-200 rounded-full pointer-events-none"
-                        style={{
-                          height: `${thumbRatio * 100}%`,
-                          top: `${maxStartRow === 0 ? 0 : (startRow / maxStartRow) * (100 - thumbRatio * 100)}%`,
-                        }}
-                      />
-                    </div>
-                    <button
-                      className="shrink-0 cursor-pointer text-white hover:text-white/80 disabled:opacity-30 disabled:cursor-default transition flex items-center justify-center w-6 h-6"
-                      onClick={() => handleScroll("down")}
-                      disabled={!showDownArrow}
-                      aria-label="Scroll down"
-                    >
-                      <ChevronDown className="w-5 h-5" />
-                    </button>
+                    />
                   </div>
+                  <button
+                    className="shrink-0 cursor-pointer text-white hover:text-white/80 disabled:opacity-30 disabled:cursor-default transition flex items-center justify-center w-6 h-6"
+                    onClick={() => handleScroll("down")}
+                    disabled={!showDownArrow}
+                    aria-label="Scroll down"
+                  >
+                    <ChevronDown className="w-5 h-5" />
+                  </button>
                 </div>
               </div>
             </div>
-
-            <CharacterDetails
-              id={displayedHeroId === "000" ? null : displayedHeroId}
-              isMinted={isDisplayedClaimed}
-              className="shrink-0 w-full"
-              style={{ maxWidth: gridWidthPx + RAIL_WIDTH }}
-            />
           </div>
-        </main>
 
-        {/* Mint bar — fixed height so nothing shifts when a character is selected */}
-        <footer className="order-4 wide:order-none relative z-30 flex items-center justify-center w-full h-[clamp(72px,11svh,96px)] pb-3 shrink-0">
-          {selectedId ? (
-            <div className="flex gap-3 items-center animate-in fade-in-0 zoom-in-95 duration-200">
-              <Button
-                size="lg"
+          {/* Details + action row: one block, aligned to the grid's edges, fixed height so nothing shifts */}
+          <div
+            className={cn(
+              "w-full shrink-0 flex flex-col gap-2 transition-opacity duration-300",
+              !isGridVisible && "opacity-0 pointer-events-none",
+            )}
+            style={{ maxWidth: gridWidthPx + RAIL_WIDTH }}
+          >
+            <CharacterDetails id={displayedHeroId === "000" ? null : displayedHeroId} isMinted={isDisplayedClaimed} />
+
+            <div className="flex items-center justify-between gap-3 h-12">
+              <p
+                key={actionId ?? "none"}
                 className={cn(
-                  "font-semibold bg-zinc-700 hover:bg-zinc-600 text-white border-2 cursor-pointer px-6 min-w-[140px]",
-                  isSelectedClaimed ? "border-transparent" : "border-white",
+                  "font-bold tracking-wider leading-none text-[clamp(28px,4.5svh,48px)] tabular-nums",
+                  selectedId ? "text-white animate-in fade-in-0 slide-in-from-left-2 duration-200" : "text-white/30",
                 )}
-                onClick={handleMint}
-                disabled={isSelectedClaimed}
+                style={{
+                  textShadow:
+                    "-2px -2px 0 #000, 2px -2px 0 #000, -2px 2px 0 #000, 2px 2px 0 #000, -3px 0 0 #000, 3px 0 0 #000, 0 -3px 0 #000, 0 3px 0 #000",
+                }}
               >
-                {isSelectedClaimed ? "Minted" : "Mint PFP"}
-              </Button>
-              <div className="relative border-2 border-white rounded overflow-hidden shrink-0 h-12 aspect-square">
-                <img
-                  src={traitUrls[`trait${selectedId}`] || `/traits/trait${selectedId}.png`}
-                  alt={`Raider ${selectedId}`}
-                  className="object-cover select-none h-full w-full"
-                  crossOrigin="anonymous"
-                />
+                {actionId ?? "---"}
+              </p>
+
+              <div className="flex items-center gap-2">
+                <Button
+                  className={cn(
+                    "h-12 font-semibold bg-zinc-700 hover:bg-zinc-600 text-white border-2 cursor-pointer px-6 min-w-[132px]",
+                    selectedId && !isSelectedClaimed ? "border-white" : "border-transparent",
+                  )}
+                  onClick={handleMint}
+                  disabled={!selectedId || isSelectedClaimed}
+                >
+                  {isSelectedClaimed ? "Minted" : "Mint PFP"}
+                </Button>
+                <div
+                  className={cn(
+                    "relative rounded overflow-hidden shrink-0 h-12 aspect-square border-2",
+                    selectedId ? "border-white" : "border-dashed border-white/25",
+                  )}
+                >
+                  {selectedId && (
+                    <img
+                      key={selectedId}
+                      src={traitUrls[`trait${selectedId}`] || `/traits/trait${selectedId}.png`}
+                      alt={`Raider ${selectedId}`}
+                      className="object-cover select-none h-full w-full animate-in fade-in-0 zoom-in-95 duration-200"
+                      crossOrigin="anonymous"
+                    />
+                  )}
+                </div>
               </div>
             </div>
-          ) : (
-            <p className="text-white/50 font-mono text-[10px] sm:text-xs">pick a raider to mint</p>
-          )}
-        </footer>
+          </div>
+        </main>
       </div>
 
       {/* ---------- Corner controls ---------- */}
