@@ -1,9 +1,10 @@
 "use client"
 
+import { RotateCcw, Undo2 } from "lucide-react"
 import { Confetti } from "@/components/confetti"
 import { cn } from "@/lib/utils"
 
-export type MintPhase = "idle" | "minting" | "success"
+export type MintPhase = "idle" | "minting" | "success" | "reset"
 
 interface MintStageProps {
   phase: MintPhase
@@ -18,9 +19,10 @@ interface MintStageProps {
  * Sits over the character sheet; the sheet fades out while this fades in.
  *   minting → portrait under a scanning shimmer, "Minting Raider 042…"
  *   success → MINTED stamp lands, "It's yours!", confetti kept inside the box, "Back to raiders"
+ *   reset   → "Demo reset" confirmation, "Back to raiders"
  */
 export function MintStage({ phase, id, imageSrc, onBack }: MintStageProps) {
-  const active = phase !== "idle" && !!id
+  const active = phase === "reset" || (phase !== "idle" && !!id)
 
   return (
     <div
@@ -30,12 +32,27 @@ export function MintStage({ phase, id, imageSrc, onBack }: MintStageProps) {
       )}
       aria-live="polite"
     >
-      {active && (
+      {active && phase === "reset" && (
+        <>
+          <div className="shrink-0 flex items-center justify-center rounded-full border-2 border-white/60 w-16 h-16 wide:w-24 wide:h-24 animate-in zoom-in-50 fade-in-0 duration-300">
+            <RotateCcw className="w-8 h-8 wide:w-12 wide:h-12" />
+          </div>
+          <div className="flex-1 wide:flex-none flex flex-col items-start wide:items-center gap-3 wide:gap-[clamp(6px,1.5svh,12px)] animate-in fade-in-0 slide-in-from-bottom-2 duration-300 fill-mode-both [animation-delay:150ms]">
+            <div>
+              <h2 className="text-lg wide:text-2xl font-bold leading-tight whitespace-nowrap">Demo reset</h2>
+              <p className="text-xs wide:text-sm text-white/80">All raiders are available to mint again.</p>
+            </div>
+            <BackButton onClick={onBack} />
+          </div>
+        </>
+      )}
+
+      {active && phase !== "reset" && (
         <>
           <Confetti isActive={phase === "success"} contained />
 
           {/* Portrait */}
-          <div className="@container relative shrink-0 h-[72%] wide:h-[48%] max-h-[220px] min-h-[72px] aspect-square">
+          <div className="@container relative shrink-0 h-[88%] wide:h-[64%] max-h-[360px] min-h-[72px] aspect-square">
             <div
               className={cn(
                 "relative w-full h-full rounded-md overflow-hidden border-2 transition-[border-color,filter] duration-500",
@@ -64,16 +81,23 @@ export function MintStage({ phase, id, imageSrc, onBack }: MintStageProps) {
                 <h2 className="text-lg wide:text-2xl font-bold leading-tight whitespace-nowrap">It&apos;s yours!</h2>
                 <p className="text-xs wide:text-sm text-white/80">Raider {id} is now yours.</p>
               </div>
-              <button
-                onClick={onBack}
-                className="cursor-pointer whitespace-nowrap text-xs wide:text-sm px-3 py-1.5 rounded border border-white/40 hover:border-white hover:bg-white/10 transition-colors"
-              >
-                Back to raiders
-              </button>
+              <BackButton onClick={onBack} />
             </div>
           )}
         </>
       )}
     </div>
+  )
+}
+
+function BackButton({ onClick }: { onClick: () => void }) {
+  return (
+    <button
+      onClick={onClick}
+      className="cursor-pointer whitespace-nowrap inline-flex items-center gap-1.5 text-xs wide:text-sm px-3 py-1.5 rounded border border-white/40 hover:border-white hover:bg-white/10 transition-colors"
+    >
+      <Undo2 className="w-3.5 h-3.5 wide:w-4 wide:h-4" />
+      Back to raiders
+    </button>
   )
 }
