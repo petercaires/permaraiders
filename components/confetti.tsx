@@ -4,9 +4,11 @@ import { useEffect, useState } from "react"
 
 interface ConfettiProps {
   isActive: boolean
+  /** Keep the burst inside the nearest positioned parent instead of the whole screen */
+  contained?: boolean
 }
 
-export function Confetti({ isActive }: ConfettiProps) {
+export function Confetti({ isActive, contained = false }: ConfettiProps) {
   const [particles, setParticles] = useState<Array<{ id: number; angle: number; speed: number; delay: number }>>([])
 
   useEffect(() => {
@@ -14,19 +16,19 @@ export function Confetti({ isActive }: ConfettiProps) {
       const newParticles = Array.from({ length: 40 }, (_, i) => ({
         id: i,
         angle: (Math.PI * 2 * i) / 40 + (Math.random() - 0.5) * 0.3, // Evenly distributed angles with slight randomness
-        speed: 200 + Math.random() * 150, // Speed in pixels
+        speed: (contained ? 120 : 200) + Math.random() * (contained ? 140 : 150), // Speed in pixels
         delay: Math.random() * 0.1,
       }))
       setParticles(newParticles)
     } else {
       setParticles([])
     }
-  }, [isActive])
+  }, [isActive, contained])
 
   if (!isActive) return null
 
   return (
-    <div className="fixed inset-0 pointer-events-none z-40 overflow-hidden">
+    <div className={`${contained ? "absolute" : "fixed"} inset-0 pointer-events-none z-40 overflow-hidden`}>
       {particles.map((particle) => (
         <div
           key={particle.id}
