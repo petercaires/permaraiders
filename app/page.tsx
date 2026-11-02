@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef, useCallback } from "react"
 import { CharacterTile } from "@/components/character-tile"
 import { CharacterDetails } from "@/components/character-details"
-import { CharacterPanel, PANEL_MAX_WIDTH } from "@/components/character-panel"
+import { CharacterPanel, PANEL_MAX_WIDTH, PANEL_PAD, PANEL_GAP, PANEL_RAIL } from "@/components/character-panel"
 import { Button } from "@/components/ui/button"
 import { Toaster } from "@/components/ui/toaster"
 import { useToast } from "@/hooks/use-toast"
@@ -579,12 +579,17 @@ export default function Home() {
 
           )}
 
-          {/* Details + action row: one block, aligned to the menu's edges, fixed height so nothing shifts */}
+          {/* Details + action row: flush with the tiles' edges (not the scroll rail), fixed height so nothing shifts */}
           <div
             className={cn(
               "w-full shrink-0 flex flex-col gap-2 transition-opacity duration-300",
               !isGridVisible && "opacity-0 pointer-events-none",
             )}
+            style={
+              isWide
+                ? { paddingLeft: PANEL_PAD, paddingRight: PANEL_PAD + PANEL_GAP + PANEL_RAIL }
+                : { paddingRight: RAIL_WIDTH }
+            }
           >
             <CharacterDetails id={displayedHeroId === "000" ? null : displayedHeroId} isMinted={isDisplayedClaimed} />
 
