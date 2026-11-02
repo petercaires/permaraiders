@@ -313,9 +313,13 @@ export default function Home() {
   const isMintActive = mintPhase !== "idle"
 
   const handleResetMints = () => {
+    if (mintPhase === "minting") return
     clearAllClaimed()
     setClaimedIds([])
-    toast({ title: "Demo reset", description: "All raiders are available to mint again." })
+    setMintingId(null)
+    setSelectedId(null)
+    setHoveredId(null)
+    setMintPhase("reset")
   }
 
   const handleTileHover = (id: string) => {
@@ -645,7 +649,7 @@ export default function Home() {
       </div>
 
       {/* ---------- Corner controls ---------- */}
-      <div className="fixed right-4 top-4 z-30 flex flex-col gap-1">
+      <div className="fixed right-4 top-4 z-40 flex flex-col gap-1">
         <button
           onClick={toggleMusic}
           aria-label="Toggle music"
