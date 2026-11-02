@@ -528,7 +528,7 @@ export default function Home() {
           {/* Details + action row: one block, aligned to the menu's edges, fixed height so nothing shifts */}
           <div
             className={cn(
-              "w-full shrink-0 flex flex-col gap-2 transition-opacity duration-300",
+              "relative isolate w-full shrink-0 flex flex-col gap-2 transition-opacity duration-300",
               !isGridVisible && "opacity-0 pointer-events-none",
             )}
             style={
@@ -538,6 +538,8 @@ export default function Home() {
                 : { maxWidth: gridWidthPx + RAIL_WIDTH }
             }
           >
+            {/* Soft dark ramp behind the text so light hero art never washes it out */}
+            <div aria-hidden className="details-scrim" />
             <CharacterDetails id={displayedHeroId === "000" ? null : displayedHeroId} isMinted={isDisplayedClaimed} />
 
             <div className="flex items-center justify-between gap-3 h-10 wide:h-12">
