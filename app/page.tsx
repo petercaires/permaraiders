@@ -38,6 +38,13 @@ const MENU_SHAPE = {
 const GAP_RATIO = 0.09 // gap as a fraction of the tile size
 const RAIL_WIDTH = 28 // scroll arrows + bar beside the menu
 const WIDE_QUERY = "(orientation: landscape) and (min-width: 768px)" // same as the `wide` CSS variant
+const WIDE_BREAKPOINT = 768 // px, where the layout switches to the phone layout
+
+// Desktop hero: the artwork has empty space on its left (~10% of the image width, shared by every
+// raider since they're all remixes of one base). At full browser width that gap is left as is; as the
+// window narrows towards the breakpoint the hero slides left so the gap closes to 25% of its full size.
+const HERO_ART_GAP = 0.1 // left gap as a fraction of the hero's width
+const HERO_GAP_AT_BREAKPOINT = 0.25 // fraction of the gap still showing at the breakpoint
 
 function computeGrid(width: number, height: number, isWide: boolean) {
   const { cols, rows } = isWide ? MENU_SHAPE.wide : MENU_SHAPE.portrait
@@ -84,6 +91,20 @@ export default function Home() {
   const visibleCharacters = characters.slice(startRow * gridCols, (startRow + visibleRows) * gridCols)
   const gridWidthPx = tileSize * gridCols + gridGap * (gridCols - 1)
   const gridHeightPx = tileSize * visibleRows + gridGap * (visibleRows - 1)
+
+  // Desktop hero gap: 0 at full screen width, rising to 1 at the breakpoint
+  useEffect(() => {
+    const update = () => {
+      const fullWidth = Math.max(window.screen.width, WIDE_BREAKPOINT + 1)
+      const closing = Math.min(1, Math.max(0, (fullWidth - window.innerWidth) / (fullWidth - WIDE_BREAKPOINT)))
+      // hero width = hero height = viewport height on desktop
+      const shift = closing * (1 - HERO_GAP_AT_BREAKPOINT) * HERO_ART_GAP * window.innerHeight
+      document.documentElement.style.setProperty("--hero-shift", `${shift}px`)
+    }
+    update()
+    window.addEventListener("resize", update)
+    return () => window.removeEventListener("resize", update)
+  }, [])
 
   // Which layout is active (matches the `wide` CSS variant)
   useEffect(() => {
@@ -376,7 +397,7 @@ export default function Home() {
             "h-[55svh] left-1/2 -translate-x-1/2 translate-y-[10svh] wide:translate-y-0",
             // wide: full screen height, left edge pinned so the left is never cropped;
             // a narrower screen slides more of the right side under the menu column instead
-            "wide:h-[100svh] wide:left-0 wide:translate-x-0",
+            "wide:h-[100svh] wide:left-0 wide:translate-x-[calc(var(--hero-shift,0px)*-1)]",
             "transition-[opacity,filter] select-none",
             isDisplayedClaimed ? "opacity-50" : "opacity-100",
             isSelectionAnimating ? "duration-100 ease-out brightness-110" : "duration-500 ease-in",
