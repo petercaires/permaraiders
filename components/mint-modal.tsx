@@ -58,7 +58,7 @@ export function MintModal({ isOpen, characterId, onMinted, onClose }: MintModalP
           </Button>
 
           <div className="flex flex-col items-center gap-6">
-            <h2 className="text-2xl font-bold text-center">{isLoading ? "Minting..." : "Minted!"}</h2>
+            <h2 className="text-2xl font-bold text-center">{isLoading ? "Minting..." : "It's yours!"}</h2>
 
             {isLoading ? (
               <div className="relative w-12 h-12">
@@ -97,7 +97,7 @@ export function MintModal({ isOpen, characterId, onMinted, onClose }: MintModalP
                 >
                   <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
                 </svg>
-                <p className="text-center text-muted-foreground">Successfully minted #{characterId}</p>
+                <p className="text-center text-muted-foreground">Raider #{characterId} is now yours.</p>
                 <Button className="w-full cursor-pointer" onClick={onClose}>
                   Done
                 </Button>
