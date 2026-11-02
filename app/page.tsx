@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef, useCallback } from "react"
 import { CharacterTile } from "@/components/character-tile"
 import { CharacterDetails } from "@/components/character-details"
-import { CharacterPanel, PANEL_MAX_WIDTH, PANEL_PAD, PANEL_GAP, PANEL_RAIL } from "@/components/character-panel"
+import { CharacterPanel, PANEL_MAX_WIDTH } from "@/components/character-panel"
 import { Button } from "@/components/ui/button"
 import { Toaster } from "@/components/ui/toaster"
 import { useToast } from "@/hooks/use-toast"
@@ -528,18 +528,12 @@ export default function Home() {
           {/* Details + action row: one block, aligned to the menu's edges, fixed height so nothing shifts */}
           <div
             className={cn(
-              "relative isolate w-full shrink-0 flex flex-col gap-2 transition-opacity duration-300",
+              // clean 50% black box, flush with the menu + scrollbar, consistent 12px inset
+              "w-full shrink-0 flex flex-col gap-2 p-3 rounded-md bg-black/50 transition-opacity duration-300",
               !isGridVisible && "opacity-0 pointer-events-none",
             )}
-            style={
-              isWide
-                ? // pinned under the desktop panel, edges lined up with its tiles
-                  { maxWidth: PANEL_MAX_WIDTH, paddingLeft: PANEL_PAD, paddingRight: PANEL_PAD + PANEL_GAP + PANEL_RAIL }
-                : { maxWidth: gridWidthPx + RAIL_WIDTH }
-            }
+            style={{ maxWidth: isWide ? PANEL_MAX_WIDTH : gridWidthPx + RAIL_WIDTH }}
           >
-            {/* Soft dark ramp behind the text so light hero art never washes it out */}
-            <div aria-hidden className="details-scrim" />
             <CharacterDetails id={displayedHeroId === "000" ? null : displayedHeroId} isMinted={isDisplayedClaimed} />
 
             <div className="flex items-center justify-between gap-3 h-10 wide:h-12">
