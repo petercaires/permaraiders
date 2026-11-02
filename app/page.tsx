@@ -9,9 +9,9 @@ import { Toaster } from "@/components/ui/toaster"
 import { useToast } from "@/hooks/use-toast"
 import { characters } from "@/lib/characters"
 import { getClaimedIds, claimCharacter, clearAllClaimed } from "@/lib/mintAdapter"
-import { ChevronUp, ChevronDown, Volume2, VolumeX, Eye, EyeOff, RotateCcw } from "lucide-react"
+import { ChevronUp, ChevronDown, Volume2, VolumeX, Eye, EyeOff, RotateCcw, Check } from "lucide-react"
 import { Starfield } from "@/components/starfield"
-import { MintModal } from "@/components/mint-modal"
+import { MintStage, type MintPhase } from "@/components/mint-stage"
 import { TraitLoader } from "@/components/trait-loader"
 import { cn } from "@/lib/utils"
 import { heroUrls } from "@/lib/hero-urls"
@@ -64,7 +64,9 @@ export default function Home() {
   const [claimedIds, setClaimedIds] = useState<string[]>([])
   const { toast } = useToast()
   const [hoveredId, setHoveredId] = useState<string | null>(null)
-  const [showMintModal, setShowMintModal] = useState(false)
+  const [mintPhase, setMintPhase] = useState<MintPhase>("idle")
+  const [mintingId, setMintingId] = useState<string | null>(null)
+  const successSoundRef = useRef<HTMLAudioElement | null>(null)
   const displayedHeroId = hoveredId || selectedId || "000"
   const [isSelectionAnimating, setIsSelectionAnimating] = useState(false)
   const hoverSoundRef = useRef<HTMLAudioElement | null>(null)
@@ -178,6 +180,13 @@ export default function Home() {
     musicRef.current.volume = 0.316
     musicRef.current.loop = true
     musicRef.current.preload = "auto"
+
+    successSoundRef.current = new Audio(
+      "https://ik.imagekit.io/peterlikesthis/permaraiderz/permaraiderz%20sfx/mint%20positive.wav",
+    )
+    successSoundRef.current.volume = 0.398
+    successSoundRef.current.preload = "auto"
+    successSoundRef.current.load()
   }, [])
 
   useEffect(() => {
@@ -273,23 +282,35 @@ export default function Home() {
     }
   }
 
+  // Mint plays out inside the menu box: minting (2s, no cancel) → success → back to raiders
   const handleMint = () => {
-    if (selectedId && !claimedIds.includes(selectedId)) setShowMintModal(true)
+    if (mintPhase !== "idle" || !selectedId || claimedIds.includes(selectedId)) return
+    setMintingId(selectedId)
+    setMintPhase("minting")
   }
 
-  // Called by the modal once the simulated mint has finished.
-  const handleMinted = async (id: string) => {
-    await claimCharacter(id)
-    setClaimedIds(getClaimedIds())
+  useEffect(() => {
+    if (mintPhase !== "minting" || !mintingId) return
+    const timer = setTimeout(async () => {
+      await claimCharacter(mintingId)
+      setClaimedIds(getClaimedIds())
+      setMintPhase("success")
+      if (successSoundRef.current) {
+        successSoundRef.current.currentTime = 0
+        successSoundRef.current.play().catch(() => {})
+      }
+    }, 2000)
+    return () => clearTimeout(timer)
+  }, [mintPhase, mintingId])
+
+  const handleBackToRaiders = () => {
+    setMintPhase("idle")
+    setMintingId(null)
+    setSelectedId(null)
+    setHoveredId(null)
   }
 
-  const handleModalClose = () => {
-    setShowMintModal(false)
-    if (selectedId && getClaimedIds().includes(selectedId)) {
-      setSelectedId(null)
-      setHoveredId(null)
-    }
-  }
+  const isMintActive = mintPhase !== "idle"
 
   const handleResetMints = () => {
     clearAllClaimed()
@@ -381,6 +402,7 @@ export default function Home() {
   const showDownArrow = startRow < maxStartRow
   const isDisplayedClaimed = displayedHeroId !== "000" && claimedIds.includes(displayedHeroId)
   const isSelectedClaimed = selectedId ? claimedIds.includes(selectedId) : false
+  const mintImage = mintingId ? traitUrls[`trait${mintingId}`] || `/traits/trait${mintingId}.png` : ""
   const thumbRatio = visibleRows / totalRows
   const actionId = selectedId ?? (hoveredId || null)
 
@@ -447,14 +469,20 @@ export default function Home() {
             style={{ maxWidth: (isWide ? PANEL_MAX_WIDTH : gridWidthPx + RAIL_WIDTH) + 24 }}
           >
           {isWide && (
-            <CharacterPanel
-              className={cn("flex-1 transition-opacity duration-300", !isGridVisible && "opacity-0 pointer-events-none")}
-              selectedId={selectedId}
-              claimedIds={claimedIds}
-              onHover={handleTileHover}
-              onLeave={() => setHoveredId(null)}
-              onSelect={handleTileClick}
-            />
+            <div className="relative flex-1 min-h-0 flex">
+              <CharacterPanel
+                className={cn(
+                  "flex-1 transition-opacity duration-300",
+                  (!isGridVisible || isMintActive) && "opacity-0 pointer-events-none",
+                )}
+                selectedId={selectedId}
+                claimedIds={claimedIds}
+                onHover={handleTileHover}
+                onLeave={() => setHoveredId(null)}
+                onSelect={handleTileClick}
+              />
+              <MintStage phase={mintPhase} id={mintingId} imageSrc={mintImage} onBack={handleBackToRaiders} />
+            </div>
           )}
 
           {/* Phone menu: the grid measures this box */}
@@ -468,7 +496,12 @@ export default function Home() {
               !isGridVisible && "opacity-0 pointer-events-none",
             )}
           >
-            <div className="absolute inset-0 flex items-end justify-center">
+            <div
+              className={cn(
+                "absolute inset-0 flex items-end justify-center transition-opacity duration-300",
+                isMintActive && "opacity-0 pointer-events-none",
+              )}
+            >
               <div className="flex items-stretch" style={{ gap: gridGap }}>
                 <div
                   className="grid shrink-0"
@@ -536,6 +569,7 @@ export default function Home() {
                 </div>
               </div>
             </div>
+            <MintStage phase={mintPhase} id={mintingId} imageSrc={mintImage} onBack={handleBackToRaiders} />
           </div>
 
           )}
@@ -567,13 +601,25 @@ export default function Home() {
               <div className="flex items-center gap-2">
                 <Button
                   className={cn(
-                    "h-10 wide:h-12 text-sm wide:text-base font-semibold bg-zinc-700 hover:bg-zinc-600 text-white border-2 cursor-pointer px-4 wide:px-6 min-w-[108px] wide:min-w-[132px]",
+                    "relative overflow-hidden h-10 wide:h-12 text-sm wide:text-base font-semibold bg-zinc-700 hover:bg-zinc-600 text-white border-2 cursor-pointer px-4 wide:px-6 min-w-[108px] wide:min-w-[132px]",
                     selectedId && !isSelectedClaimed ? "border-white" : "border-transparent",
+                    mintPhase === "minting" && "disabled:opacity-100",
                   )}
                   onClick={handleMint}
-                  disabled={!selectedId || isSelectedClaimed}
+                  disabled={!selectedId || isSelectedClaimed || isMintActive}
                 >
-                  {isSelectedClaimed ? "Minted" : "Mint PFP"}
+                  {mintPhase === "minting" ? (
+                    <>
+                      Minting…
+                      <span className="mint-progress absolute left-0 bottom-0 h-[3px] w-full bg-white" />
+                    </>
+                  ) : isSelectedClaimed ? (
+                    <>
+                      Minted <Check className="w-4 h-4" />
+                    </>
+                  ) : (
+                    "Mint PFP"
+                  )}
                 </Button>
                 <div
                   className={cn(
@@ -634,12 +680,6 @@ export default function Home() {
       </div>
 
       <Toaster />
-      <MintModal
-        isOpen={showMintModal}
-        characterId={selectedId || ""}
-        onMinted={handleMinted}
-        onClose={handleModalClose}
-      />
     </div>
   )
 }
