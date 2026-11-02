@@ -22,17 +22,17 @@ export function CharacterDetails({ id, isMinted, className, style }: CharacterDe
 
   return (
     <aside
-      className={cn("font-mono text-white select-none h-[64px] wide:h-[52px] flex flex-col justify-start gap-1 text-left", className)}
+      className={cn("font-mono text-white select-none h-[80px] wide:h-[52px] flex flex-col justify-start gap-1 text-left", className)}
       style={style}
       aria-live="polite"
     >
       {character ? (
         <>
           <div className="flex items-center gap-2 min-w-0">
-            <span className="text-sm font-bold shrink-0">{character.name}</span>
+            <span className="text-base wide:text-sm font-bold shrink-0">{character.name}</span>
             <span
               className={cn(
-                "text-[9px] uppercase tracking-wider px-1.5 py-0.5 rounded shrink-0",
+                "text-[11px] wide:text-[9px] uppercase tracking-wider px-1.5 py-0.5 rounded shrink-0",
                 isMinted ? "bg-white/10 text-white/60" : "bg-white text-black",
               )}
             >
@@ -43,7 +43,7 @@ export function CharacterDetails({ id, isMinted, className, style }: CharacterDe
                 <li
                   key={trait}
                   className={cn(
-                    "text-[9px] uppercase tracking-wider px-1.5 py-0.5 rounded border whitespace-nowrap",
+                    "text-[11px] wide:text-[9px] uppercase tracking-wider px-1.5 py-0.5 rounded border whitespace-nowrap",
                     trait === "PermaRare"
                       ? "border-amber-300/70 text-amber-200"
                       : trait === "Rare"
@@ -56,7 +56,7 @@ export function CharacterDetails({ id, isMinted, className, style }: CharacterDe
               ))}
             </ul>
           </div>
-          <p className="text-[9px] wide:text-[11px] leading-snug text-white/90 line-clamp-3 wide:line-clamp-2">{character.description}</p>
+          <p className="text-[11px] leading-snug text-white/90 line-clamp-3 wide:line-clamp-2">{character.description}</p>
         </>
       ) : null}
     </aside>
