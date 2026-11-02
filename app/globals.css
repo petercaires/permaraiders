@@ -7,6 +7,13 @@
 
 @custom-variant dark (&:is(.dark *));
 
+/*
+ * The single layout switch for the page.
+ * wide  = landscape screens at least 768px wide (laptops, desktops, landscape tablets/phones)
+ * other = portrait (phones, portrait tablets)
+ */
+@custom-variant wide (@media (orientation: landscape) and (min-width: 768px));
+
 :root {
   /* Converting to grayscale theme */
   /* Lightened background from 0.08 to 0.18 (10% lighter) */
@@ -266,4 +273,16 @@
 .animate-hero-pop {
   /* Updated hero pop animation duration to 400ms and easing to ease-in-out */
   animation: hero-pop 400ms ease-in-out forwards;
+}
+
+/* Hero edge fades: blend into the grid below (portrait) or into the column on the right (wide) */
+.hero-image {
+  -webkit-mask-image: linear-gradient(to bottom, black 70%, transparent 100%);
+  mask-image: linear-gradient(to bottom, black 70%, transparent 100%);
+}
+@media (orientation: landscape) and (min-width: 768px) {
+  .hero-image {
+    -webkit-mask-image: linear-gradient(to right, black 62%, transparent 98%);
+    mask-image: linear-gradient(to right, black 62%, transparent 98%);
+  }
 }
