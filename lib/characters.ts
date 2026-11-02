@@ -18,12 +18,8 @@ export const characters: Character[] = Array.from({ length: 165 }, (_, i) => {
     id,
     name: `Raider ${id}`,
     description: `A legendary fighter from the digital realm. Each Raider possesses unique combat abilities and traits that make them formidable in battle.`,
-    traits: [
-      "Combat Ready",
-      "Elite Warrior",
-      index % 3 === 0 ? "Rare" : index % 5 === 0 ? "Epic" : "Common",
-      index % 7 === 0 ? "Limited Edition" : "Standard",
-    ],
+    // Rarity tag: Common, Rare or PermaRare. Placeholder rule — set real rarities per raider here.
+    traits: [index % 11 === 0 ? "PermaRare" : index % 3 === 0 ? "Rare" : "Common"],
     traitIds: [traitId],
   }
 })
