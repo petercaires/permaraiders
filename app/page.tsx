@@ -423,7 +423,6 @@ export default function Home() {
 
         <main
           ref={mainRef}
-          style={grid.spare ? { transform: `translateY(${grid.spare / 2}px)` } : undefined}
           className={cn(
             "order-3 wide:order-none relative z-20 shrink-0 wide:flex-1 wide:min-h-0 select-none",
             "px-4 wide:px-0 w-full pb-[clamp(28px,6svh,72px)]",
@@ -438,7 +437,11 @@ export default function Home() {
               "transition-opacity duration-300",
               !isGridVisible && "opacity-0 pointer-events-none",
             )}
-            style={grid.isWide ? { height: gridHeightPx } : undefined}
+            style={
+              grid.isWide
+                ? { height: gridHeightPx, transform: grid.spare ? `translateY(${grid.spare / 2}px)` : undefined }
+                : undefined
+            }
           >
             <div className="absolute inset-0 flex items-end justify-center">
               <div className="flex items-stretch" style={{ gap: gridGap }}>
@@ -514,7 +517,7 @@ export default function Home() {
           <div
             ref={bottomBlockRef}
             className={cn(
-              "w-full shrink-0 flex flex-col gap-2 transition-opacity duration-300",
+              "w-full shrink-0 flex flex-col gap-2 transition-opacity duration-300 wide:mt-auto",
               !isGridVisible && "opacity-0 pointer-events-none",
             )}
             style={{ maxWidth: gridWidthPx + RAIL_WIDTH }}
