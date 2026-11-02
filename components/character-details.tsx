@@ -22,7 +22,7 @@ export function CharacterDetails({ id, isMinted, className, style }: CharacterDe
 
   return (
     <aside
-      className={cn("font-mono text-white select-none h-[64px] wide:h-[52px] flex flex-col justify-start gap-1 text-left [text-shadow:0_1px_3px_rgba(0,0,0,0.9)]", className)}
+      className={cn("font-mono text-white select-none h-[64px] wide:h-[52px] flex flex-col justify-start gap-1 text-left", className)}
       style={style}
       aria-live="polite"
     >
