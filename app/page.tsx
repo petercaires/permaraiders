@@ -13,7 +13,6 @@ import { ChevronUp, ChevronDown, Volume2, VolumeX, Eye, EyeOff, RotateCcw } from
 import { Starfield } from "@/components/starfield"
 import { MintModal } from "@/components/mint-modal"
 import { TraitLoader } from "@/components/trait-loader"
-import { ScrollGestureOverlay } from "@/components/scroll-gesture-overlay"
 import { cn } from "@/lib/utils"
 import { heroUrls } from "@/lib/hero-urls"
 import { traitUrls } from "@/lib/trait-urls"
@@ -442,7 +441,7 @@ export default function Home() {
           {/* One visual block: character sheet + description in a single 25% black box, 12px inset all round */}
           <div
             className={cn(
-              "w-full min-h-0 flex flex-col gap-3 p-3 rounded-md wide:bg-black/20 wide:flex-1 transition-opacity duration-300",
+              "w-full min-h-0 flex flex-col gap-3 p-3 rounded-md wide:bg-black/30 wide:flex-1 transition-opacity duration-300",
               !isGridVisible && "opacity-0 pointer-events-none",
             )}
             style={{ maxWidth: (isWide ? PANEL_MAX_WIDTH : gridWidthPx + RAIL_WIDTH) + 24 }}
@@ -600,7 +599,6 @@ export default function Home() {
       </div>
 
       {/* ---------- Corner controls ---------- */}
-      {isTouch && <ScrollGestureOverlay showOverlay={showScrollOverlay} onClose={handleCloseScrollOverlay} />}
       <div className="fixed right-4 top-4 z-30 flex flex-col gap-1">
         <button
           onClick={toggleMusic}
