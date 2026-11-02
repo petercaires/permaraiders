@@ -17,7 +17,6 @@ import { ScrollGestureOverlay } from "@/components/scroll-gesture-overlay"
 import { cn } from "@/lib/utils"
 import { heroUrls } from "@/lib/hero-urls"
 import { traitUrls } from "@/lib/trait-urls"
-import { StoryModal } from "@/components/story-modal"
 
 /*
  * Layout
@@ -72,7 +71,6 @@ export default function Home() {
   const [isTouch, setIsTouch] = useState(false)
   const [showScrollOverlay, setShowScrollOverlay] = useState(false)
   const [hasShownScrollOverlay, setHasShownScrollOverlay] = useState(false)
-  const [showStoryModal, setShowStoryModal] = useState(false)
   const [isGridVisible, setIsGridVisible] = useState(true)
   const [heroPopTrigger, setHeroPopTrigger] = useState(0)
   const gridAreaRef = useRef<HTMLDivElement | null>(null)
@@ -375,7 +373,7 @@ export default function Home() {
             "hero-image absolute bottom-0 max-w-none aspect-square",
             // Height is always tied to the viewport height, never the width.
             // portrait: 55% of the screen height, centred (narrow phones crop both sides equally)
-            "h-[55svh] left-1/2 -translate-x-1/2",
+            "h-[55svh] left-1/2 -translate-x-1/2 translate-y-[10svh] wide:translate-y-0",
             // wide: full screen height, left edge pinned so the left is never cropped;
             // a narrower screen slides more of the right side under the menu column instead
             "wide:h-[100svh] wide:left-0 wide:translate-x-0",
@@ -399,11 +397,11 @@ export default function Home() {
           The details and the action row both describe the current raider, so they sit closest together.
         */}
         <header
-          className="order-1 wide:order-none relative z-30 flex flex-col items-center w-full shrink-0 select-none gap-1 pt-[clamp(18px,4.5svh,64px)] pb-[clamp(12px,3svh,32px)] wide:pb-[clamp(8px,1.5svh,16px)]"
+          className="order-1 wide:order-none relative z-30 flex flex-col items-center w-full shrink-0 select-none gap-1 pt-4 pb-[clamp(12px,3svh,32px)] wide:pb-[clamp(8px,1.5svh,16px)]"
         >
           <img src="/header.png" alt="Perma Raiders" className="object-contain select-none h-[clamp(36px,7.5svh,112px)]" />
-          <p className="text-white/80 font-mono tracking-wide text-[10px] sm:text-xs">pfp collection</p>
-          <p className="text-white/60 font-mono text-[9px] sm:text-[11px]">select character to mint</p>
+          <p className="hidden wide:block text-white/80 font-mono tracking-wide text-xs">pfp collection</p>
+          <p className="hidden wide:block text-white/60 font-mono text-[11px]">select character to mint</p>
         </header>
 
         <main
@@ -521,11 +519,11 @@ export default function Home() {
           >
             <CharacterDetails id={displayedHeroId === "000" ? null : displayedHeroId} isMinted={isDisplayedClaimed} />
 
-            <div className="flex items-center justify-between gap-3 h-12">
+            <div className="flex items-center justify-between gap-3 h-10 wide:h-12">
               <p
                 key={actionId ?? "none"}
                 className={cn(
-                  "font-bold tracking-wider leading-none text-[clamp(28px,4.5svh,48px)] tabular-nums",
+                  "font-bold tracking-wider leading-none text-[clamp(24px,3.6svh,34px)] wide:text-[clamp(28px,4.5svh,48px)] tabular-nums",
                   selectedId ? "text-white animate-in fade-in-0 slide-in-from-left-2 duration-200" : "text-white/30",
                 )}
                 style={{
@@ -539,7 +537,7 @@ export default function Home() {
               <div className="flex items-center gap-2">
                 <Button
                   className={cn(
-                    "h-12 font-semibold bg-zinc-700 hover:bg-zinc-600 text-white border-2 cursor-pointer px-6 min-w-[132px]",
+                    "h-10 wide:h-12 text-sm wide:text-base font-semibold bg-zinc-700 hover:bg-zinc-600 text-white border-2 cursor-pointer px-4 wide:px-6 min-w-[108px] wide:min-w-[132px]",
                     selectedId && !isSelectedClaimed ? "border-white" : "border-transparent",
                   )}
                   onClick={handleMint}
@@ -549,7 +547,7 @@ export default function Home() {
                 </Button>
                 <div
                   className={cn(
-                    "relative rounded overflow-hidden shrink-0 h-12 aspect-square border-2",
+                    "relative rounded overflow-hidden shrink-0 h-10 wide:h-12 aspect-square border-2",
                     selectedId ? "border-white" : "border-dashed border-white/25",
                   )}
                 >
@@ -573,17 +571,6 @@ export default function Home() {
       {isTouch && <ScrollGestureOverlay showOverlay={showScrollOverlay} onClose={handleCloseScrollOverlay} />}
       <div className="fixed right-4 top-4 z-30 flex flex-col gap-1">
         <button
-          onClick={() => setShowStoryModal(!showStoryModal)}
-          aria-label="Show story"
-          className="cursor-pointer hover:opacity-80 transition-opacity text-white w-5 h-5 sm:w-6 sm:h-6"
-        >
-          <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-full h-full py-px">
-            <circle cx="12" cy="12" r="10" stroke="white" strokeWidth="2" fill="none" />
-            <circle cx="12" cy="8" r="1" fill="white" />
-            <rect x="11" y="11" width="2" height="7" rx="1" fill="white" />
-          </svg>
-        </button>
-        <button
           onClick={toggleMusic}
           aria-label="Toggle music"
           className="cursor-pointer hover:opacity-80 transition-opacity text-white w-5 h-5 sm:w-6 sm:h-6"
@@ -596,26 +583,25 @@ export default function Home() {
         >
           {isGridVisible ? <Eye className="w-full h-full py-px" /> : <EyeOff className="w-full h-full py-px" />}
         </IconButton>
+        <a
+          href="https://t.me/permaraidz"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="select-none cursor-pointer hover:opacity-80 transition-opacity w-5 h-5 sm:w-6 sm:h-6 p-0.5"
+          aria-label="Telegram"
+        >
+          <img
+            src="https://ik.imagekit.io/peterlikesthis/permaraiderz/telegram.png"
+            alt=""
+            className="select-none brightness-0 invert w-full h-full"
+          />
+        </a>
         {claimedIds.length > 0 && (
           <IconButton label="reset demo mints" onClick={handleResetMints}>
             <RotateCcw className="w-full h-full p-0.5" />
           </IconButton>
         )}
       </div>
-
-      <a
-        href="https://t.me/permaraidz"
-        target="_blank"
-        rel="noopener noreferrer"
-        className="fixed z-30 select-none cursor-pointer w-5 h-5 sm:w-6 sm:h-6 right-4 bottom-4 sm:right-6 sm:bottom-6"
-        aria-label="Telegram"
-      >
-        <img
-          src="https://ik.imagekit.io/peterlikesthis/permaraiderz/telegram.png"
-          alt=""
-          className="select-none brightness-0 invert w-full h-full"
-        />
-      </a>
 
       <Toaster />
       <MintModal
@@ -624,7 +610,6 @@ export default function Home() {
         onMinted={handleMinted}
         onClose={handleModalClose}
       />
-      <StoryModal isOpen={showStoryModal} onClose={() => setShowStoryModal(false)} />
     </div>
   )
 }
