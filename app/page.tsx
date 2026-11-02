@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef, useCallback } from "react"
 import { CharacterTile } from "@/components/character-tile"
 import { CharacterDetails } from "@/components/character-details"
+import { CharacterPanel, PANEL_MAX_WIDTH, PANEL_PAD, PANEL_GAP, PANEL_RAIL } from "@/components/character-panel"
 import { Button } from "@/components/ui/button"
 import { Toaster } from "@/components/ui/toaster"
 import { useToast } from "@/hooks/use-toast"
@@ -75,9 +76,8 @@ export default function Home() {
   const [isGridVisible, setIsGridVisible] = useState(true)
   const [heroPopTrigger, setHeroPopTrigger] = useState(0)
   const gridAreaRef = useRef<HTMLDivElement | null>(null)
-  const mainRef = useRef<HTMLElement | null>(null)
-  const bottomBlockRef = useRef<HTMLDivElement | null>(null)
-  const [grid, setGrid] = useState(() => ({ ...computeGrid(800, 400, true), isWide: true, spare: 0 }))
+  const [isWide, setIsWide] = useState(true)
+  const [grid, setGrid] = useState(() => computeGrid(375, 180, false))
   const prefersReducedMotion =
     typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches
 
@@ -87,46 +87,30 @@ export default function Home() {
   const gridWidthPx = tileSize * gridCols + gridGap * (gridCols - 1)
   const gridHeightPx = tileSize * visibleRows + gridGap * (visibleRows - 1)
 
-  // Measure the space the grid has and fit columns / rows / tile size to it.
+  // Which layout is active (matches the `wide` CSS variant)
   useEffect(() => {
+    const mq = window.matchMedia(WIDE_QUERY)
+    const update = () => setIsWide(mq.matches)
+    update()
+    mq.addEventListener("change", update)
+    return () => mq.removeEventListener("change", update)
+  }, [])
+
+  // Phone layout: measure the space the menu has and scale its fixed 5 × 3 shape to fit.
+  // (Desktop uses CharacterPanel, which sizes itself.)
+  useEffect(() => {
+    if (isWide) return
     const el = gridAreaRef.current
     if (!el) return
-    const wideMq = window.matchMedia(WIDE_QUERY)
     const measure = () => {
-      const isWide = wideMq.matches
-      const width = el.getBoundingClientRect().width
-      let height = el.getBoundingClientRect().height
-      // Desktop: the menu gets whatever height is left after the details/mint block and a fixed gap,
-      // so the gap between them stays constant and spare room collects at the bottom of the screen.
-      const main = mainRef.current
-      const block = bottomBlockRef.current
-      if (isWide && main && block) {
-        const cs = getComputedStyle(main)
-        height =
-          main.clientHeight -
-          parseFloat(cs.paddingTop) -
-          parseFloat(cs.paddingBottom) -
-          parseFloat(cs.rowGap || "0") -
-          block.offsetHeight
-      }
-      if (width > 0 && height > 0) {
-        const g = computeGrid(width, height, isWide)
-        const menuHeight = g.tile * g.rows + g.gap * (g.rows - 1)
-        // On desktop, when the width limits the menu, split the unused height above and below the content
-        const spare = isWide ? Math.max(0, height - menuHeight) : 0
-        setGrid({ ...g, isWide, spare })
-      }
+      const { width, height } = el.getBoundingClientRect()
+      if (width > 0 && height > 0) setGrid(computeGrid(width, height, false))
     }
     measure()
     const ro = new ResizeObserver(measure)
     ro.observe(el)
-    if (mainRef.current) ro.observe(mainRef.current)
-    wideMq.addEventListener("change", measure)
-    return () => {
-      ro.disconnect()
-      wideMq.removeEventListener("change", measure)
-    }
-  }, [isLoading])
+    return () => ro.disconnect()
+  }, [isLoading, isWide])
 
   // Keep the scroll position valid when the grid shape changes.
   useEffect(() => {
@@ -300,6 +284,7 @@ export default function Home() {
   }
 
   useEffect(() => {
+    if (isWide) return
     const handleWheel = (e: WheelEvent) => {
       scrollAccumulator.current += e.deltaY
       if (Math.abs(scrollAccumulator.current) >= 150) {
@@ -309,7 +294,7 @@ export default function Home() {
     }
     window.addEventListener("wheel", handleWheel, { passive: true })
     return () => window.removeEventListener("wheel", handleWheel)
-  }, [handleScroll])
+  }, [handleScroll, isWide])
 
   useEffect(() => {
     if (!isDragging) return
@@ -422,14 +407,25 @@ export default function Home() {
         </header>
 
         <main
-          ref={mainRef}
           className={cn(
             "order-3 wide:order-none relative z-20 shrink-0 wide:flex-1 wide:min-h-0 select-none",
             "px-4 wide:px-0 w-full pb-[clamp(28px,6svh,72px)]",
             "flex flex-col items-center gap-3 wide:gap-[clamp(16px,4svh,48px)]",
           )}
         >
-          {/* The grid measures this box */}
+          {isWide && (
+            <CharacterPanel
+              className={cn("flex-1 transition-opacity duration-300", !isGridVisible && "opacity-0 pointer-events-none")}
+              selectedId={selectedId}
+              claimedIds={claimedIds}
+              onHover={handleTileHover}
+              onLeave={() => setHoveredId(null)}
+              onSelect={handleTileClick}
+            />
+          )}
+
+          {/* Phone menu: the grid measures this box */}
+          {!isWide && (
           <div
             ref={gridAreaRef}
             className={cn(
@@ -437,11 +433,6 @@ export default function Home() {
               "transition-opacity duration-300",
               !isGridVisible && "opacity-0 pointer-events-none",
             )}
-            style={
-              grid.isWide
-                ? { height: gridHeightPx, transform: grid.spare ? `translateY(${grid.spare / 2}px)` : undefined }
-                : undefined
-            }
           >
             <div className="absolute inset-0 flex items-end justify-center">
               <div className="flex items-stretch" style={{ gap: gridGap }}>
@@ -513,14 +504,20 @@ export default function Home() {
             </div>
           </div>
 
-          {/* Details + action row: one block, aligned to the grid's edges, fixed height so nothing shifts */}
+          )}
+
+          {/* Details + action row: one block, aligned to the menu's edges, fixed height so nothing shifts */}
           <div
-            ref={bottomBlockRef}
             className={cn(
-              "w-full shrink-0 flex flex-col gap-2 transition-opacity duration-300 wide:mt-auto",
+              "w-full shrink-0 flex flex-col gap-2 transition-opacity duration-300",
               !isGridVisible && "opacity-0 pointer-events-none",
             )}
-            style={{ maxWidth: gridWidthPx + RAIL_WIDTH }}
+            style={
+              isWide
+                ? // pinned under the desktop panel, edges lined up with its tiles
+                  { maxWidth: PANEL_MAX_WIDTH, paddingLeft: PANEL_PAD, paddingRight: PANEL_PAD + PANEL_GAP + PANEL_RAIL }
+                : { maxWidth: gridWidthPx + RAIL_WIDTH }
+            }
           >
             <CharacterDetails id={displayedHeroId === "000" ? null : displayedHeroId} isMinted={isDisplayedClaimed} />
 
