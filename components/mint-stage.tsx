@@ -27,7 +27,7 @@ export function MintStage({ phase, id, imageSrc, onBack }: MintStageProps) {
   return (
     <div
       className={cn(
-        "absolute inset-0 z-10 overflow-hidden rounded-md flex flex-row wide:flex-col items-center justify-center gap-4 wide:gap-[clamp(8px,2.5svh,20px)] px-2 wide:px-4 font-mono text-white text-left wide:text-center transition-opacity duration-300",
+        "absolute inset-0 z-10 overflow-hidden rounded-md flex flex-row wide:flex-col items-center justify-start wide:justify-center gap-4 wide:gap-[clamp(8px,2.5svh,20px)] px-2 wide:px-4 font-mono text-white text-left wide:text-center transition-opacity duration-300",
         active ? "opacity-100" : "opacity-0 pointer-events-none",
       )}
       aria-live="polite"
@@ -72,18 +72,20 @@ export function MintStage({ phase, id, imageSrc, onBack }: MintStageProps) {
             )}
           </div>
 
-          {/* Message */}
-          {phase === "minting" ? (
-            <p className="flex-1 wide:flex-none text-sm wide:text-base text-white/80 animate-pulse">Minting Raider {id}…</p>
-          ) : (
-            <div className="flex-1 wide:flex-none flex flex-col items-start wide:items-center gap-3 wide:gap-[clamp(6px,1.5svh,12px)] animate-in fade-in-0 slide-in-from-bottom-2 duration-300 fill-mode-both [animation-delay:250ms]">
-              <div>
-                <h2 className="text-lg wide:text-2xl font-bold leading-tight whitespace-nowrap">It&apos;s yours!</h2>
-                <p className="text-xs wide:text-sm text-white/80">Raider {id} is now yours.</p>
+          {/* Message — same fixed height in both phases, so the portrait never moves */}
+          <div className="flex-1 wide:flex-none wide:h-[120px] flex flex-col justify-center wide:justify-start items-start wide:items-center">
+            {phase === "minting" ? (
+              <p className="text-sm wide:text-base text-white/80 animate-pulse">Minting Raider {id}…</p>
+            ) : (
+              <div className="flex flex-col items-start wide:items-center gap-3 animate-in fade-in-0 slide-in-from-bottom-2 duration-300 fill-mode-both [animation-delay:250ms]">
+                <div>
+                  <h2 className="text-lg wide:text-2xl font-bold leading-tight whitespace-nowrap">It&apos;s yours!</h2>
+                  <p className="text-xs wide:text-sm text-white/80">Raider {id} is now yours.</p>
+                </div>
+                <BackButton onClick={onBack} />
               </div>
-              <BackButton onClick={onBack} />
-            </div>
-          )}
+            )}
+          </div>
         </>
       )}
     </div>
@@ -94,10 +96,11 @@ function BackButton({ onClick }: { onClick: () => void }) {
   return (
     <button
       onClick={onClick}
-      className="cursor-pointer whitespace-nowrap inline-flex items-center gap-1.5 text-xs wide:text-sm px-3 py-1.5 rounded border border-white/40 hover:border-white hover:bg-white/10 transition-colors"
+      aria-label="Back to raiders"
+      title="Back to raiders"
+      className="cursor-pointer flex items-center justify-center rounded-full border-2 border-white/50 w-10 h-10 wide:w-12 wide:h-12 transition-[transform,border-color,background-color] duration-150 hover:scale-110 hover:border-white hover:bg-white/10 active:scale-95 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
     >
-      <Undo2 className="w-3.5 h-3.5 wide:w-4 wide:h-4" />
-      Back to raiders
+      <Undo2 className="w-5 h-5 wide:w-6 wide:h-6" />
     </button>
   )
 }
