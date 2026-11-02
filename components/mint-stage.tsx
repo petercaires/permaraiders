@@ -1,6 +1,6 @@
 "use client"
 
-import { RotateCcw, Undo2 } from "lucide-react"
+import { Undo2 } from "lucide-react"
 import { Confetti } from "@/components/confetti"
 import { cn } from "@/lib/utils"
 
@@ -33,18 +33,13 @@ export function MintStage({ phase, id, imageSrc, onBack }: MintStageProps) {
       aria-live="polite"
     >
       {active && phase === "reset" && (
-        <>
-          <div className="shrink-0 flex items-center justify-center rounded-full border-2 border-white/60 w-16 h-16 wide:w-24 wide:h-24 animate-in zoom-in-50 fade-in-0 duration-300">
-            <RotateCcw className="w-8 h-8 wide:w-12 wide:h-12" />
+        <div className="w-full flex flex-col items-center text-center gap-3 animate-in fade-in-0 slide-in-from-bottom-2 duration-300">
+          <div>
+            <h2 className="text-lg wide:text-2xl font-bold leading-tight whitespace-nowrap">Demo reset</h2>
+            <p className="text-xs wide:text-sm text-white/80">All raiders are available to mint again.</p>
           </div>
-          <div className="flex-1 wide:flex-none flex flex-col items-start wide:items-center gap-3 wide:gap-[clamp(6px,1.5svh,12px)] animate-in fade-in-0 slide-in-from-bottom-2 duration-300 fill-mode-both [animation-delay:150ms]">
-            <div>
-              <h2 className="text-lg wide:text-2xl font-bold leading-tight whitespace-nowrap">Demo reset</h2>
-              <p className="text-xs wide:text-sm text-white/80">All raiders are available to mint again.</p>
-            </div>
-            <BackButton onClick={onBack} />
-          </div>
-        </>
+          <BackButton onClick={onBack} />
+        </div>
       )}
 
       {active && phase !== "reset" && (
@@ -79,7 +74,7 @@ export function MintStage({ phase, id, imageSrc, onBack }: MintStageProps) {
             ) : (
               <div className="flex flex-col items-start wide:items-center gap-3 animate-in fade-in-0 slide-in-from-bottom-2 duration-300 fill-mode-both [animation-delay:250ms]">
                 <div>
-                  <h2 className="text-lg wide:text-2xl font-bold leading-tight whitespace-nowrap">It&apos;s yours!</h2>
+                  <h2 className="text-lg wide:text-2xl font-bold leading-tight whitespace-nowrap">Mint Complete</h2>
                   <p className="text-xs wide:text-sm text-white/80">Raider {id} is now yours.</p>
                 </div>
                 <BackButton onClick={onBack} />
