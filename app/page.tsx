@@ -363,11 +363,11 @@ export default function Home() {
           className={cn(
             "hero-image absolute bottom-0 max-w-none aspect-square",
             // Height is always tied to the viewport height, never the width.
-            // portrait: 55% of the screen height, centred; a narrower screen crops both sides equally
-            "h-[55svh] left-1/2 -translate-x-1/2",
-            // wide: full screen height, left edge pinned to the screen edge so it's never cropped;
-            // a narrower screen slides more of the right side under the grid column instead
-            "wide:h-[100svh] wide:left-0 wide:translate-x-0",
+            // Left edge pinned to the screen edge in both layouts, so the left side is never cropped;
+            // a narrower screen only ever crops (or tucks under the grid) the right side.
+            // portrait: 55% of the screen height, sitting on top of the grid
+            // wide: full screen height, spilling under the grid column
+            "left-0 h-[55svh] wide:h-[100svh]",
             "transition-[opacity,filter] select-none",
             isDisplayedClaimed ? "opacity-50" : "opacity-100",
             isSelectionAnimating ? "duration-100 ease-out brightness-110" : "duration-500 ease-in",
@@ -403,18 +403,19 @@ export default function Home() {
         <main
           className={cn(
             "order-3 wide:order-none relative z-20 shrink-0 wide:flex-1 wide:min-h-0 select-none",
-            "@container px-4 wide:px-0 w-full",
+            "px-4 wide:px-0 w-full",
             "transition-opacity duration-300",
             !isGridVisible && "opacity-0 pointer-events-none",
           )}
         >
-          <div className="h-full flex flex-col @min-[720px]:flex-row items-stretch gap-3 @min-[720px]:gap-6">
+          {/* Grid and description stacked as one block */}
+          <div className="h-full flex flex-col items-center gap-3">
             {/* The grid measures this box */}
             <div
               ref={gridAreaRef}
-              className="relative min-w-0 h-[clamp(130px,28svh,360px)] wide:h-auto wide:flex-1 @min-[720px]:flex-1"
+              className="relative w-full min-w-0 h-[clamp(130px,28svh,360px)] wide:h-auto wide:flex-1 wide:min-h-0"
             >
-              <div className="absolute inset-0 flex items-center justify-center">
+              <div className="absolute inset-0 flex items-end justify-center">
                 <div className="flex items-stretch" style={{ gap: GRID_GAP }}>
                   <div
                     className="grid shrink-0"
@@ -487,7 +488,8 @@ export default function Home() {
             <CharacterDetails
               id={displayedHeroId === "000" ? null : displayedHeroId}
               isMinted={isDisplayedClaimed}
-              className="shrink-0 self-center w-full max-w-[560px] @min-[720px]:w-[clamp(170px,22cqw,240px)]"
+              className="shrink-0 w-full"
+              style={{ maxWidth: gridWidthPx + RAIL_WIDTH }}
             />
           </div>
         </main>
