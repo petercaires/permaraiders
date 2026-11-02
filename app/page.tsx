@@ -415,7 +415,6 @@ export default function Home() {
         */}
         <header
           className="order-1 wide:order-none relative z-30 flex flex-col items-center w-full shrink-0 select-none gap-1 pt-[clamp(18px,4.5svh,64px)] pb-[clamp(12px,3svh,32px)] wide:pb-[clamp(8px,1.5svh,16px)]"
-          style={grid.spare ? { transform: `translateY(${grid.spare / 2}px)` } : undefined}
         >
           <img src="/header.png" alt="Perma Raiders" className="object-contain select-none h-[clamp(36px,7.5svh,112px)]" />
           <p className="text-white/80 font-mono tracking-wide text-[10px] sm:text-xs">pfp collection</p>
