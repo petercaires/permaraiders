@@ -22,7 +22,7 @@ export function CharacterDetails({ id, isMinted, className, style }: CharacterDe
 
   return (
     <aside
-      className={cn("font-mono text-white select-none h-[52px] flex flex-col justify-start gap-1 text-left", className)}
+      className={cn("font-mono text-white select-none h-[64px] wide:h-[52px] flex flex-col justify-start gap-1 text-left", className)}
       style={style}
       aria-live="polite"
     >
@@ -56,7 +56,7 @@ export function CharacterDetails({ id, isMinted, className, style }: CharacterDe
               ))}
             </ul>
           </div>
-          <p className="text-[10px] sm:text-[11px] leading-snug text-white/60 line-clamp-2">{character.description}</p>
+          <p className="text-[10px] sm:text-[11px] leading-snug text-white/60 line-clamp-3 wide:line-clamp-2">{character.description}</p>
         </>
       ) : (
         <p className="text-[10px] sm:text-[11px] text-white/40 pt-1">hover or tap a raider to see who they are</p>
