@@ -8,6 +8,10 @@ export interface Character {
 }
 
 // Generate 165 characters with zero-padded IDs, each with ONE corresponding trait
+// Rarity list — every raider not listed here is Common
+const RARE_IDS = new Set(["071", "066", "161", "122", "165", "060", "056", "154", "133"])
+const PERMARARE_IDS = new Set(["042", "100", "020", "117", "076"])
+
 export const characters: Character[] = Array.from({ length: 165 }, (_, i) => {
   const index = i + 1
   const id = String(index).padStart(3, "0")
@@ -18,8 +22,7 @@ export const characters: Character[] = Array.from({ length: 165 }, (_, i) => {
     id,
     name: `Raider ${id}`,
     description: `A legendary fighter from the digital realm. Each Raider possesses unique combat abilities and traits that make them formidable in battle.`,
-    // Rarity tag: Common, Rare or PermaRare. Placeholder rule — set real rarities per raider here.
-    traits: [index % 11 === 0 ? "PermaRare" : index % 3 === 0 ? "Rare" : "Common"],
+    traits: [PERMARARE_IDS.has(id) ? "PermaRare" : RARE_IDS.has(id) ? "Rare" : "Common"],
     traitIds: [traitId],
   }
 })
