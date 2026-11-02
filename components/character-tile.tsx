@@ -134,7 +134,7 @@ export function CharacterTile({
         </div>
       )}
 
-      <div className="absolute bottom-2 left-1/2 -translate-x-1/2 text-[10px] font-mono font-semibold text-white opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+      <div className="absolute bottom-0.5 left-1/2 -translate-x-1/2 text-[12px] leading-none pb-0.5 font-mono font-semibold text-white opacity-0 group-hover:opacity-100 transition-opacity duration-200">
         {id}
       </div>
 
