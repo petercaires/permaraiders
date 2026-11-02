@@ -248,6 +248,56 @@
   }
 }
 
+/* In-box mint: shimmer sweeping over the portrait while minting */
+@keyframes mint-scan {
+  from {
+    transform: translateY(-100%);
+  }
+  to {
+    transform: translateY(100%);
+  }
+}
+
+.mint-scan {
+  background: linear-gradient(to bottom, transparent 0%, rgb(255 255 255 / 0.35) 50%, transparent 100%);
+  animation: mint-scan 1s ease-in-out infinite;
+}
+
+/* MINTED stamp lands with a small bounce */
+@keyframes mint-stamp {
+  0% {
+    transform: rotate(-12deg) scale(2.2);
+    opacity: 0;
+  }
+  60% {
+    transform: rotate(-12deg) scale(0.92);
+    opacity: 1;
+  }
+  100% {
+    transform: rotate(-12deg) scale(1);
+    opacity: 1;
+  }
+}
+
+.mint-stamp > * {
+  animation: mint-stamp 380ms cubic-bezier(0.2, 0.8, 0.3, 1.2) both;
+}
+
+/* Mint button fills left to right over the 2s mint */
+@keyframes mint-progress {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
+
+.mint-progress {
+  transform-origin: left;
+  animation: mint-progress 2s linear forwards;
+}
+
 .explosion-particle {
   position: absolute;
   width: 8px;
