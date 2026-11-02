@@ -362,10 +362,12 @@ export default function Home() {
           alt={displayedHeroId !== "000" ? `Raider ${displayedHeroId}` : ""}
           className={cn(
             "hero-image absolute bottom-0 max-w-none aspect-square",
-            // portrait: fill the hero slot, centred
-            "h-[max(100%,50svh)] left-1/2 -translate-x-1/2",
-            // wide: full screen height (capped by width), anchored bottom-left, spilling under the grid column
-            "wide:left-0 wide:translate-x-0 wide:h-[min(100svh,64vw)]",
+            // Height is always tied to the viewport height, never the width.
+            // A narrower screen just crops the sides; the character stays centred.
+            // portrait: 55% of the screen height, sitting on top of the grid
+            "h-[55svh] left-1/2 -translate-x-1/2",
+            // wide: full screen height, centred in the left area and spilling under the grid column
+            "wide:h-[100svh]",
             "transition-[opacity,filter] select-none",
             isDisplayedClaimed ? "opacity-50" : "opacity-100",
             isSelectionAnimating ? "duration-100 ease-out brightness-110" : "duration-500 ease-in",
