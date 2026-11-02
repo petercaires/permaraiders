@@ -291,10 +291,10 @@
    feathered by the blur, so all the text sits on dark and there's no visible box edge */
 .details-scrim {
   position: absolute;
-  inset: -14px -22px;
+  inset: -18px -28px -18px -44px; /* reaches further left, where the hero overlaps most */
   z-index: -1;
   pointer-events: none;
-  border-radius: 28px;
-  background: rgba(0, 0, 0, 0.5);
-  filter: blur(18px);
+  border-radius: 32px;
+  background: rgba(0, 0, 0, 0.72);
+  filter: blur(20px);
 }
