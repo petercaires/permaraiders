@@ -25,33 +25,30 @@ import { StoryModal } from "@/components/story-modal"
  *   - portrait  : logo, hero, grid, character details, mint bar — stacked.
  *   - wide      : (landscape and at least 768px wide) hero on the left,
  *                 logo / grid / details / mint bar in a column on the right.
- * Inside each layout everything scales fluidly; the grid measures the space
- * it has and picks its column count and tile size to fit.
+ * Inside each layout everything scales fluidly; the character menu keeps a fixed
+ * shape (columns × rows) and scales uniformly to fit the space it has.
  */
 
-const GRID_GAP = 6
-const TILE_TARGET = 56 // tile size the grid aims for when choosing columns
-const TILE_MAX = 76
-const MIN_COLS = 5
-const MAX_COLS = 11
-const RAIL_WIDTH = 28 // scroll arrows + bar beside the grid
+// The character menu has a fixed shape per layout and scales as one piece:
+// tiles AND gaps grow and shrink together, so it never jumps between column counts.
+const MENU_SHAPE = {
+  wide: { cols: 11, rows: 6 },
+  portrait: { cols: 5, rows: 3 },
+}
+const GAP_RATIO = 0.09 // gap as a fraction of the tile size
+const RAIL_WIDTH = 28 // scroll arrows + bar beside the menu
+const WIDE_QUERY = "(orientation: landscape) and (min-width: 768px)" // same as the `wide` CSS variant
 
-function computeGrid(width: number, height: number) {
-  const usableW = Math.max(0, width - RAIL_WIDTH - GRID_GAP)
-  const cols = Math.max(
-    MIN_COLS,
-    Math.min(MAX_COLS, Math.floor((usableW + GRID_GAP) / (TILE_TARGET + GRID_GAP)) || MIN_COLS),
-  )
-  let tile = Math.min(TILE_MAX, (usableW - GRID_GAP * (cols - 1)) / cols)
-  let rows = Math.floor((height + GRID_GAP) / (tile + GRID_GAP))
-  if (rows < 2) {
-    rows = 2
-    tile = (height - GRID_GAP) / 2
-  }
+function computeGrid(width: number, height: number, isWide: boolean) {
+  const { cols, rows } = isWide ? MENU_SHAPE.wide : MENU_SHAPE.portrait
+  const usableW = Math.max(0, width - RAIL_WIDTH)
+  // largest tile where cols × rows (plus proportional gaps) fits the box, in both directions
+  const fitW = usableW / (cols + (cols - 1) * GAP_RATIO)
+  const fitH = height / (rows + (rows - 1) * GAP_RATIO)
+  const tile = Math.max(20, Math.min(fitW, fitH))
+  const gap = tile * GAP_RATIO
   const totalRows = Math.ceil(characters.length / cols)
-  rows = Math.min(rows, totalRows)
-  tile = Math.max(24, Math.floor(tile))
-  return { cols, rows, tile, totalRows }
+  return { cols, rows: Math.min(rows, totalRows), tile, gap, totalRows }
 }
 
 export default function Home() {
@@ -78,28 +75,57 @@ export default function Home() {
   const [isGridVisible, setIsGridVisible] = useState(true)
   const [heroPopTrigger, setHeroPopTrigger] = useState(0)
   const gridAreaRef = useRef<HTMLDivElement | null>(null)
-  const [grid, setGrid] = useState({ cols: MAX_COLS, rows: 6, tile: 60, totalRows: Math.ceil(characters.length / MAX_COLS) })
+  const mainRef = useRef<HTMLElement | null>(null)
+  const bottomBlockRef = useRef<HTMLDivElement | null>(null)
+  const [grid, setGrid] = useState(() => ({ ...computeGrid(800, 400, true), isWide: true, spare: 0 }))
   const prefersReducedMotion =
     typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches
 
-  const { cols: gridCols, rows: visibleRows, tile: tileSize, totalRows } = grid
+  const { cols: gridCols, rows: visibleRows, tile: tileSize, gap: gridGap, totalRows } = grid
   const maxStartRow = Math.max(0, totalRows - visibleRows)
   const visibleCharacters = characters.slice(startRow * gridCols, (startRow + visibleRows) * gridCols)
-  const gridWidthPx = tileSize * gridCols + GRID_GAP * (gridCols - 1)
-  const gridHeightPx = tileSize * visibleRows + GRID_GAP * (visibleRows - 1)
+  const gridWidthPx = tileSize * gridCols + gridGap * (gridCols - 1)
+  const gridHeightPx = tileSize * visibleRows + gridGap * (visibleRows - 1)
 
   // Measure the space the grid has and fit columns / rows / tile size to it.
   useEffect(() => {
     const el = gridAreaRef.current
     if (!el) return
+    const wideMq = window.matchMedia(WIDE_QUERY)
     const measure = () => {
-      const { width, height } = el.getBoundingClientRect()
-      if (width > 0 && height > 0) setGrid(computeGrid(width, height))
+      const isWide = wideMq.matches
+      const width = el.getBoundingClientRect().width
+      let height = el.getBoundingClientRect().height
+      // Desktop: the menu gets whatever height is left after the details/mint block and a fixed gap,
+      // so the gap between them stays constant and spare room collects at the bottom of the screen.
+      const main = mainRef.current
+      const block = bottomBlockRef.current
+      if (isWide && main && block) {
+        const cs = getComputedStyle(main)
+        height =
+          main.clientHeight -
+          parseFloat(cs.paddingTop) -
+          parseFloat(cs.paddingBottom) -
+          parseFloat(cs.rowGap || "0") -
+          block.offsetHeight
+      }
+      if (width > 0 && height > 0) {
+        const g = computeGrid(width, height, isWide)
+        const menuHeight = g.tile * g.rows + g.gap * (g.rows - 1)
+        // On desktop, when the width limits the menu, split the unused height above and below the content
+        const spare = isWide ? Math.max(0, height - menuHeight) : 0
+        setGrid({ ...g, isWide, spare })
+      }
     }
     measure()
     const ro = new ResizeObserver(measure)
     ro.observe(el)
-    return () => ro.disconnect()
+    if (mainRef.current) ro.observe(mainRef.current)
+    wideMq.addEventListener("change", measure)
+    return () => {
+      ro.disconnect()
+      wideMq.removeEventListener("change", measure)
+    }
   }, [isLoading])
 
   // Keep the scroll position valid when the grid shape changes.
@@ -251,7 +277,6 @@ export default function Home() {
   const handleModalClose = () => {
     setShowMintModal(false)
     if (selectedId && getClaimedIds().includes(selectedId)) {
-      toast({ title: "Minted", description: `Raider #${selectedId} is yours.` })
       setSelectedId(null)
       setHoveredId(null)
     }
@@ -364,11 +389,11 @@ export default function Home() {
           className={cn(
             "hero-image absolute bottom-0 max-w-none aspect-square",
             // Height is always tied to the viewport height, never the width.
-            // Left edge pinned to the screen edge in both layouts, so the left side is never cropped;
-            // a narrower screen only ever crops (or tucks under the grid) the right side.
-            // portrait: 55% of the screen height, sitting on top of the grid
-            // wide: full screen height, spilling under the grid column
-            "left-0 h-[55svh] wide:h-[100svh]",
+            // portrait: 55% of the screen height, centred (narrow phones crop both sides equally)
+            "h-[55svh] left-1/2 -translate-x-1/2",
+            // wide: full screen height, left edge pinned so the left is never cropped;
+            // a narrower screen slides more of the right side under the menu column instead
+            "wide:h-[100svh] wide:left-0 wide:translate-x-0",
             "transition-[opacity,filter] select-none",
             isDisplayedClaimed ? "opacity-50" : "opacity-100",
             isSelectionAnimating ? "duration-100 ease-out brightness-110" : "duration-500 ease-in",
@@ -388,33 +413,40 @@ export default function Home() {
             logo group  —(section gap)—  grid  —(12px)—  [details + action row, 8px apart]  —(bottom breathing room)
           The details and the action row both describe the current raider, so they sit closest together.
         */}
-        <header className="order-1 wide:order-none relative z-30 flex flex-col items-center w-full shrink-0 select-none gap-1 pt-[clamp(18px,4.5svh,64px)] pb-[clamp(12px,3svh,32px)]">
+        <header
+          className="order-1 wide:order-none relative z-30 flex flex-col items-center w-full shrink-0 select-none gap-1 pt-[clamp(18px,4.5svh,64px)] pb-[clamp(12px,3svh,32px)] wide:pb-[clamp(8px,1.5svh,16px)]"
+          style={grid.spare ? { transform: `translateY(${grid.spare / 2}px)` } : undefined}
+        >
           <img src="/header.png" alt="Perma Raiders" className="object-contain select-none h-[clamp(36px,7.5svh,112px)]" />
           <p className="text-white/80 font-mono tracking-wide text-[10px] sm:text-xs">pfp collection</p>
+          <p className="text-white/60 font-mono text-[9px] sm:text-[11px]">select character to mint</p>
         </header>
 
         <main
+          ref={mainRef}
+          style={grid.spare ? { transform: `translateY(${grid.spare / 2}px)` } : undefined}
           className={cn(
             "order-3 wide:order-none relative z-20 shrink-0 wide:flex-1 wide:min-h-0 select-none",
             "px-4 wide:px-0 w-full pb-[clamp(28px,6svh,72px)]",
-            "flex flex-col items-center gap-3",
+            "flex flex-col items-center gap-3 wide:gap-[clamp(16px,4svh,48px)]",
           )}
         >
           {/* The grid measures this box */}
           <div
             ref={gridAreaRef}
             className={cn(
-              "relative w-full min-w-0 h-[clamp(130px,28svh,360px)] wide:h-auto wide:flex-1 wide:min-h-0",
+              "relative w-full min-w-0 h-[clamp(130px,28svh,360px)] shrink-0",
               "transition-opacity duration-300",
               !isGridVisible && "opacity-0 pointer-events-none",
             )}
+            style={grid.isWide ? { height: gridHeightPx } : undefined}
           >
             <div className="absolute inset-0 flex items-end justify-center">
-              <div className="flex items-stretch" style={{ gap: GRID_GAP }}>
+              <div className="flex items-stretch" style={{ gap: gridGap }}>
                 <div
                   className="grid shrink-0"
                   style={{
-                    gap: `${GRID_GAP}px`,
+                    gap: `${gridGap}px`,
                     gridTemplateColumns: `repeat(${gridCols}, ${tileSize}px)`,
                     gridAutoRows: `${tileSize}px`,
                     width: gridWidthPx,
@@ -440,7 +472,7 @@ export default function Home() {
 
                 <div
                   className="flex flex-col items-center justify-between shrink-0"
-                  style={{ height: gridHeightPx, width: RAIL_WIDTH - GRID_GAP }}
+                  style={{ height: gridHeightPx, width: RAIL_WIDTH - gridGap }}
                 >
                   <button
                     className="shrink-0 cursor-pointer text-white hover:text-white/80 disabled:opacity-30 disabled:cursor-default transition flex items-center justify-center w-6 h-6"
@@ -481,6 +513,7 @@ export default function Home() {
 
           {/* Details + action row: one block, aligned to the grid's edges, fixed height so nothing shifts */}
           <div
+            ref={bottomBlockRef}
             className={cn(
               "w-full shrink-0 flex flex-col gap-2 transition-opacity duration-300",
               !isGridVisible && "opacity-0 pointer-events-none",
