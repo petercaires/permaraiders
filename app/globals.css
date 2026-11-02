@@ -286,3 +286,15 @@
     mask-image: linear-gradient(to right, black 62%, transparent 98%);
   }
 }
+
+/* Soft dark ramp behind the description + mint block: an even dark patch whose edges are
+   feathered by the blur, so all the text sits on dark and there's no visible box edge */
+.details-scrim {
+  position: absolute;
+  inset: -14px -22px;
+  z-index: -1;
+  pointer-events: none;
+  border-radius: 28px;
+  background: rgba(0, 0, 0, 0.5);
+  filter: blur(18px);
+}
