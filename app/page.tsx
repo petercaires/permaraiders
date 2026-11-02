@@ -363,11 +363,11 @@ export default function Home() {
           className={cn(
             "hero-image absolute bottom-0 max-w-none aspect-square",
             // Height is always tied to the viewport height, never the width.
-            // A narrower screen just crops the sides; the character stays centred.
-            // portrait: 55% of the screen height, sitting on top of the grid
+            // portrait: 55% of the screen height, centred; a narrower screen crops both sides equally
             "h-[55svh] left-1/2 -translate-x-1/2",
-            // wide: full screen height, centred in the left area and spilling under the grid column
-            "wide:h-[100svh]",
+            // wide: full screen height, left edge pinned to the screen edge so it's never cropped;
+            // a narrower screen slides more of the right side under the grid column instead
+            "wide:h-[100svh] wide:left-0 wide:translate-x-0",
             "transition-[opacity,filter] select-none",
             isDisplayedClaimed ? "opacity-50" : "opacity-100",
             isSelectionAnimating ? "duration-100 ease-out brightness-110" : "duration-500 ease-in",
