@@ -42,9 +42,9 @@ const WIDE_BREAKPOINT = 768 // px, where the layout switches to the phone layout
 
 // Desktop hero: the artwork has empty space on its left (~10% of the image width, shared by every
 // raider since they're all remixes of one base). At full browser width that gap is left as is; as the
-// window narrows towards the breakpoint the hero slides left so the gap closes to 25% of its full size.
+// window narrows towards the breakpoint the hero slides left so the gap closes to 5% of its full size.
 const HERO_ART_GAP = 0.1 // left gap as a fraction of the hero's width
-const HERO_GAP_AT_BREAKPOINT = 0.25 // fraction of the gap still showing at the breakpoint
+const HERO_GAP_AT_BREAKPOINT = 0.05 // fraction of the gap still showing at the breakpoint
 
 function computeGrid(width: number, height: number, isWide: boolean) {
   const { cols, rows } = isWide ? MENU_SHAPE.wide : MENU_SHAPE.portrait
