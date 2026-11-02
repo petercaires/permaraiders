@@ -9,7 +9,7 @@ export interface Character {
 
 // Generate 165 characters with zero-padded IDs, each with ONE corresponding trait
 // Rarity list — every raider not listed here is Common
-const RARE_IDS = new Set(["071", "066", "161", "122", "165", "060", "056", "154", "133"])
+const RARE_IDS = new Set(["071", "066", "161", "122", "165", "060", "056", "154", "133", "148"])
 const PERMARARE_IDS = new Set(["042", "100", "020", "117", "076"])
 
 export const characters: Character[] = Array.from({ length: 165 }, (_, i) => {
