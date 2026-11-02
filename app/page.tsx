@@ -406,7 +406,8 @@ export default function Home() {
   const showDownArrow = startRow < maxStartRow
   const isDisplayedClaimed = displayedHeroId !== "000" && claimedIds.includes(displayedHeroId)
   const isSelectedClaimed = selectedId ? claimedIds.includes(selectedId) : false
-  const mintImage = mintingId ? traitUrls[`trait${mintingId}`] || `/traits/trait${mintingId}.png` : ""
+  // Full hero art (already loaded for the selected raider), scaled down in the mint portrait so it stays sharp
+  const mintImage = mintingId ? heroUrls[`hero${mintingId}`] || traitUrls[`trait${mintingId}`] || "" : ""
   const thumbRatio = visibleRows / totalRows
   const actionId = selectedId ?? (hoveredId || null)
 
