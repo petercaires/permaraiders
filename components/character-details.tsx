@@ -43,7 +43,7 @@ export function CharacterDetails({ id, isMinted, className, style }: CharacterDe
                 <li
                   key={trait}
                   className={cn(
-                    "text-[9px] px-1.5 py-0.5 rounded border whitespace-nowrap",
+                    "text-[9px] uppercase tracking-wider px-1.5 py-0.5 rounded border whitespace-nowrap",
                     trait === "PermaRare"
                       ? "border-amber-300/70 text-amber-200"
                       : trait === "Rare"
@@ -58,9 +58,7 @@ export function CharacterDetails({ id, isMinted, className, style }: CharacterDe
           </div>
           <p className="text-[9px] wide:text-[11px] leading-snug text-white/90 line-clamp-3 wide:line-clamp-2">{character.description}</p>
         </>
-      ) : (
-        <p className="text-[10px] sm:text-[11px] text-white/40 pt-1">hover or tap a raider to see who they are</p>
-      )}
+      ) : null}
     </aside>
   )
 }
