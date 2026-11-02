@@ -8,10 +8,12 @@ import { Confetti } from "@/components/confetti"
 interface MintModalProps {
   isOpen: boolean
   characterId: string
+  /** Fired once the simulated mint has completed */
+  onMinted: (id: string) => void
   onClose: () => void
 }
 
-export function MintModal({ isOpen, characterId, onClose }: MintModalProps) {
+export function MintModal({ isOpen, characterId, onMinted, onClose }: MintModalProps) {
   const [isLoading, setIsLoading] = useState(true)
   const successSoundRef = useRef<HTMLAudioElement | null>(null)
 
@@ -29,13 +31,16 @@ export function MintModal({ isOpen, characterId, onClose }: MintModalProps) {
       setIsLoading(true)
       const timer = setTimeout(() => {
         setIsLoading(false)
+        onMinted(characterId)
         if (successSoundRef.current) {
           successSoundRef.current.currentTime = 0
           successSoundRef.current.play().catch((err) => console.error("Success sound play failed:", err))
         }
       }, 2000)
+      // Closing before the mint finishes cancels it, so nothing is marked as minted
       return () => clearTimeout(timer)
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isOpen])
 
   if (!isOpen) return null
@@ -93,6 +98,9 @@ export function MintModal({ isOpen, characterId, onClose }: MintModalProps) {
                   <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
                 </svg>
                 <p className="text-center text-muted-foreground">Successfully minted #{characterId}</p>
+                <Button className="w-full cursor-pointer" onClick={onClose}>
+                  Done
+                </Button>
               </div>
             )}
           </div>
