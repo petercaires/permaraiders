@@ -122,13 +122,20 @@ export default function Home() {
     const el = gridAreaRef.current
     if (!el) return
     const measure = () => {
-      const { width, height } = el.getBoundingClientRect()
-      if (width > 0 && height > 0) setGrid(computeGrid(width, height, false))
+      const width = el.getBoundingClientRect().width
+      // Height budget for the menu: 28% of the screen, between 130 and 360px.
+      // The menu area then hugs the menu itself, so the box inset stays even all round.
+      const height = Math.min(360, Math.max(130, window.innerHeight * 0.28))
+      if (width > 0) setGrid(computeGrid(width, height, false))
     }
     measure()
     const ro = new ResizeObserver(measure)
     ro.observe(el)
-    return () => ro.disconnect()
+    window.addEventListener("resize", measure)
+    return () => {
+      ro.disconnect()
+      window.removeEventListener("resize", measure)
+    }
   }, [isLoading, isWide])
 
   // Keep the scroll position valid when the grid shape changes.
@@ -429,9 +436,17 @@ export default function Home() {
           className={cn(
             "order-3 wide:order-none relative z-20 shrink-0 wide:flex-1 wide:min-h-0 select-none",
             "px-4 wide:px-0 w-full pb-[clamp(28px,6svh,72px)]",
-            "flex flex-col items-center gap-3 wide:gap-[clamp(16px,4svh,48px)]",
+            "flex flex-col items-center",
           )}
         >
+          {/* One visual block: character sheet + description in a single 25% black box, 12px inset all round */}
+          <div
+            className={cn(
+              "w-full min-h-0 flex flex-col gap-3 p-3 rounded-md bg-black/25 wide:flex-1 transition-opacity duration-300",
+              !isGridVisible && "opacity-0 pointer-events-none",
+            )}
+            style={{ maxWidth: (isWide ? PANEL_MAX_WIDTH : gridWidthPx + RAIL_WIDTH) + 24 }}
+          >
           {isWide && (
             <CharacterPanel
               className={cn("flex-1 transition-opacity duration-300", !isGridVisible && "opacity-0 pointer-events-none")}
@@ -447,8 +462,9 @@ export default function Home() {
           {!isWide && (
           <div
             ref={gridAreaRef}
+            style={{ height: gridHeightPx }}
             className={cn(
-              "relative w-full min-w-0 h-[clamp(130px,28svh,360px)] shrink-0",
+              "relative w-full min-w-0 shrink-0",
               "transition-opacity duration-300",
               !isGridVisible && "opacity-0 pointer-events-none",
             )}
@@ -528,11 +544,9 @@ export default function Home() {
           {/* Details + action row: one block, aligned to the menu's edges, fixed height so nothing shifts */}
           <div
             className={cn(
-              // clean 25% black box, flush with the menu + scrollbar, consistent 12px inset
-              "w-full shrink-0 flex flex-col gap-2 p-3 rounded-md bg-black/25 transition-opacity duration-300",
+              "w-full shrink-0 flex flex-col gap-2 transition-opacity duration-300",
               !isGridVisible && "opacity-0 pointer-events-none",
             )}
-            style={{ maxWidth: isWide ? PANEL_MAX_WIDTH : gridWidthPx + RAIL_WIDTH }}
           >
             <CharacterDetails id={displayedHeroId === "000" ? null : displayedHeroId} isMinted={isDisplayedClaimed} />
 
@@ -580,6 +594,7 @@ export default function Home() {
                 </div>
               </div>
             </div>
+          </div>
           </div>
         </main>
       </div>
