@@ -333,7 +333,7 @@ img {
 }
 
 .hero-trace {
-  filter: drop-shadow(0 0 2px rgb(255 255 255 / 0.6)) drop-shadow(0 0 6px rgb(255 255 255 / 0.25));
+  filter: drop-shadow(0 0 2px rgb(255 255 255 / 0.8)) drop-shadow(0 0 8px rgb(255 255 255 / 0.35));
 }
 
 .hero-trace > div {
@@ -341,7 +341,7 @@ img {
   inset: 0;
   -webkit-mask: var(--silhouette) center / 100% 100% no-repeat;
   mask: var(--silhouette) center / 100% 100% no-repeat;
-  background: conic-gradient(from var(--trace) at 52% 55%, transparent 0deg 270deg, white 330deg, transparent 360deg);
+  background: conic-gradient(from var(--trace) at 52% 55%, transparent 0deg 220deg, white 325deg, transparent 360deg);
   animation: hero-trace 6s linear infinite;
 }
 
