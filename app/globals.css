@@ -257,6 +257,44 @@
  *   meta     tags, badges, tooltips, tile numbers   11px (text-[11px]), uppercase + tracking-wider for words
  */
 
+/*
+ * Rarity backgrounds — sit behind the transparent raider art.
+ * Still by default; add .rarity-swirl to set them turning (hover, selected, preview, mint).
+ */
+@property --swirl {
+  syntax: "<angle>";
+  inherits: false;
+  initial-value: 0deg;
+}
+
+@keyframes rarity-swirl {
+  to {
+    --swirl: 360deg;
+  }
+}
+
+.rarity-gold {
+  background:
+    radial-gradient(circle at 30% 25%, rgb(255 255 255 / 0.45), transparent 45%),
+    conic-gradient(from var(--swirl), #6b4e0e, #f7dc7c, #b8860b, #fff4c2, #9a7212, #f2cd5c, #6b4e0e);
+}
+
+.rarity-silver {
+  background:
+    radial-gradient(circle at 30% 25%, rgb(255 255 255 / 0.5), transparent 45%),
+    conic-gradient(from var(--swirl), #4b525c, #eef1f5, #8f98a3, #ffffff, #5d6570, #cfd5dc, #4b525c);
+}
+
+.rarity-swirl {
+  animation: rarity-swirl 6s linear infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rarity-swirl {
+    animation: none;
+  }
+}
+
 /* In-box mint: shimmer sweeping over the portrait while minting */
 @keyframes mint-scan {
   from {
