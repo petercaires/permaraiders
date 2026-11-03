@@ -492,7 +492,7 @@ function IconButton({
 function Tooltip({ label }: { label: string }) {
   return (
     <div className="absolute right-full mr-2 top-1/2 -translate-y-1/2 hidden group-hover:block pointer-events-none whitespace-nowrap">
-      <div className="bg-white text-black text-[11px] uppercase tracking-wider px-2 py-1 rounded">{label}</div>
+      <div className="bg-white text-black text-[11px] uppercase tracking-wider px-1.5 py-0.5 rounded">{label}</div>
     </div>
   )
 }

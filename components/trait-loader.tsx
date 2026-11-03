@@ -54,7 +54,7 @@ export function TraitLoader({ onComplete }: TraitLoaderProps) {
 
   return (
     <div
-      className={`fixed inset-0 z-50 h-screen flex flex-col items-center justify-center pb-[33svh] wide:pb-0 bg-gradient-to-b from-zinc-900 via-zinc-950 to-black transition-opacity duration-400 ${
+      className={`fixed inset-0 z-50 h-screen flex flex-col items-center justify-center pb-[33svh] bg-gradient-to-b from-zinc-900 via-zinc-950 to-black transition-opacity duration-400 ${
         isFadingOut ? "opacity-0" : "opacity-100"
       }`}
     >

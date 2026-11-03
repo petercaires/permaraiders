@@ -36,8 +36,8 @@ export function CharacterTile({
   const buttonRef = useRef<HTMLButtonElement | null>(null)
   const [tooltipPos, setTooltipPos] = useState<{ x: number; y: number; align: "left" | "center" | "right" } | null>(null)
 
-  // Pinned 12px above the tile. On the first/last column it lines up with the tile's outer edge instead of
-  // centring, so it can't run off the screen. Re-placed on resize. Scrolling the menu fades it out where it is.
+  // Pinned 12px above the tile. On the first/last column it starts just past the tile's outer edge (12px
+  // overshoot) instead of centring, so it can't run off the screen. Re-placed on resize. Scrolling the menu fades it out where it is.
   useLayoutEffect(() => {
     if (!showTooltip) return
     const place = () => {
@@ -46,7 +46,7 @@ export function CharacterTile({
       const r = tile.getBoundingClientRect()
       const grid = tile.parentElement!.getBoundingClientRect()
       const align = r.left - grid.left < 1 ? "left" : grid.right - r.right < 1 ? "right" : "center"
-      const x = align === "left" ? r.left : align === "right" ? r.right : r.left + r.width / 2
+      const x = align === "left" ? r.left - 12 : align === "right" ? r.right + 12 : r.left + r.width / 2
       setTooltipPos({ x, y: r.top - 12, align })
     }
     let hideTimer: ReturnType<typeof setTimeout> | undefined
@@ -132,7 +132,7 @@ export function CharacterTile({
         createPortal(
           <div
             className={cn(
-              "fixed -translate-y-full font-mono font-normal bg-white text-black text-[11px] uppercase tracking-wider px-2 py-1 rounded whitespace-nowrap z-[1000] pointer-events-none transition-opacity duration-200",
+              "fixed -translate-y-full font-mono font-normal bg-white text-black text-[11px] uppercase tracking-wider px-1.5 py-0.5 rounded whitespace-nowrap z-[1000] pointer-events-none transition-opacity duration-200",
               tooltipPos.align === "center" && "-translate-x-1/2",
               tooltipPos.align === "right" && "-translate-x-full",
               tooltipVisible ? "opacity-100" : "opacity-0",

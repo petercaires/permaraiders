@@ -125,7 +125,7 @@ function BackButton({ onClick }: { onClick: () => void }) {
     >
       <Undo2 className="w-5 h-5 wide:w-6 wide:h-6" />
       {/* Same tooltip style as the corner icons */}
-      <span className="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 hidden group-hover:block pointer-events-none whitespace-nowrap bg-white text-black text-[11px] uppercase tracking-wider px-2 py-1 rounded">
+      <span className="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 hidden group-hover:block pointer-events-none whitespace-nowrap bg-white text-black text-[11px] uppercase tracking-wider px-1.5 py-0.5 rounded">
         Back to raiders
       </span>
     </button>
