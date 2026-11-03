@@ -194,6 +194,12 @@ export function getCharacterById(id: string): Character | undefined {
   return characters[Number(id) - 1]
 }
 
+/** Screen-reader name, e.g. "Raider 042, PermaRare" (Common isn't announced) */
+export function raiderLabel(id: string): string {
+  const rarity = getRarity(id)
+  return rarity === "Common" ? `Raider ${id}` : `Raider ${id}, ${rarity}`
+}
+
 export function getRarity(id: string | null | undefined): Rarity {
   return (id && getCharacterById(id)?.rarity) || "Common"
 }

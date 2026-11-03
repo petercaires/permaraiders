@@ -4,7 +4,7 @@ import type { CSSProperties } from "react"
 import { Undo2 } from "lucide-react"
 import { Confetti } from "@/components/confetti"
 import { cn } from "@/lib/utils"
-import { rarityBgClass, RARITY_RGB, type Rarity } from "@/lib/characters"
+import { raiderLabel, rarityBgClass, RARITY_RGB, type Rarity } from "@/lib/characters"
 
 const STAMP: Record<Rarity, string> = {
   Common: "border-white text-white",
@@ -77,7 +77,7 @@ export function MintStage({ phase, id, imageSrc, rarity, onBack }: MintStageProp
               )}
               style={{ ["--outline" as string]: RARITY_RGB[rarity] ?? "255 255 255" } as CSSProperties}
             >
-              <img src={imageSrc} alt={`Raider ${id}`} className="w-full h-full object-cover select-none" crossOrigin="anonymous" />
+              <img src={imageSrc} alt={id ? raiderLabel(id) : ""} className="w-full h-full object-cover select-none" crossOrigin="anonymous" />
               {phase === "minting" && <div className="mint-scan absolute inset-0" />}
             </div>
 

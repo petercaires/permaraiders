@@ -269,7 +269,7 @@ export default function Home() {
         <img
           key={heroPopTrigger}
           src={heroUrls[`hero${displayedHeroId}`] || heroUrls["hero000"]}
-          alt={displayedHeroId !== "000" ? `Raider ${displayedHeroId}` : ""}
+          alt=""
           className={cn(
             "hero-fade absolute bottom-0 max-w-none aspect-square",
             // Height is always tied to the viewport height, never the width.
@@ -404,7 +404,7 @@ export default function Home() {
                     <img
                       key={selectedId}
                       src={traitUrls[`trait${selectedId}`]}
-                      alt={`Raider ${selectedId}`}
+                      alt=""
                       className="object-cover select-none h-full w-full animate-in fade-in-0 zoom-in-95 duration-200"
                       crossOrigin="anonymous"
                     />

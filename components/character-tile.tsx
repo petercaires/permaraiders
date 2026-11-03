@@ -4,7 +4,7 @@ import { useState, useRef, useEffect, useLayoutEffect, type CSSProperties } from
 import { createPortal } from "react-dom"
 import { cn } from "@/lib/utils"
 import { traitUrls } from "@/lib/trait-urls"
-import { getRarity, rarityBgClass, RARITY_RGB } from "@/lib/characters"
+import { getRarity, raiderLabel, rarityBgClass, RARITY_RGB } from "@/lib/characters"
 
 interface CharacterTileProps {
   id: string
@@ -161,7 +161,7 @@ export function CharacterTile({
       {!imageError ? (
         <img
           src={traitUrls[`trait${id}`]}
-          alt={`Character ${id}`}
+          alt={raiderLabel(id)}
           className="absolute inset-0 w-full h-full object-cover"
           crossOrigin="anonymous"
           onError={() => {
