@@ -196,35 +196,6 @@ export const characters: Character[] = Array.from({ length: 165 }, (_, i) => {
   }
 })
 
-export const CHARACTERS_PER_PAGE = 55
-export const TOTAL_PAGES = Math.ceil(characters.length / CHARACTERS_PER_PAGE)
-
-export const CHARACTERS_PER_ROW = 11
-export const VISIBLE_ROWS = 6
-export const MOBILE_CHARACTERS_PER_ROW = 5
-export const MOBILE_VISIBLE_ROWS = 10
-
-export const TOTAL_ROWS = Math.ceil(characters.length / CHARACTERS_PER_ROW)
-export const MOBILE_TOTAL_ROWS = Math.ceil(characters.length / MOBILE_CHARACTERS_PER_ROW)
-
-export function getCharactersForMobileRows(startRow: number): Character[] {
-  const start = startRow * MOBILE_CHARACTERS_PER_ROW
-  const end = start + MOBILE_VISIBLE_ROWS * MOBILE_CHARACTERS_PER_ROW
-  return characters.slice(start, end)
-}
-
-export function getCharactersForRows(startRow: number): Character[] {
-  const start = startRow * CHARACTERS_PER_ROW
-  const end = start + VISIBLE_ROWS * CHARACTERS_PER_ROW
-  return characters.slice(start, end)
-}
-
-export function getCharactersForPage(page: number): Character[] {
-  const start = page * CHARACTERS_PER_PAGE
-  const end = start + CHARACTERS_PER_PAGE
-  return characters.slice(start, end)
-}
-
 export function getCharacterById(id: string): Character | undefined {
   return characters.find((char) => char.id === id)
 }
