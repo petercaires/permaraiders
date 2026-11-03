@@ -34,18 +34,25 @@ export function CharacterTile({
   const buttonRef = useRef<HTMLButtonElement | null>(null)
   const [tooltipPos, setTooltipPos] = useState<{ x: number; y: number } | null>(null)
 
-  // Keep the tooltip pinned 12px above the tile, even if the menu scrolls or the window resizes
+  // Pin the tooltip 12px above the tile (re-placed on resize). Scrolling the menu fades it out
+  // where it is, rather than letting it drift with the tile.
   useLayoutEffect(() => {
     if (!showTooltip) return
     const place = () => {
       const r = buttonRef.current?.getBoundingClientRect()
       if (r) setTooltipPos({ x: r.left + r.width / 2, y: r.top - 12 })
     }
+    let hideTimer: ReturnType<typeof setTimeout> | undefined
+    const fadeOut = () => {
+      setTooltipVisible(false)
+      hideTimer ??= setTimeout(() => setShowTooltip(false), 200)
+    }
     place()
-    window.addEventListener("scroll", place, true)
+    window.addEventListener("scroll", fadeOut, true)
     window.addEventListener("resize", place)
     return () => {
-      window.removeEventListener("scroll", place, true)
+      clearTimeout(hideTimer)
+      window.removeEventListener("scroll", fadeOut, true)
       window.removeEventListener("resize", place)
     }
   }, [showTooltip])
