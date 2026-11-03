@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef, useCallback, type CSSProperties } from "react"
 import { CharacterDetails } from "@/components/character-details"
 import { CharacterPanel, PANEL_MAX_WIDTH, PANEL_PAD, PANEL_GAP, PANEL_RAIL } from "@/components/character-panel"
-import { getRarity, rarityBgClass, RARITY_RGB } from "@/lib/characters"
+import { getCharacterById, getRarity, rarityBgClass, RARITY_RGB } from "@/lib/characters"
 import { getClaimedIds, claimCharacter, clearAllClaimed } from "@/lib/mintAdapter"
 import { Volume2, VolumeX, Eye, EyeOff, RotateCcw, Check } from "lucide-react"
 import { Starfield } from "@/components/starfield"
@@ -404,7 +404,7 @@ export default function Home() {
                     <img
                       key={selectedId}
                       src={traitUrls[`trait${selectedId}`]}
-                      alt=""
+                      alt={getCharacterById(selectedId)?.alt ?? ""}
                       className="object-cover select-none h-full w-full animate-in fade-in-0 zoom-in-95 duration-200"
                       crossOrigin="anonymous"
                     />

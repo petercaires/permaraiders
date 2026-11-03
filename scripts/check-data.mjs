@@ -14,5 +14,6 @@ for (const id of rare) assert(!perma.includes(id), `${id} is listed as both Rare
 for (const [name, list] of [["RARE_IDS", rare], ["PERMARARE_IDS", perma]])
   assert.equal(new Set(list).size, list.length, `${name} lists an id twice`)
 for (const c of characters) assert(c.description, `Raider ${c.id} has no description`)
+for (const c of characters) assert(c.alt, `Raider ${c.id} has no alt text`)
 
 console.log(`ok: ${characters.length} raiders, ${rare.length} Rare, ${perma.length} PermaRare`)
