@@ -97,7 +97,7 @@ export function CharacterTile({
       {!isClaimed && isSelected && showTooltip && (
         <div
           className={cn(
-            "absolute -top-7 left-1/2 -translate-x-1/2 bg-white text-black px-2 py-1 rounded text-[9px] font-mono whitespace-nowrap z-[200] transition-opacity duration-200 flex items-center justify-center",
+            "absolute -top-7 left-1/2 -translate-x-1/2 bg-white text-black px-2 py-1 rounded text-[11px] uppercase tracking-wider whitespace-nowrap z-[200] transition-opacity duration-200 flex items-center justify-center",
             tooltipVisible ? "opacity-100" : "opacity-0",
           )}
         >
@@ -130,11 +130,11 @@ export function CharacterTile({
         />
       ) : (
         <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-accent/50 to-muted">
-          <span className="text-4xl font-bold text-muted-foreground/50 font-mono">{index}</span>
+          <span className="text-2xl font-bold text-muted-foreground/50">{index}</span>
         </div>
       )}
 
-      <div className="absolute bottom-0.5 left-1/2 -translate-x-1/2 text-[12px] leading-none pb-0.5 font-mono font-semibold text-white opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+      <div className="absolute bottom-0.5 left-1/2 -translate-x-1/2 text-[11px] leading-none pb-0.5 font-bold text-white opacity-0 group-hover:opacity-100 transition-opacity duration-200">
         {id}
       </div>
 
