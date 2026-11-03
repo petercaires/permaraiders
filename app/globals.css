@@ -248,6 +248,15 @@
   }
 }
 
+/*
+ * Type system (phone / desktop) — one family (mono), two weights (regular, bold), two text colours (white, white/70)
+ *   display  raider number          clamp(24–34px) / clamp(28–48px), bold
+ *   title    stage headings          18px / 24px (text-lg / wide:text-2xl), bold
+ *   label    raider name, buttons    16px (text-base), bold
+ *   body     description, sub-lines  11px / 12px (text-[11px] / wide:text-xs), regular
+ *   meta     tags, badges, tooltips, tile numbers   11px (text-[11px]), uppercase + tracking-wider for words
+ */
+
 /* In-box mint: shimmer sweeping over the portrait while minting */
 @keyframes mint-scan {
   from {
