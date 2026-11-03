@@ -97,23 +97,12 @@ export function CharacterTile({
       {!isClaimed && isSelected && showTooltip && (
         <div
           className={cn(
-            "absolute -top-7 left-1/2 -translate-x-1/2 bg-white text-black px-2 py-1 rounded text-[11px] uppercase tracking-wider whitespace-nowrap z-[200] transition-opacity duration-200 flex items-center justify-center",
+            "absolute -top-9 left-1/2 -translate-x-1/2 bg-white text-black px-2 py-1 rounded text-[11px] uppercase tracking-wider whitespace-nowrap z-[200] transition-opacity duration-200 flex items-center justify-center",
             tooltipVisible ? "opacity-100" : "opacity-0",
           )}
         >
           click to deselect
         </div>
-      )}
-
-      {!isClaimed && isSelected && (
-        <div
-          className="absolute top-0 left-0 right-0 h-1/2 pointer-events-none z-[160]"
-          style={{
-            background: "linear-gradient(to bottom, rgba(255,255,255,0.9) 0%, transparent 100%)",
-            animation: "gradientPulse 2s ease-in-out infinite",
-            mixBlendMode: "screen",
-          }}
-        />
       )}
 
       <div className="absolute inset-0 bg-gradient-to-br from-secondary via-muted to-secondary opacity-50" />
