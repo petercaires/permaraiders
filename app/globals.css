@@ -112,14 +112,14 @@
 @keyframes border-glow {
   0%,
   100% {
-    box-shadow: 0 0 8px rgba(255, 255, 255, 0.4), 0 0 16px rgba(255, 255, 255, 0.2), inset 0 0 8px
-      rgba(255, 255, 255, 0.1);
-    border-color: rgba(255, 255, 255, 0.5);
+    box-shadow: 0 0 8px rgb(var(--glow, 255 255 255) / 0.4), 0 0 16px rgb(var(--glow, 255 255 255) / 0.2), inset 0 0 8px
+      rgb(var(--glow, 255 255 255) / 0.1);
+    border-color: rgb(var(--glow, 255 255 255) / 0.5);
   }
   50% {
-    box-shadow: 0 0 16px rgba(255, 255, 255, 0.8), 0 0 32px rgba(255, 255, 255, 0.4), inset 0 0 12px
-      rgba(255, 255, 255, 0.2);
-    border-color: rgba(255, 255, 255, 0.9);
+    box-shadow: 0 0 16px rgb(var(--glow, 255 255 255) / 0.8), 0 0 32px rgb(var(--glow, 255 255 255) / 0.4), inset 0 0 12px
+      rgb(var(--glow, 255 255 255) / 0.2);
+    border-color: rgb(var(--glow, 255 255 255) / 0.9);
   }
 }
 
@@ -259,7 +259,9 @@
 
 /*
  * Rarity backgrounds — sit behind the transparent raider art.
- * Still by default; add .rarity-swirl to set them turning (hover, selected, preview, mint).
+ * The gradient lives on an oversized, heavily blurred ::before layer so it reads as soft colour, not hard spokes.
+ * Tune per use with --rarity-blur and --rarity-opacity. Still by default; add .rarity-swirl to set it turning.
+ * The element itself must be positioned (relative/absolute).
  */
 @property --swirl {
   syntax: "<angle>";
@@ -273,24 +275,38 @@
   }
 }
 
-.rarity-gold {
-  background:
-    radial-gradient(circle at 30% 25%, rgb(255 255 255 / 0.45), transparent 45%),
-    conic-gradient(from var(--swirl), #6b4e0e, #f7dc7c, #b8860b, #fff4c2, #9a7212, #f2cd5c, #6b4e0e);
-}
-
+.rarity-gold,
 .rarity-silver {
-  background:
-    radial-gradient(circle at 30% 25%, rgb(255 255 255 / 0.5), transparent 45%),
-    conic-gradient(from var(--swirl), #4b525c, #eef1f5, #8f98a3, #ffffff, #5d6570, #cfd5dc, #4b525c);
+  isolation: isolate;
+  overflow: hidden;
 }
 
-.rarity-swirl {
+.rarity-gold::before,
+.rarity-silver::before {
+  content: "";
+  position: absolute;
+  inset: -50%;
+  z-index: -1;
+  filter: blur(var(--rarity-blur, 16px));
+  opacity: var(--rarity-opacity, 1);
+  transition: opacity 300ms ease;
+  pointer-events: none;
+}
+
+.rarity-gold::before {
+  background: conic-gradient(from var(--swirl), #6b4e0e, #f7dc7c, #b8860b, #fff4c2, #9a7212, #f2cd5c, #6b4e0e);
+}
+
+.rarity-silver::before {
+  background: conic-gradient(from var(--swirl), #4b525c, #eef1f5, #8f98a3, #ffffff, #5d6570, #cfd5dc, #4b525c);
+}
+
+.rarity-swirl::before {
   animation: rarity-swirl 6s linear infinite;
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .rarity-swirl {
+  .rarity-swirl::before {
     animation: none;
   }
 }
