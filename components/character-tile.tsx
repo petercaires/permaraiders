@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useRef, useEffect } from "react"
+import { useState, useRef, useEffect, type CSSProperties } from "react"
 import { cn } from "@/lib/utils"
 import { traitUrls } from "@/lib/trait-urls"
 import { getRarity, rarityBgClass } from "@/lib/characters"
@@ -36,7 +36,10 @@ export function CharacterTile({
 
   const traitId = traitIds.length > 0 ? traitIds[0] : `trait${id}`
   const traitSrc = traitUrls[traitId] || `/traits/${traitId}.png`
-  const rarityBg = rarityBgClass(getRarity(id))
+  const rarity = getRarity(id)
+  const rarityBg = rarityBgClass(rarity)
+  // Outline colour by rarity (RGB triplet, also drives the hover glow)
+  const outline = rarity === "PermaRare" ? "242 205 92" : rarity === "Rare" ? "207 213 220" : null
 
   useEffect(() => {
     if (isSelected && !hasShownTooltipRef.current) {
@@ -85,12 +88,16 @@ export function CharacterTile({
       className={cn(
         "relative aspect-square rounded-md overflow-visible transition-all duration-300 outline-offset-2 group border-2",
         isRevealed ? "opacity-100 scale-100" : "opacity-0 scale-95",
-        isClaimed && "opacity-50 cursor-not-allowed z-0 border-white/15",
+        isClaimed && "opacity-50 cursor-not-allowed z-0",
+        isClaimed && (outline ? "border-[rgb(var(--glow)/0.4)]" : "border-white/15"),
         !isClaimed && "cursor-pointer",
-        !isClaimed && !isSelected && "border-white/15 hover:scale-105 hover:z-[100] hover:relative",
-        !isClaimed && !isSelected && isHovered && "border-white/30 border-glow-animate",
-        !isClaimed && isSelected && "border-white scale-105 z-[100] relative",
+        !isClaimed && !isSelected && "hover:scale-105 hover:z-[100] hover:relative",
+        !isClaimed && !isSelected && (outline ? "border-[rgb(var(--glow)/0.55)]" : "border-white/15"),
+        !isClaimed && !isSelected && isHovered && "border-glow-animate",
+        !isClaimed && isSelected && "scale-105 z-[100] relative",
+        !isClaimed && isSelected && (outline ? "border-[rgb(var(--glow))]" : "border-white"),
       )}
+      style={outline ? ({ ["--glow" as string]: outline } as CSSProperties) : undefined}
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
       onClick={handleClick}
@@ -108,7 +115,10 @@ export function CharacterTile({
       )}
 
       {rarityBg ? (
-        <div className={cn("absolute inset-0 rounded-[4px]", rarityBg, (isHovered || isSelected) && !isClaimed && "rarity-swirl")} />
+        <div
+          className={cn("absolute inset-0 rounded-[4px]", rarityBg, (isHovered || isSelected) && !isClaimed && "rarity-swirl")}
+          style={{ ["--rarity-blur" as string]: "14px", ["--rarity-opacity" as string]: (isHovered || isSelected) && !isClaimed ? 1 : 0.25 } as CSSProperties}
+        />
       ) : (
         <div className="absolute inset-0 bg-gradient-to-br from-secondary via-muted to-secondary opacity-50" />
       )}
