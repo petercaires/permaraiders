@@ -3,6 +3,18 @@
 import { Undo2 } from "lucide-react"
 import { Confetti } from "@/components/confetti"
 import { cn } from "@/lib/utils"
+import { rarityBgClass, type Rarity } from "@/lib/characters"
+
+const STAMP: Record<Rarity, string> = {
+  Common: "border-white text-white",
+  Rare: "border-slate-200 text-slate-100",
+  PermaRare: "border-amber-300 text-amber-300",
+}
+const CONFETTI: Record<Rarity, string[]> = {
+  Common: ["#ffffff"],
+  Rare: ["#ffffff", "#e5e7eb", "#9ca3af"],
+  PermaRare: ["#fff4c2", "#f7dc7c", "#d4a017"],
+}
 
 export type MintPhase = "idle" | "minting" | "success" | "reset"
 
@@ -11,6 +23,7 @@ interface MintStageProps {
   /** Raider being minted */
   id: string | null
   imageSrc: string
+  rarity: Rarity
   onBack: () => void
 }
 
@@ -21,7 +34,8 @@ interface MintStageProps {
  *   success → MINTED stamp lands, "It's yours!", confetti kept inside the box, "Back to raiders"
  *   reset   → "Demo reset" confirmation, "Back to raiders"
  */
-export function MintStage({ phase, id, imageSrc, onBack }: MintStageProps) {
+export function MintStage({ phase, id, imageSrc, rarity, onBack }: MintStageProps) {
+  const rarityBg = rarityBgClass(rarity)
   const active = phase === "reset" || (phase !== "idle" && !!id)
 
   return (
@@ -44,7 +58,7 @@ export function MintStage({ phase, id, imageSrc, onBack }: MintStageProps) {
 
       {active && phase !== "reset" && (
         <>
-          <Confetti isActive={phase === "success"} contained />
+          <Confetti isActive={phase === "success"} contained colors={CONFETTI[rarity]} />
 
           {/* Desktop: invisible spacer matching the message below, so the portrait itself sits at the vertical centre */}
           <div aria-hidden className="hidden wide:block shrink-0 h-[60px]" />
@@ -54,6 +68,7 @@ export function MintStage({ phase, id, imageSrc, onBack }: MintStageProps) {
             <div
               className={cn(
                 "relative w-full h-full rounded-md overflow-hidden border-2 transition-[border-color,filter] duration-500",
+                rarityBg && cn(rarityBg, "rarity-swirl"),
                 phase === "minting" ? "border-white/30 grayscale-[60%] brightness-75" : "border-white",
               )}
             >
@@ -63,7 +78,7 @@ export function MintStage({ phase, id, imageSrc, onBack }: MintStageProps) {
 
             {phase === "success" && (
               <div className="mint-stamp absolute inset-0 flex items-center justify-center pointer-events-none">
-                <span className="px-2 py-0.5 border-[3px] border-amber-300 text-amber-300 font-bold tracking-[0.2em] text-[12cqw] leading-none rounded-sm bg-black/50">
+                <span className={cn("px-2 py-0.5 border-[3px] font-bold tracking-[0.2em] text-[12cqw] leading-none rounded-sm bg-black/50", STAMP[rarity])}>
                   MINTED
                 </span>
               </div>
