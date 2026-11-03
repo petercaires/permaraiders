@@ -264,7 +264,6 @@ export default function Home() {
       <Starfield />
       <div className="fog-container" />
       <div className="grain" />
-      <div className="fixed top-0 left-0 right-0 h-48 bg-gradient-to-b from-black/40 via-black/20 to-transparent z-20 pointer-events-none" />
 
       {/* ---------- Hero ---------- */}
       <section className="relative order-2 wide:order-none flex-1 min-h-0 wide:min-w-0 z-0 pointer-events-none select-none">
