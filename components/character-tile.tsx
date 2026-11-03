@@ -3,6 +3,7 @@
 import { useState, useRef, useEffect } from "react"
 import { cn } from "@/lib/utils"
 import { traitUrls } from "@/lib/trait-urls"
+import { getRarity, rarityBgClass } from "@/lib/characters"
 
 interface CharacterTileProps {
   id: string
@@ -35,6 +36,7 @@ export function CharacterTile({
 
   const traitId = traitIds.length > 0 ? traitIds[0] : `trait${id}`
   const traitSrc = traitUrls[traitId] || `/traits/${traitId}.png`
+  const rarityBg = rarityBgClass(getRarity(id))
 
   useEffect(() => {
     if (isSelected && !hasShownTooltipRef.current) {
@@ -105,7 +107,11 @@ export function CharacterTile({
         </div>
       )}
 
-      <div className="absolute inset-0 bg-gradient-to-br from-secondary via-muted to-secondary opacity-50" />
+      {rarityBg ? (
+        <div className={cn("absolute inset-0 rounded-[4px]", rarityBg, (isHovered || isSelected) && !isClaimed && "rarity-swirl")} />
+      ) : (
+        <div className="absolute inset-0 bg-gradient-to-br from-secondary via-muted to-secondary opacity-50" />
+      )}
 
       {!imageError ? (
         <img
