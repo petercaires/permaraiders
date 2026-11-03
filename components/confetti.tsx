@@ -6,9 +6,11 @@ interface ConfettiProps {
   isActive: boolean
   /** Keep the burst inside the nearest positioned parent instead of the whole screen */
   contained?: boolean
+  /** Particle colours; one is picked per particle */
+  colors?: string[]
 }
 
-export function Confetti({ isActive, contained = false }: ConfettiProps) {
+export function Confetti({ isActive, contained = false, colors = ["#ffffff"] }: ConfettiProps) {
   const [particles, setParticles] = useState<Array<{ id: number; angle: number; speed: number; delay: number }>>([])
 
   useEffect(() => {
@@ -39,6 +41,7 @@ export function Confetti({ isActive, contained = false }: ConfettiProps) {
             animationDelay: `${particle.delay}s`,
             ["--angle" as string]: `${particle.angle}rad`,
             ["--speed" as string]: `${particle.speed}px`,
+            backgroundColor: colors[particle.id % colors.length],
           }}
         />
       ))}
