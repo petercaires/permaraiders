@@ -197,6 +197,8 @@ img {
 .rarity-silver {
   isolation: isolate;
   overflow: hidden;
+  /* Safari otherwise ignores the rounded corners when clipping the blurred shimmer */
+  -webkit-mask-image: -webkit-radial-gradient(white, black);
 }
 
 .rarity-gold::before,

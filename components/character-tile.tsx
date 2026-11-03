@@ -6,6 +6,12 @@ import { cn } from "@/lib/utils"
 import { traitUrls } from "@/lib/trait-urls"
 import { getRarity, raiderLabel, rarityBgClass, RARITY_RGB } from "@/lib/characters"
 
+// Same query as the `wide` variant in globals.css
+const WIDE = "(orientation: landscape) and (min-width: 768px)"
+
+// "click to deselect" is a one-time hint: shown on the first selection of each visit only
+let tooltipShownThisVisit = false
+
 interface CharacterTileProps {
   id: string
   isSelected: boolean
@@ -30,17 +36,22 @@ export function CharacterTile({
   const [isHovered, setIsHovered] = useState(false)
   const [showTooltip, setShowTooltip] = useState(false)
   const [tooltipVisible, setTooltipVisible] = useState(false)
-  const hasShownTooltipRef = useRef(false)
   const buttonRef = useRef<HTMLButtonElement | null>(null)
   const [tooltipPos, setTooltipPos] = useState<{ x: number; y: number } | null>(null)
 
-  // Pin the tooltip 12px above the tile (re-placed on resize). Scrolling the menu fades it out
+  // Desktop: pin the tooltip 12px above the tile. Mobile: centred 12px above the menu, so it can't run
+  // off the screen edge. Re-placed on resize. Scrolling the menu fades it out
   // where it is, rather than letting it drift with the tile.
   useLayoutEffect(() => {
     if (!showTooltip) return
     const place = () => {
-      const r = buttonRef.current?.getBoundingClientRect()
-      if (r) setTooltipPos({ x: r.left + r.width / 2, y: r.top - 12 })
+      const tile = buttonRef.current
+      if (!tile) return
+      const r = tile.getBoundingClientRect()
+      if (window.matchMedia(WIDE).matches) return setTooltipPos({ x: r.left + r.width / 2, y: r.top - 12 })
+      const grid = tile.parentElement!.getBoundingClientRect()
+      const menu = tile.closest(".snap-y")!.parentElement!.getBoundingClientRect()
+      setTooltipPos({ x: grid.left + grid.width / 2, y: menu.top - 12 })
     }
     let hideTimer: ReturnType<typeof setTimeout> | undefined
     const fadeOut = () => {
@@ -63,8 +74,8 @@ export function CharacterTile({
   const outline = RARITY_RGB[rarity]
 
   useEffect(() => {
-    if (isSelected && !hasShownTooltipRef.current) {
-      hasShownTooltipRef.current = true
+    if (isSelected && !tooltipShownThisVisit) {
+      tooltipShownThisVisit = true
       const showTimer = setTimeout(() => {
         setShowTooltip(true)
         setTooltipVisible(true)
@@ -82,7 +93,6 @@ export function CharacterTile({
     }
 
     if (!isSelected) {
-      hasShownTooltipRef.current = false
       setShowTooltip(false)
       setTooltipVisible(false)
     }
