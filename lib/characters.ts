@@ -59,3 +59,15 @@ export function getCharactersForPage(page: number): Character[] {
 export function getCharacterById(id: string): Character | undefined {
   return characters.find((char) => char.id === id)
 }
+
+export type Rarity = "Common" | "Rare" | "PermaRare"
+
+export function getRarity(id: string | null | undefined): Rarity {
+  if (!id) return "Common"
+  return (getCharacterById(id)?.traits[0] as Rarity) ?? "Common"
+}
+
+/** Background class for a raider's art: silver for Rare, gold for PermaRare, none for Common */
+export function rarityBgClass(rarity: Rarity): string | null {
+  return rarity === "PermaRare" ? "rarity-gold" : rarity === "Rare" ? "rarity-silver" : null
+}
