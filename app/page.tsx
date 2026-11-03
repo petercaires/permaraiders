@@ -303,7 +303,7 @@ export default function Home() {
         >
           <img src="/header.png" alt="Perma Raiders" className="object-contain select-none h-[clamp(36px,7.5svh,112px)]" />
           <p className="hidden wide:block text-white text-sm">pfp collection demo</p>
-          <p className="hidden wide:block text-white/70 text-sm">mint your character</p>
+          <p className="hidden wide:block text-white/70 text-sm">mint your raider</p>
         </header>
 
         <main
