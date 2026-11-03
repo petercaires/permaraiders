@@ -93,6 +93,19 @@ export default function Home() {
   const gridWidthPx = tileSize * gridCols + gridGap * (gridCols - 1)
   const gridHeightPx = tileSize * visibleRows + gridGap * (visibleRows - 1)
 
+  // Demo-level image protection: block right-click, drag and long-press saving on images
+  useEffect(() => {
+    const block = (e: Event) => {
+      if (e.target instanceof HTMLImageElement) e.preventDefault()
+    }
+    document.addEventListener("contextmenu", block)
+    document.addEventListener("dragstart", block)
+    return () => {
+      document.removeEventListener("contextmenu", block)
+      document.removeEventListener("dragstart", block)
+    }
+  }, [])
+
   // Desktop hero gap: 0 at full screen width, rising to 1 at the breakpoint
   useEffect(() => {
     const update = () => {
