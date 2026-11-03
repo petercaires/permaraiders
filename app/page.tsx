@@ -513,6 +513,8 @@ export default function Home() {
               !isGridVisible && "opacity-0 pointer-events-none",
             )}
             style={{ maxWidth: (isWide ? PANEL_MAX_WIDTH : gridWidthPx + RAIL_WIDTH) + 24 }}
+            // While the menu is hidden, nothing inside (back button, Mint, tiles) can be clicked, tapped or tabbed to
+            inert={!isGridVisible}
           >
           {isWide && (
             <div className="relative flex-1 min-h-0 flex">
@@ -709,7 +711,7 @@ export default function Home() {
           onClick={toggleMusic}
           aria-label="Toggle music"
           // Nudged right for optical balance with the icons below; a transform, so the column itself doesn't move
-          className="cursor-pointer hover:opacity-80 transition-opacity text-white w-5 h-5 sm:w-6 sm:h-6 translate-x-[5px]"
+          className="cursor-pointer hover:opacity-80 transition-opacity text-white w-5 h-5 sm:w-6 sm:h-6 translate-x-[3px]"
         >
           {isMusicPlaying ? <Volume2 className="w-full h-full py-px" /> : <VolumeX className="w-full h-full py-px" />}
         </button>
