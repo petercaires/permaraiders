@@ -317,6 +317,42 @@ img {
   animation: hero-pop 400ms ease-in-out forwards;
 }
 
+/* Empty-state silhouette edge light. The inner layer is the silhouette's own shape (as a mask) filled with
+   a slowly turning bright arc; the outer layer's drop-shadow lets that arc spill just past the edge, and the
+   (opaque) silhouette drawn on top hides everything inside it. So only a thin glow travels around the outline. */
+@property --trace {
+  syntax: "<angle>";
+  inherits: false;
+  initial-value: 0deg;
+}
+
+@keyframes hero-trace {
+  to {
+    --trace: 360deg;
+  }
+}
+
+.hero-trace {
+  filter: drop-shadow(0 0 2px rgb(255 255 255 / 0.6)) drop-shadow(0 0 6px rgb(255 255 255 / 0.25));
+}
+
+.hero-trace > div {
+  position: absolute;
+  inset: 0;
+  -webkit-mask: var(--silhouette) center / 100% 100% no-repeat;
+  mask: var(--silhouette) center / 100% 100% no-repeat;
+  background: conic-gradient(from var(--trace) at 52% 55%, transparent 0deg 270deg, white 330deg, transparent 360deg);
+  animation: hero-trace 6s linear infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  /* No movement: a still, faint rim all the way round */
+  .hero-trace > div {
+    animation: none;
+    background: rgb(255 255 255 / 0.35);
+  }
+}
+
 /* Hero edge: a soft transparency ramp on the side facing the character menu
    (bottom on phones, right on desktop), eased so it doesn't show steps. */
 .hero-fade {
