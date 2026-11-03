@@ -106,6 +106,13 @@
   }
 }
 
+/* Images can't be dragged out or long-press saved (demo-level protection) */
+img {
+  -webkit-user-drag: none;
+  -webkit-touch-callout: none;
+  user-select: none;
+}
+
 /* Removed border-glow and flash animations - no longer needed */
 
 /* Adding pulsing white border glow animation for tile hover */
