@@ -6,6 +6,9 @@ import "./globals.css"
 export const metadata: Metadata = {
   title: "Permaraiders - Character Select",
   description: "Select your fighter from 165 unique Permaraiders NFTs",
+  authors: [{ name: "@peterlikesthis", url: "https://www.twitter.com/peterlikesthis" }],
+  creator: "@peterlikesthis",
+  twitter: { creator: "@peterlikesthis" },
   icons: {
     icon: "/icon.png",
     apple: "/apple-icon.png",

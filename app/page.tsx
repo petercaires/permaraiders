@@ -418,6 +418,16 @@ export default function Home() {
         </main>
       </div>
 
+      {/* ---------- Creator credit: bottom-left on desktop, bottom-centre on phones ---------- */}
+      <a
+        href="https://www.twitter.com/peterlikesthis"
+        target="_blank"
+        rel="noopener noreferrer"
+        className="fixed z-40 bottom-2 left-1/2 -translate-x-1/2 wide:bottom-4 wide:left-4 wide:translate-x-0 text-[11px] uppercase tracking-wider whitespace-nowrap text-white/45 hover:text-white transition-colors"
+      >
+        built by @peterlikesthis
+      </a>
+
       {/* ---------- Corner controls ---------- */}
       <div className="fixed right-4 top-4 z-40 flex flex-col gap-1">
         <IconButton
