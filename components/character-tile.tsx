@@ -1,6 +1,7 @@
 "use client"
 
-import { useState, useRef, useEffect, type CSSProperties } from "react"
+import { useState, useRef, useEffect, useLayoutEffect, type CSSProperties } from "react"
+import { createPortal } from "react-dom"
 import { cn } from "@/lib/utils"
 import { traitUrls } from "@/lib/trait-urls"
 import { getRarity, rarityBgClass } from "@/lib/characters"
@@ -33,6 +34,24 @@ export function CharacterTile({
   const [showTooltip, setShowTooltip] = useState(false)
   const [tooltipVisible, setTooltipVisible] = useState(false)
   const hasShownTooltipRef = useRef(false)
+  const buttonRef = useRef<HTMLButtonElement | null>(null)
+  const [tooltipPos, setTooltipPos] = useState<{ x: number; y: number } | null>(null)
+
+  // Keep the tooltip pinned 12px above the tile, even if the menu scrolls or the window resizes
+  useLayoutEffect(() => {
+    if (!showTooltip) return
+    const place = () => {
+      const r = buttonRef.current?.getBoundingClientRect()
+      if (r) setTooltipPos({ x: r.left + r.width / 2, y: r.top - 12 })
+    }
+    place()
+    window.addEventListener("scroll", place, true)
+    window.addEventListener("resize", place)
+    return () => {
+      window.removeEventListener("scroll", place, true)
+      window.removeEventListener("resize", place)
+    }
+  }, [showTooltip])
 
   const traitId = traitIds.length > 0 ? traitIds[0] : `trait${id}`
   const traitSrc = traitUrls[traitId] || `/traits/${traitId}.png`
@@ -85,6 +104,7 @@ export function CharacterTile({
 
   return (
     <button
+      ref={buttonRef}
       className={cn(
         "relative aspect-square rounded-md overflow-visible transition-all duration-300 outline-offset-2 group border-2",
         isRevealed ? "opacity-100 scale-100" : "opacity-0 scale-95",
@@ -103,16 +123,20 @@ export function CharacterTile({
       onClick={handleClick}
       disabled={!isRevealed}
     >
-      {!isClaimed && isSelected && showTooltip && (
-        <div
-          className={cn(
-            "absolute -top-9 left-1/2 -translate-x-1/2 bg-white text-black px-2 py-1 rounded text-[11px] uppercase tracking-wider whitespace-nowrap z-[200] transition-opacity duration-200 flex items-center justify-center",
-            tooltipVisible ? "opacity-100" : "opacity-0",
-          )}
-        >
-          click to deselect
-        </div>
-      )}
+      {/* Drawn at page level so the menu's scroll area can't clip it */}
+      {!isClaimed && isSelected && showTooltip && tooltipPos &&
+        createPortal(
+          <div
+            className={cn(
+              "fixed -translate-x-1/2 -translate-y-full bg-white text-black px-2 py-1 rounded text-[11px] uppercase tracking-wider whitespace-nowrap z-[1000] pointer-events-none transition-opacity duration-200",
+              tooltipVisible ? "opacity-100" : "opacity-0",
+            )}
+            style={{ left: tooltipPos.x, top: tooltipPos.y }}
+          >
+            click to deselect
+          </div>,
+          document.body,
+        )}
 
       {rarityBg ? (
         <div
