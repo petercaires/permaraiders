@@ -317,21 +317,7 @@ img {
   animation: hero-pop 400ms ease-in-out forwards;
 }
 
-/* Empty-state silhouette edge light. The inner layer is the silhouette's own shape (as a mask) filled with
-   a slowly turning bright arc; the outer layer's drop-shadow lets that arc spill just past the edge, and the
-   (opaque) silhouette drawn on top hides everything inside it. So only a thin glow travels around the outline. */
-@property --trace {
-  syntax: "<angle>";
-  inherits: false;
-  initial-value: 0deg;
-}
-
-@keyframes hero-trace {
-  to {
-    --trace: 360deg;
-  }
-}
-
+/* Empty-state silhouette edge light (driven by components/silhouette-trace.tsx, which sets --trace) */
 .hero-trace {
   filter: drop-shadow(0 0 2px rgb(255 255 255 / 0.8)) drop-shadow(0 0 8px rgb(255 255 255 / 0.35));
 }
@@ -341,14 +327,12 @@ img {
   inset: 0;
   -webkit-mask: var(--silhouette) center / 100% 100% no-repeat;
   mask: var(--silhouette) center / 100% 100% no-repeat;
-  background: conic-gradient(from var(--trace) at 52% 55%, transparent 0deg 220deg, white 325deg, transparent 360deg);
-  animation: hero-trace 6s linear infinite;
+  background: conic-gradient(from var(--trace, 0deg) at 52% 55%, transparent 0deg 285deg, white 330deg, transparent 345deg);
 }
 
 @media (prefers-reduced-motion: reduce) {
   /* No movement: a still, faint rim all the way round */
   .hero-trace > div {
-    animation: none;
     background: rgb(255 255 255 / 0.35);
   }
 }
@@ -361,6 +345,11 @@ img {
   mask-image: var(--fade);
 }
 @media (orientation: landscape) and (min-width: 768px) {
+  /* The empty silhouette keeps its full right edge on desktop */
+  .hero-fade.silhouette {
+    -webkit-mask-image: none;
+    mask-image: none;
+  }
   .hero-fade {
     --fade: linear-gradient(to right, rgb(0 0 0 / 1.000) 76.0%, rgb(0 0 0 / 0.957) 78.8%, rgb(0 0 0 / 0.844) 81.5%, rgb(0 0 0 / 0.684) 84.2%, rgb(0 0 0 / 0.500) 87.0%, rgb(0 0 0 / 0.316) 89.8%, rgb(0 0 0 / 0.156) 92.5%, rgb(0 0 0 / 0.043) 95.2%, rgb(0 0 0 / 0.000) 98.0%);
   }

@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef, useCallback, type CSSProperties } from "react"
 import { CharacterDetails } from "@/components/character-details"
+import { SilhouetteTrace } from "@/components/silhouette-trace"
 import { CharacterPanel, PANEL_MAX_WIDTH, PANEL_PAD, RAIL_GAP, PANEL_RAIL } from "@/components/character-panel"
 import { getCharacterById, getRarity, rarityBgClass, RARITY_RGB } from "@/lib/characters"
 import { getClaimedIds, claimCharacter, clearAllClaimed } from "@/lib/mintAdapter"
@@ -279,21 +280,14 @@ export default function Home() {
       {/* ---------- Hero ---------- */}
       <section className="relative order-2 wide:order-none flex-1 min-h-0 wide:min-w-0 z-0 pointer-events-none select-none">
         {/* Empty-state silhouette: a soft light travelling around its edge, so it reads at first glance */}
-        {displayedHeroId === "000" && (
-          <div
-            aria-hidden
-            className={cn("hero-trace", HERO_BOX)}
-            style={{ ["--silhouette" as string]: `url("${heroUrls["hero000"]}")` } as CSSProperties}
-          >
-            <div />
-          </div>
-        )}
+        {displayedHeroId === "000" && <SilhouetteTrace src={heroUrls["hero000"]} className={cn(HERO_BOX, "silhouette")} />}
         <img
           key={heroPopTrigger}
           src={heroUrls[`hero${displayedHeroId}`] || heroUrls["hero000"]}
           alt=""
           className={cn(
             HERO_BOX,
+            displayedHeroId === "000" && "silhouette",
             "transition-[opacity,filter] select-none",
             isDisplayedClaimed ? "opacity-50" : "opacity-100",
             "duration-500 ease-in",
