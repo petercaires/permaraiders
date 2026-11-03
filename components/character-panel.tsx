@@ -123,7 +123,7 @@ export function CharacterPanel({ selectedId, claimedIds, onHover, onLeave, onSel
           height: `calc(100% + ${GLOW_ROOM * 2}px)`, // the margin stretches it sideways on its own, not vertically
           padding: PANEL_PAD + GLOW_ROOM,
           scrollPaddingTop: PANEL_PAD + GLOW_ROOM,
-          ["--clip" as string]: edges(0, 0), // phone: hard edge, it shows exactly 3 whole rows
+          ["--clip" as string]: edges(16, 28), // phone: shorter fades, as it shows only 3 rows
           ["--fade" as string]: edges(28, 56),
         } as CSSProperties}
       >
