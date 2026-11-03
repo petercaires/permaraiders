@@ -1,7 +1,7 @@
+/* JetBrains Mono, the site's one typeface (a url @import has to come first, or browsers ignore it) */
+@import url("https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap");
 @import "tailwindcss";
 @import "tw-animate-css";
-/* JetBrains Mono, the site's one typeface */
-@import url("https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap");
 
 /*
  * The single layout switch for the page.
