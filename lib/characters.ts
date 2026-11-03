@@ -160,7 +160,7 @@ const DESCRIPTIONS: Record<string, string> = {
   "144": "Headbangs to the sound of block confirmations.",
   "145": "Only listens to vinyl and full nodes.",
   "146": "Neon mankini, zero shame. Says it's for aerodynamics.",
-  "147": "Came to learn about the culture of the permaweb.",
+  "147": "Came to learn about the culture of the permaweb. Very nice.",
   "148": "Back on the block. Ah, here we go again.",
   "149": "Repping San Andreas. Has never once followed the train.",
   "150": "Five stars and counting.",
