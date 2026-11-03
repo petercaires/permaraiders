@@ -197,8 +197,6 @@ img {
 .rarity-silver {
   isolation: isolate;
   overflow: hidden;
-  /* Safari otherwise ignores the rounded corners when clipping the blurred shimmer */
-  -webkit-mask-image: -webkit-radial-gradient(white, black);
 }
 
 .rarity-gold::before,
@@ -219,6 +217,16 @@ img {
 
 .rarity-silver::before {
   background: conic-gradient(from var(--swirl), #4b525c, #eef1f5, #8f98a3, #ffffff, #5d6570, #cfd5dc, #4b525c);
+}
+
+/* Rarity tags: the same colours as a plain background (a blurred layer behind a small tag loses its
+   rounded corners in iPhone Safari) */
+.tag-gold {
+  background: linear-gradient(135deg, #e8b630, #ffe78f 50%, #f2c446);
+}
+
+.tag-silver {
+  background: linear-gradient(135deg, #8f98a3, #eef1f5 50%, #cfd5dc);
 }
 
 .rarity-swirl::before {

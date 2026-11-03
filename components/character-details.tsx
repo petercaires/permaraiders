@@ -40,8 +40,8 @@ export function CharacterDetails({ id, isMinted }: CharacterDetailsProps) {
                 "text-[11px] uppercase tracking-wider px-1.5 py-0.5 rounded border whitespace-nowrap min-w-0 truncate",
                 RARITY_RGB[character.rarity]
                   ? cn(
-                      "relative border-glow-animate border-transparent text-black font-bold [--rarity-blur:5px]",
-                      character.rarity === "PermaRare" ? "rarity-gold" : "rarity-silver",
+                      "border-glow-animate border-transparent text-black font-bold",
+                      character.rarity === "PermaRare" ? "tag-gold" : "tag-silver",
                     )
                   : "border-white/20 text-white/70",
               )}

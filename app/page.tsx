@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef, useCallback, type CSSProperties } from "react"
 import { CharacterDetails } from "@/components/character-details"
-import { CharacterPanel, PANEL_MAX_WIDTH, PANEL_PAD, PANEL_GAP, PANEL_RAIL } from "@/components/character-panel"
+import { CharacterPanel, PANEL_MAX_WIDTH, PANEL_PAD, RAIL_GAP, PANEL_RAIL } from "@/components/character-panel"
 import { getCharacterById, getRarity, rarityBgClass, RARITY_RGB } from "@/lib/characters"
 import { getClaimedIds, claimCharacter, clearAllClaimed } from "@/lib/mintAdapter"
 import { Volume2, VolumeX, RotateCcw, Check } from "lucide-react"
@@ -315,13 +315,14 @@ export default function Home() {
         >
           {/* One visual block: character sheet + description in a single box (30% black on desktop), 12px inset all round */}
           <div
-            className="@container w-full max-w-[651px] wide:max-w-[var(--box-max)] min-h-0 flex flex-col gap-3 p-3 rounded-md wide:bg-black/30 wide:flex-1"
+            className="@container w-full max-w-[651px] wide:max-w-[var(--box-max)] min-h-0 flex flex-col gap-3 p-3 rounded-md wide:bg-black/30 wide:flex-1 translate-x-[var(--nudge)] wide:translate-x-0"
             // Portrait: at most 651px wide, so 3 rows of 5 stay within 360px tall (tablets). Wide: the panel's max + inset
-            style={{ ["--box-max" as string]: `${PANEL_MAX_WIDTH + 24}px` } as CSSProperties}
+            // Mobile: nudged right by half the rail, so the tiles (not tiles + rail) sit centred on screen
+            style={{ ["--box-max" as string]: `${PANEL_MAX_WIDTH + 24}px`, ["--nudge" as string]: `${(RAIL_GAP + PANEL_RAIL) / 2}px` } as CSSProperties}
           >
           {/* Character sheet; the mint sequence plays over it. Phones: 5 columns, exactly 3 rows tall
-              (tile = (width − 60px of rail, gaps and padding) / 5, so 3 rows = 3/5 of that + 20px) */}
-          <div className="relative flex min-h-0 shrink-0 h-[calc((100cqw_-_60px)_*_0.6_+_20px)] wide:h-auto wide:flex-1">
+              (tile = (width − 56px of rail, gaps and padding) / 5, so 3 rows = 3/5 of that + 20px) */}
+          <div className="relative flex min-h-0 shrink-0 h-[calc((100cqw_-_56px)_*_0.6_+_20px)] wide:h-auto wide:flex-1">
             <CharacterPanel
               className={cn(
                 "flex-1 transition-opacity duration-300",
@@ -337,15 +338,14 @@ export default function Home() {
             <MintStage phase={mintPhase} id={mintingId} imageSrc={mintImage} rarity={getRarity(mintingId)} onBack={handleBackToRaiders} />
           </div>
 
-          {/* Details + action row, fixed height so nothing shifts. The description spans the tiles and the scroll rail;
-              the action row ends at the tiles' right edge */}
+          {/* Details + action row: flush with the tiles' edges (not the scroll rail), fixed height so nothing shifts */}
           <div
             className="w-full shrink-0 flex flex-col gap-1 wide:gap-2"
-            style={{ paddingLeft: PANEL_PAD }}
+            style={{ paddingLeft: PANEL_PAD, paddingRight: PANEL_PAD + RAIL_GAP + PANEL_RAIL }}
           >
             <CharacterDetails id={displayedHeroId === "000" ? null : displayedHeroId} isMinted={isDisplayedClaimed} />
 
-            <div className="flex items-center justify-between gap-3 h-10 wide:h-12" style={{ paddingRight: PANEL_PAD + PANEL_GAP + PANEL_RAIL }}>
+            <div className="flex items-center justify-between gap-3 h-10 wide:h-12">
               <p
                 key={actionId ?? "none"}
                 className={cn(

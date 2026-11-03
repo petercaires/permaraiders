@@ -19,6 +19,7 @@ import { cn } from "@/lib/utils"
 export const PANEL_GAP = 6 // px between tiles
 export const PANEL_PAD = 4 // px inset so hover/selected tiles aren't clipped
 export const PANEL_RAIL = 22 // px scroll rail beside the sheet
+export const RAIL_GAP = 2 // px between the sheet and the scroll rail
 // The scroll area reaches this far past the tiles (negative margin + matching padding, so the tiles
 // don't move) so hover/rarity glows can spill out instead of being clipped at the sheet's edge
 const GLOW_ROOM = 32
@@ -27,7 +28,7 @@ const TILE_MAX = 84
 const MAX_COLS = 11
 /** Widest the panel gets, so tiles top out at TILE_MAX with MAX_COLS columns */
 export const PANEL_MAX_WIDTH =
-  MAX_COLS * TILE_MAX + (MAX_COLS - 1) * PANEL_GAP + PANEL_PAD * 2 + PANEL_GAP + PANEL_RAIL
+  MAX_COLS * TILE_MAX + (MAX_COLS - 1) * PANEL_GAP + PANEL_PAD * 2 + RAIL_GAP + PANEL_RAIL
 
 interface CharacterPanelProps {
   selectedId: string | null
@@ -107,7 +108,7 @@ export function CharacterPanel({ selectedId, claimedIds, onHover, onLeave, onSel
     })`
 
   return (
-    <div className={cn("flex min-h-0 w-full", className)} style={{ gap: PANEL_GAP, maxWidth: PANEL_MAX_WIDTH }}>
+    <div className={cn("flex min-h-0 w-full", className)} style={{ gap: RAIL_GAP, maxWidth: PANEL_MAX_WIDTH }}>
       <div
         ref={scrollRef}
         onScroll={update}
