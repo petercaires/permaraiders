@@ -260,7 +260,7 @@ img {
  *   display  raider number          clamp(24–34px) / clamp(28–48px), bold
  *   title    stage headings          18px / 24px (text-lg / wide:text-2xl), bold
  *   label    raider name, buttons    16px (text-base), bold
- *   body     description, sub-lines  11px / 12px (text-[11px] / wide:text-xs), regular
+ *   body     description, sub-lines  12px / 14px (text-xs / wide:text-sm), regular
  *   meta     tags, badges, tooltips, tile numbers   11px (text-[11px]), uppercase + tracking-wider for words
  */
 
