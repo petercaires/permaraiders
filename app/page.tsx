@@ -158,7 +158,7 @@ export default function Home() {
           const startOnFirstInteraction = (e: Event) => {
             removeListeners()
             const target = e.target as Element | null
-            if (target?.closest?.('[aria-label="Toggle music"]')) return
+            if (target?.closest?.("[data-music-toggle]")) return
             if (!musicRef.current?.paused) return
             startMusic(1000).catch(() => {})
           }
@@ -420,14 +420,18 @@ export default function Home() {
 
       {/* ---------- Corner controls ---------- */}
       <div className="fixed right-4 top-4 z-40 flex flex-col gap-1">
-        <button
+        <IconButton
+          label={isMusicPlaying ? "mute" : "unmute"}
           onClick={toggleMusic}
-          aria-label="Toggle music"
-          // Nudged right for optical balance with the icons below; a transform, so the column itself doesn't move
-          className="cursor-pointer hover:opacity-80 transition-opacity text-white w-5 h-5 sm:w-6 sm:h-6 translate-x-[2px]"
+          data-music-toggle
         >
-          {isMusicPlaying ? <Volume2 className="w-full h-full py-px" /> : <VolumeX className="w-full h-full py-px" />}
-        </button>
+          {/* Icon nudged right for optical balance with the icons below (the button and its tooltip stay aligned) */}
+          {isMusicPlaying ? (
+            <Volume2 className="w-full h-full py-px translate-x-[2px]" />
+          ) : (
+            <VolumeX className="w-full h-full py-px translate-x-[2px]" />
+          )}
+        </IconButton>
         <IconButton
           label={isGridVisible ? "hide grid" : "show grid"}
           onClick={() => setIsGridVisible((v) => !v)}
@@ -438,14 +442,15 @@ export default function Home() {
           href="https://t.me/permaraidz"
           target="_blank"
           rel="noopener noreferrer"
-          className="select-none cursor-pointer hover:opacity-80 transition-opacity w-5 h-5 sm:w-6 sm:h-6 p-0.5"
-          aria-label="Telegram"
+          className="group relative select-none cursor-pointer w-5 h-5 sm:w-6 sm:h-6 p-0.5"
+          aria-label="telegram"
         >
           <img
             src="https://ik.imagekit.io/peterlikesthis/permaraiderz/telegram.png"
             alt=""
-            className="select-none brightness-0 invert w-full h-full"
+            className="select-none brightness-0 invert w-full h-full group-hover:opacity-80 transition-opacity"
           />
+          <Tooltip label="telegram" />
         </a>
         {claimedIds.length > 0 && (
           <IconButton label="reset demo mints" onClick={handleResetMints} disabled={!isGridVisible}>
@@ -460,26 +465,26 @@ export default function Home() {
 
 function IconButton({
   label,
-  onClick,
-  disabled = false,
   children,
-}: {
-  label: string
-  onClick: () => void
-  disabled?: boolean
-  children: React.ReactNode
-}) {
+  ...props
+}: { label: string; children: React.ReactNode } & React.ComponentProps<"button"> & { "data-music-toggle"?: boolean }) {
   return (
     <button
-      onClick={onClick}
       aria-label={label}
-      disabled={disabled}
       className="cursor-pointer text-white w-5 h-5 sm:w-6 sm:h-6 group relative transition-opacity disabled:opacity-30 disabled:cursor-default"
+      {...props}
     >
       <div className="group-enabled:hover:opacity-80 transition-opacity w-full h-full">{children}</div>
-      <div className="absolute right-full mr-2 top-1/2 -translate-y-1/2 group-enabled:group-hover:block hidden pointer-events-none whitespace-nowrap">
-        <div className="bg-white text-black text-[11px] uppercase tracking-wider px-2 py-1 rounded">{label}</div>
-      </div>
+      <Tooltip label={label} />
     </button>
+  )
+}
+
+/** Hover label to the left of a corner icon (hidden while a button is disabled) */
+function Tooltip({ label }: { label: string }) {
+  return (
+    <div className="absolute right-full mr-2 top-1/2 -translate-y-1/2 hidden group-hover:block group-disabled:!hidden pointer-events-none whitespace-nowrap">
+      <div className="bg-white text-black text-[11px] uppercase tracking-wider px-2 py-1 rounded">{label}</div>
+    </div>
   )
 }
