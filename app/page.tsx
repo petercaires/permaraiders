@@ -636,7 +636,7 @@ export default function Home() {
                     "relative rounded overflow-hidden shrink-0 h-10 wide:h-12 aspect-square border-2",
                     selectedId ? "border-white" : "border-dashed border-white/25",
                     selectedId && rarityBgClass(getRarity(selectedId)),
-                    selectedId && rarityBgClass(getRarity(selectedId)) && "rarity-swirl",
+                    selectedId && rarityBgClass(getRarity(selectedId)) && "rarity-swirl [--rarity-blur:10px]",
                   )}
                 >
                   {selectedId && (
