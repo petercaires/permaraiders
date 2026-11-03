@@ -273,8 +273,10 @@ export default function Home() {
           className={cn(
             "hero-fade absolute bottom-0 max-w-none aspect-square",
             // Height is always tied to the viewport height, never the width.
-            // portrait: 55% of the screen height, centred (narrow phones crop both sides equally)
-            "h-[55svh] left-1/2 -translate-x-1/2 translate-y-[10svh] wide:translate-y-0",
+            // portrait: 55% of the screen height, centred (narrow phones crop both sides equally).
+            // Pinned: shrinks so its top never rises above the logo (100% = the gap between logo and menu,
+            // plus the 10svh it tucks behind the menu and the header's bottom padding), but never below 33svh
+            "h-[max(33svh,min(55svh,calc(100%_+_10svh_+_clamp(12px,3svh,32px))))] left-1/2 -translate-x-1/2 translate-y-[10svh] wide:translate-y-0",
             // wide: full screen height, left edge pinned so the left is never cropped;
             // a narrower screen slides more of the right side under the menu column instead
             "wide:h-[100svh] wide:left-0 wide:translate-x-[calc(var(--hero-shift,0px)*-1)]",

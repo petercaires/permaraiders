@@ -112,13 +112,14 @@ export function CharacterPanel({ selectedId, claimedIds, onHover, onLeave, onSel
         ref={scrollRef}
         onScroll={update}
         className={cn(
-          "relative flex-1 min-w-0 h-full overflow-y-auto overscroll-contain",
+          "relative flex-1 min-w-0 overflow-y-auto overscroll-contain",
           "snap-y snap-mandatory [scrollbar-width:none] [&::-webkit-scrollbar]:hidden",
           "[mask-image:var(--clip)] [-webkit-mask-image:var(--clip)] wide:[mask-image:var(--fade)] wide:[-webkit-mask-image:var(--fade)]",
           isDragging && "snap-none",
         )}
         style={{
           margin: -GLOW_ROOM,
+          height: `calc(100% + ${GLOW_ROOM * 2}px)`, // the margin stretches it sideways on its own, not vertically
           padding: PANEL_PAD + GLOW_ROOM,
           scrollPaddingTop: PANEL_PAD + GLOW_ROOM,
           ["--clip" as string]: edges(0, 0), // phone: hard edge, it shows exactly 3 whole rows
