@@ -294,7 +294,7 @@
 }
 
 .rarity-gold::before {
-  background: conic-gradient(from var(--swirl), #6b4e0e, #f7dc7c, #b8860b, #fff4c2, #9a7212, #f2cd5c, #6b4e0e);
+  background: conic-gradient(from var(--swirl), #d9a83a, #ffe78f, #f2c446, #fff8d8, #e8b630, #ffdc6e, #d9a83a);
 }
 
 .rarity-silver::before {
