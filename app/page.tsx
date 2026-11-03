@@ -634,7 +634,13 @@ export default function Home() {
                 <div
                   className={cn(
                     "relative rounded overflow-hidden shrink-0 h-10 wide:h-12 aspect-square border-2",
-                    selectedId ? "border-white" : "border-dashed border-white/25",
+                    !selectedId && "border-dashed border-white/25",
+                    selectedId &&
+                      (getRarity(selectedId) === "PermaRare"
+                        ? "border-[rgb(255_214_92)]"
+                        : getRarity(selectedId) === "Rare"
+                          ? "border-[rgb(207_213_220)]"
+                          : "border-white"),
                     selectedId && rarityBgClass(getRarity(selectedId)),
                     selectedId && rarityBgClass(getRarity(selectedId)) && "rarity-swirl [--rarity-blur:10px]",
                   )}
