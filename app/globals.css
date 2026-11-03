@@ -3,8 +3,6 @@
 /* JetBrains Mono, the site's one typeface */
 @import url("https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap");
 
-@custom-variant dark (&:is(.dark *));
-
 /*
  * The single layout switch for the page.
  * wide  = landscape screens at least 768px wide (laptops, desktops, landscape tablets/phones)
@@ -13,8 +11,7 @@
 @custom-variant wide (@media (orientation: landscape) and (min-width: 768px));
 
 :root {
-  /* Converting to grayscale theme */
-  /* Lightened background from 0.08 to 0.18 (10% lighter) */
+  /* Greyscale theme */
   --background: oklch(0.18 0 0);
   --foreground: oklch(0.95 0 0);
   --card: oklch(0.12 0 0);
@@ -34,27 +31,14 @@
   --border: oklch(0.22 0 0);
   --input: oklch(0.22 0 0);
   --ring: oklch(0.5 0 0);
-  --chart-1: oklch(0.65 0 0);
-  --chart-2: oklch(0.7 0 0);
-  --chart-3: oklch(0.6 0 0);
-  --chart-4: oklch(0.75 0 0);
-  --chart-5: oklch(0.68 0 0);
   --radius: 0.5rem;
-  --sidebar: oklch(0.12 0 0);
-  --sidebar-foreground: oklch(0.95 0 0);
-  --sidebar-primary: oklch(0.5 0 0);
-  --sidebar-primary-foreground: oklch(0.98 0 0);
-  --sidebar-accent: oklch(0.22 0 0);
-  --sidebar-accent-foreground: oklch(0.95 0 0);
-  --sidebar-border: oklch(0.22 0 0);
-  --sidebar-ring: oklch(0.5 0 0);
 }
 
 @theme inline {
-  /* Restored original Geist font as primary sans-serif */
-  --font-sans: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+  /* One typeface everywhere: JetBrains Mono (so anything outside the page root, e.g. tooltips, matches too) */
   --font-mono: "JetBrains Mono", ui-monospace, "SFMono-Regular", Menlo, Monaco, Consolas, "Liberation Mono",
     "Courier New", monospace;
+  --font-sans: var(--font-mono);
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-card: var(--card);
@@ -74,23 +58,10 @@
   --color-border: var(--border);
   --color-input: var(--input);
   --color-ring: var(--ring);
-  --color-chart-1: var(--chart-1);
-  --color-chart-2: var(--chart-2);
-  --color-chart-3: var(--chart-3);
-  --color-chart-4: var(--chart-4);
-  --color-chart-5: var(--chart-5);
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
   --radius-xl: calc(var(--radius) + 4px);
-  --color-sidebar: var(--sidebar);
-  --color-sidebar-foreground: var(--sidebar-foreground);
-  --color-sidebar-primary: var(--sidebar-primary);
-  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
-  --color-sidebar-accent: var(--sidebar-accent);
-  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
-  --color-sidebar-border: var(--sidebar-border);
-  --color-sidebar-ring: var(--sidebar-ring);
 }
 
 @layer base {
@@ -98,8 +69,7 @@
     @apply border-border outline-ring/50;
   }
   body {
-    /* Added overflow-x-hidden to prevent horizontal scrolling on body */
-    /* Added overflow-y-hidden to prevent vertical scrollbar during animations */
+    /* The page is a fixed, full-screen layout: no page scrolling */
     @apply bg-background text-foreground overflow-x-hidden overflow-y-hidden;
   }
 }
@@ -111,9 +81,7 @@ img {
   user-select: none;
 }
 
-/* Removed border-glow and flash animations - no longer needed */
-
-/* Adding pulsing white border glow animation for tile hover */
+/* Pulsing border glow on hovered tiles and rarity tags (colour from --glow) */
 @keyframes border-glow {
   0%,
   100% {
@@ -132,9 +100,7 @@ img {
   animation: border-glow 2s ease-in-out infinite;
 }
 
-/* Lightweight fog animation using CSS gradients */
-/* Made fog animation more visible by increasing opacity and size */
-/* Optimized fog animation - reduced blur and simplified gradients */
+/* Background fog: two blurred gradients drifting slowly */
 @keyframes fog-drift {
   0% {
     transform: translateX(-10%) translateY(0);
@@ -165,35 +131,6 @@ img {
   }
 }
 
-/* Added gradient pulse animation for selected trait top edge */
-/* Unified pulse animation - removed separate mintPulse, using gradientPulse for both */
-@keyframes gradientPulse {
-  0%,
-  100% {
-    opacity: 0.3;
-  }
-  50% {
-    opacity: 0.6;
-  }
-}
-
-/* Widened spark to be a block with blurred edges */
-@keyframes sparkRise {
-  0% {
-    bottom: 0;
-    opacity: 0;
-    transform: translateY(0);
-  }
-  20% {
-    opacity: 1;
-  }
-  100% {
-    bottom: 100%;
-    opacity: 0;
-    transform: translateY(-20%);
-  }
-}
-
 .fog-container {
   position: fixed;
   left: 0;
@@ -212,14 +149,12 @@ img {
   position: absolute;
   width: 1000px;
   height: 800px;
-  /* Reduced blur from 70px to 40px for better performance */
   background: radial-gradient(ellipse at center, rgba(120, 120, 140, 0.3) 0%, transparent 70%);
   filter: blur(40px);
   animation: fog-drift 20s ease-in-out infinite;
   left: 50%;
   top: 50%;
   transform: translate(-50%, -50%);
-  /* Added will-change for GPU acceleration */
   will-change: transform, opacity;
 }
 
@@ -228,7 +163,6 @@ img {
   position: absolute;
   width: 800px;
   height: 600px;
-  /* Reduced blur from 60px to 35px for better performance */
   background: radial-gradient(ellipse at center, rgba(100, 100, 120, 0.25) 0%, transparent 70%);
   filter: blur(35px);
   animation: fog-drift-2 25s ease-in-out infinite;
@@ -236,11 +170,10 @@ img {
   top: 50%;
   transform: translate(-50%, -50%);
   animation-delay: -5s;
-  /* Added will-change for GPU acceleration */
   will-change: transform, opacity;
 }
 
-/* Adding confetti particle animation */
+/* Mint success confetti: each particle flies out at its own --angle and --speed */
 @keyframes explosion {
   0% {
     transform: translate(-50%, -50%) translate(0, 0);
@@ -375,7 +308,7 @@ img {
   animation: explosion 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
 }
 
-/* Adding hero pop animation - scales from 1 → 1.05 → 1 over 280ms */
+/* Hero pop on selection: 1 → 1.05 → 1 */
 @keyframes hero-pop {
   0% {
     transform: scale(1);
@@ -389,7 +322,6 @@ img {
 }
 
 .animate-hero-pop {
-  /* Updated hero pop animation duration to 400ms and easing to ease-in-out */
   animation: hero-pop 400ms ease-in-out forwards;
 }
 

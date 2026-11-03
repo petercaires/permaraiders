@@ -26,12 +26,10 @@ import { traitUrls } from "@/lib/trait-urls"
  * shape (columns × rows) and scales uniformly to fit the space it has.
  */
 
-// The character menu has a fixed shape per layout and scales as one piece:
+// Phone character menu: a fixed 5 × 3 shape that scales as one piece —
 // tiles AND gaps grow and shrink together, so it never jumps between column counts.
-const MENU_SHAPE = {
-  wide: { cols: 11, rows: 6 },
-  portrait: { cols: 5, rows: 3 },
-}
+// (Desktop uses CharacterPanel, which reflows on its own.)
+const PHONE_MENU = { cols: 5, rows: 3 }
 const GAP_RATIO = 0.09 // gap as a fraction of the tile size
 const RAIL_WIDTH = 28 // scroll arrows + bar beside the menu
 const WIDE_QUERY = "(orientation: landscape) and (min-width: 768px)" // same as the `wide` CSS variant
@@ -43,8 +41,14 @@ const WIDE_BREAKPOINT = 768 // px, where the layout switches to the phone layout
 const HERO_ART_GAP = 0.1 // left gap as a fraction of the hero's width
 const HERO_GAP_AT_BREAKPOINT = 0.05 // fraction of the gap still showing at the breakpoint
 
-function computeGrid(width: number, height: number, isWide: boolean) {
-  const { cols, rows } = isWide ? MENU_SHAPE.wide : MENU_SHAPE.portrait
+// Audio
+const SFX = "https://ik.imagekit.io/peterlikesthis/permaraiderz/permaraiderz%20sfx/"
+const MUSIC_VOLUME = 0.316 // about -10 dB
+const SFX_VOLUME = 0.5
+const SUCCESS_VOLUME = 0.398 // about -8 dB
+
+function computeGrid(width: number, height: number) {
+  const { cols, rows } = PHONE_MENU
   const usableW = Math.max(0, width - RAIL_WIDTH)
   // largest tile where cols × rows (plus proportional gaps) fits the box, in both directions
   const fitW = usableW / (cols + (cols - 1) * GAP_RATIO)
@@ -71,6 +75,7 @@ export default function Home() {
   const [isMusicPlaying, setIsMusicPlaying] = useState(false)
   // The volume button mutes everything: music and sound effects
   const soundOnRef = useRef(true)
+  const fadeRef = useRef<number | undefined>(undefined)
   const musicRef = useRef<HTMLAudioElement | null>(null)
   const [isDragging, setIsDragging] = useState(false)
   const scrollbarRef = useRef<HTMLDivElement | null>(null)
@@ -80,7 +85,7 @@ export default function Home() {
   const [heroPopTrigger, setHeroPopTrigger] = useState(0)
   const gridAreaRef = useRef<HTMLDivElement | null>(null)
   const [isWide, setIsWide] = useState(true)
-  const [grid, setGrid] = useState(() => computeGrid(375, 180, false))
+  const [grid, setGrid] = useState(() => computeGrid(375, 180))
   const prefersReducedMotion =
     typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches
 
@@ -137,7 +142,7 @@ export default function Home() {
       // Height budget for the menu: 28% of the screen, between 130 and 360px.
       // The menu area then hugs the menu itself, so the box inset stays even all round.
       const height = Math.min(360, Math.max(130, window.innerHeight * 0.28))
-      if (width > 0) setGrid(computeGrid(width, height, false))
+      if (width > 0) setGrid(computeGrid(width, height))
     }
     measure()
     const ro = new ResizeObserver(measure)
@@ -168,79 +173,66 @@ export default function Home() {
   }, [])
 
   useEffect(() => {
-    characters.forEach((char) => {
-      const traitId = char.traitIds.length > 0 ? char.traitIds[0] : `trait${char.id}`
-      const img = new Image()
-      img.src = traitUrls[traitId] || `/traits/${traitId}.png`
-    })
-  }, [])
-
-  useEffect(() => {
-    selectSoundRef.current = new Audio(
-      "https://ik.imagekit.io/peterlikesthis/permaraiderz/permaraiderz%20sfx/select.wav",
-    )
-    selectSoundRef.current.volume = 0.5
-    selectSoundRef.current.load()
-
-    hoverSoundRef.current = new Audio("https://ik.imagekit.io/peterlikesthis/permaraiderz/permaraiderz%20sfx/hover.wav")
-    hoverSoundRef.current.volume = 0.5
-    hoverSoundRef.current.load()
-
-    musicRef.current = new Audio("https://ik.imagekit.io/peterlikesthis/permaraiderz/permaraiderz%20sfx/loop.wav")
-    musicRef.current.volume = 0.316
+    const load = (file: string, volume: number) => {
+      const audio = new Audio(SFX + file)
+      audio.volume = volume
+      audio.preload = "auto"
+      return audio
+    }
+    selectSoundRef.current = load("select.wav", SFX_VOLUME)
+    hoverSoundRef.current = load("hover.wav", SFX_VOLUME)
+    successSoundRef.current = load("mint%20positive.wav", SUCCESS_VOLUME)
+    musicRef.current = load("loop.wav", MUSIC_VOLUME)
     musicRef.current.loop = true
-    musicRef.current.preload = "auto"
-
-    successSoundRef.current = new Audio(
-      "https://ik.imagekit.io/peterlikesthis/permaraiderz/permaraiderz%20sfx/mint%20positive.wav",
-    )
-    successSoundRef.current.volume = 0.398
-    successSoundRef.current.preload = "auto"
-    successSoundRef.current.load()
+    return () => {
+      musicRef.current?.pause()
+      clearInterval(fadeRef.current)
+    }
   }, [])
+
+  /** Fade the music to a volume over `ms`, then pause it if the target is silence. One fade at a time. */
+  const fadeMusic = useCallback((to: number, ms: number) => {
+    const music = musicRef.current
+    if (!music) return
+    clearInterval(fadeRef.current)
+    const from = music.volume
+    const start = performance.now()
+    fadeRef.current = window.setInterval(() => {
+      const t = Math.min(1, (performance.now() - start) / ms)
+      music.volume = from + (to - from) * t
+      if (t === 1) {
+        clearInterval(fadeRef.current)
+        if (to === 0) music.pause()
+      }
+    }, 30)
+  }, [])
+
+  /** Start the music from silence and fade it in. Rejects if the browser blocks autoplay. */
+  const startMusic = useCallback(
+    (fadeMs: number) => {
+      const music = musicRef.current
+      if (!music) return Promise.reject()
+      clearInterval(fadeRef.current)
+      music.volume = 0
+      return music.play().then(() => {
+        setIsMusicPlaying(true)
+        fadeMusic(MUSIC_VOLUME, fadeMs)
+      })
+    },
+    [fadeMusic],
+  )
 
   useEffect(() => {
     if (!isLoading && musicRef.current) {
-      musicRef.current.volume = 0
-      musicRef.current
-        .play()
-        .then(() => {
-          setIsMusicPlaying(true)
-          let currentVolume = 0
-          const fadeInterval = setInterval(() => {
-            if (currentVolume < 0.316) {
-              currentVolume = Math.min(0.316, currentVolume + 0.016)
-              if (musicRef.current) musicRef.current.volume = currentVolume
-            } else {
-              clearInterval(fadeInterval)
-            }
-          }, 50)
-        })
-        .catch(() => {
+      startMusic(1000).catch(() => {
           // Browsers block sound until the visitor interacts, so start the music on their first click, tap or key press.
           // A first click on the music button itself is left to that button.
           const startOnFirstInteraction = (e: Event) => {
             removeListeners()
             const target = e.target as Element | null
             if (target?.closest?.('[aria-label="Toggle music"]')) return
-            const music = musicRef.current
-            if (!music || !music.paused) return
-            music.volume = 0
-            music
-              .play()
-              .then(() => {
-                setIsMusicPlaying(true)
-                let currentVolume = 0
-                const fadeInterval = setInterval(() => {
-                  if (currentVolume < 0.316) {
-                    currentVolume = Math.min(0.316, currentVolume + 0.016)
-                    if (musicRef.current) musicRef.current.volume = currentVolume
-                  } else {
-                    clearInterval(fadeInterval)
-                  }
-                }, 50)
-              })
-              .catch(() => {})
+            if (!musicRef.current?.paused) return
+            startMusic(1000).catch(() => {})
           }
           const events = ["pointerdown", "keydown", "touchstart"] as const
           const removeListeners = () =>
@@ -248,7 +240,7 @@ export default function Home() {
           events.forEach((ev) => document.addEventListener(ev, startOnFirstInteraction, true))
         })
     }
-  }, [isLoading])
+  }, [isLoading, startMusic])
 
   useEffect(() => {
     if (selectedId && !prefersReducedMotion) {
@@ -256,39 +248,15 @@ export default function Home() {
     }
   }, [selectedId, prefersReducedMotion])
 
+  // The volume button mutes everything: music fades out/in, sound effects stop/start
   const toggleMusic = () => {
-    if (!musicRef.current) return
     if (isMusicPlaying) {
       soundOnRef.current = false
-      let currentVolume = musicRef.current.volume
-      const fadeOutInterval = setInterval(() => {
-        if (currentVolume > 0) {
-          currentVolume = Math.max(0, currentVolume - 0.032)
-          if (musicRef.current) musicRef.current.volume = currentVolume
-        } else {
-          clearInterval(fadeOutInterval)
-          if (musicRef.current) musicRef.current.pause()
-        }
-      }, 30)
       setIsMusicPlaying(false)
+      fadeMusic(0, 300)
     } else {
       soundOnRef.current = true
-      musicRef.current.volume = 0
-      musicRef.current
-        .play()
-        .then(() => {
-          setIsMusicPlaying(true)
-          let currentVolume = 0
-          const fadeInInterval = setInterval(() => {
-            if (currentVolume < 0.316) {
-              currentVolume = Math.min(0.316, currentVolume + 0.032)
-              if (musicRef.current) musicRef.current.volume = currentVolume
-            } else {
-              clearInterval(fadeInInterval)
-            }
-          }, 30)
-        })
-        .catch(() => {})
+      startMusic(300).catch(() => {})
     }
   }
 
@@ -325,8 +293,8 @@ export default function Home() {
 
   useEffect(() => {
     if (mintPhase !== "minting" || !mintingId) return
-    const timer = setTimeout(async () => {
-      await claimCharacter(mintingId)
+    const timer = setTimeout(() => {
+      claimCharacter(mintingId)
       setClaimedIds(getClaimedIds())
       setMintPhase("success")
       if (successSoundRef.current && soundOnRef.current) {
@@ -356,10 +324,6 @@ export default function Home() {
     setMintPhase("reset")
   }
 
-  const handleTileHover = (id: string) => {
-    setHoveredId(id)
-  }
-
   useEffect(() => {
     if (isWide) return
     const handleWheel = (e: WheelEvent) => {
@@ -375,28 +339,30 @@ export default function Home() {
 
   useEffect(() => {
     if (!isDragging) return
-    const handleMouseMove = (e: MouseEvent) => {
+    const handleMove = (e: PointerEvent) => {
       if (!scrollbarRef.current) return
       const rect = scrollbarRef.current.getBoundingClientRect()
       const percentage = Math.max(0, Math.min(1, (e.clientY - rect.top) / rect.height))
       setStartRow(Math.round(percentage * maxStartRow))
     }
-    const handleMouseUp = () => setIsDragging(false)
-    document.addEventListener("mousemove", handleMouseMove)
-    document.addEventListener("mouseup", handleMouseUp)
+    const handleUp = () => setIsDragging(false)
+    document.addEventListener("pointermove", handleMove)
+    document.addEventListener("pointerup", handleUp)
+    document.addEventListener("pointercancel", handleUp)
     return () => {
-      document.removeEventListener("mousemove", handleMouseMove)
-      document.removeEventListener("mouseup", handleMouseUp)
+      document.removeEventListener("pointermove", handleMove)
+      document.removeEventListener("pointerup", handleUp)
+      document.removeEventListener("pointercancel", handleUp)
     }
   }, [isDragging, maxStartRow])
 
   useEffect(() => {
-    if (hoveredId && hoverSoundRef.current && soundOnRef.current) {
+    if (hoveredId && !isTouch && hoverSoundRef.current && soundOnRef.current) {
       hoverSoundRef.current.pause()
       hoverSoundRef.current.currentTime = 0
       hoverSoundRef.current.play().catch(() => {})
     }
-  }, [hoveredId])
+  }, [hoveredId, isTouch])
 
   const touchStartY = useRef(0)
   const touchAccumulator = useRef(0)
@@ -465,7 +431,7 @@ export default function Home() {
           )}
           style={{ transformOrigin: "bottom center" }}
           onError={(e) => {
-            e.currentTarget.src = heroUrls["hero000"]
+            if (e.currentTarget.src !== heroUrls["hero000"]) e.currentTarget.src = heroUrls["hero000"]
           }}
         />
       </section>
@@ -492,7 +458,7 @@ export default function Home() {
             "flex flex-col items-center",
           )}
         >
-          {/* One visual block: character sheet + description in a single 25% black box, 12px inset all round */}
+          {/* One visual block: character sheet + description in a single box (30% black on desktop), 12px inset all round */}
           <div
             className={cn(
               "w-full min-h-0 flex flex-col gap-3 p-3 rounded-md wide:bg-black/30 wide:flex-1 transition-opacity duration-300",
@@ -511,7 +477,7 @@ export default function Home() {
                 )}
                 selectedId={selectedId}
                 claimedIds={claimedIds}
-                onHover={handleTileHover}
+                onHover={setHoveredId}
                 onLeave={() => setHoveredId(null)}
                 onSelect={handleTileClick}
                 tooltipHidden={!isGridVisible || isMintActive}
@@ -557,9 +523,8 @@ export default function Home() {
                       traitIds={char.traitIds}
                       isSelected={selectedId === char.id}
                       isClaimed={claimedIds.includes(char.id)}
-                      isRevealed
                       tooltipHidden={!isGridVisible || isMintActive}
-                      onHover={() => handleTileHover(char.id)}
+                      onHover={() => setHoveredId(char.id)}
                       onLeave={() => setHoveredId(null)}
                       onClick={() => handleTileClick(char.id)}
                     />
@@ -580,8 +545,8 @@ export default function Home() {
                   </button>
                   <div
                     ref={scrollbarRef}
-                    className="relative w-1 my-1 bg-white/10 flex-1 cursor-pointer rounded-full"
-                    onMouseDown={(e) => {
+                    className="relative w-1 my-1 bg-white/10 flex-1 cursor-pointer rounded-full touch-none"
+                    onPointerDown={(e) => {
                       setIsDragging(true)
                       e.preventDefault()
                     }}
@@ -679,7 +644,7 @@ export default function Home() {
                   {selectedId && (
                     <img
                       key={selectedId}
-                      src={traitUrls[`trait${selectedId}`] || `/traits/trait${selectedId}.png`}
+                      src={traitUrls[`trait${selectedId}`]}
                       alt={`Raider ${selectedId}`}
                       className="object-cover select-none h-full w-full animate-in fade-in-0 zoom-in-95 duration-200"
                       crossOrigin="anonymous"

@@ -7,8 +7,7 @@ export interface Character {
   traitIds: string[]
 }
 
-// Generate 165 characters with zero-padded IDs, each with ONE corresponding trait
-// Rarity list — every raider not listed here is Common
+// Rarity lists — every raider not listed here is Common
 const RARE_IDS = new Set(["071", "066", "161", "122", "165", "060", "056", "154", "133", "148", "027", "032", "038", "155", "102", "094", "106", "121", "044", "082"])
 const PERMARARE_IDS = new Set(["042", "100", "020", "117", "076", "147", "096"])
 
@@ -184,7 +183,6 @@ const DESCRIPTIONS: Record<string, string> = {
 export const characters: Character[] = Array.from({ length: 165 }, (_, i) => {
   const index = i + 1
   const id = String(index).padStart(3, "0")
-  const traitId = `trait${id}` // Simple 1:1 mapping
 
   return {
     index,
@@ -192,7 +190,7 @@ export const characters: Character[] = Array.from({ length: 165 }, (_, i) => {
     name: `Raider ${id}`,
     description: DESCRIPTIONS[id] ?? "",
     traits: [PERMARARE_IDS.has(id) ? "PermaRare" : RARE_IDS.has(id) ? "Rare" : "Common"],
-    traitIds: [traitId],
+    traitIds: [`trait${id}`], // tile art key in trait-urls.ts
   }
 })
 

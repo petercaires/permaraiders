@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import { traitUrls } from "@/lib/trait-urls"
 import { heroUrls } from "@/lib/hero-urls"
 
@@ -11,6 +11,10 @@ interface TraitLoaderProps {
 export function TraitLoader({ onComplete }: TraitLoaderProps) {
   const [progress, setProgress] = useState(0)
   const [isFadingOut, setIsFadingOut] = useState(false)
+  // The page re-renders while this loads, handing over a new onComplete each time;
+  // keep the latest in a ref so preloading starts once instead of restarting on every render
+  const onCompleteRef = useRef(onComplete)
+  onCompleteRef.current = onComplete
 
   useEffect(() => {
     const allTraitUrls = Object.values(traitUrls)
@@ -41,11 +45,11 @@ export function TraitLoader({ onComplete }: TraitLoaderProps) {
       setTimeout(() => {
         setIsFadingOut(true)
         setTimeout(() => {
-          onComplete()
+          onCompleteRef.current()
         }, 400)
       }, 500)
     })
-  }, [onComplete])
+  }, [])
 
   return (
     <div

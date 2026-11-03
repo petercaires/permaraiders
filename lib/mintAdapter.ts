@@ -15,7 +15,7 @@ export function getClaimedIds(): string[] {
   }
 }
 
-export async function claimCharacter(id: string): Promise<boolean> {
+export function claimCharacter(id: string): boolean {
   if (typeof window === "undefined") return false
 
   const claimed = getClaimedIds()

@@ -12,7 +12,6 @@ interface CharacterTileProps {
   traitIds: string[]
   isSelected: boolean
   isClaimed: boolean
-  isRevealed: boolean
   /** Hide the "click to deselect" hint (e.g. while the mint sequence is showing) */
   tooltipHidden?: boolean
   onHover: () => void
@@ -26,7 +25,6 @@ export function CharacterTile({
   traitIds,
   isSelected,
   isClaimed,
-  isRevealed,
   tooltipHidden = false,
   onHover,
   onLeave,
@@ -57,7 +55,7 @@ export function CharacterTile({
   }, [showTooltip])
 
   const traitId = traitIds.length > 0 ? traitIds[0] : `trait${id}`
-  const traitSrc = traitUrls[traitId] || `/traits/${traitId}.png`
+  const traitSrc = traitUrls[traitId]
   const rarity = getRarity(id)
   const rarityBg = rarityBgClass(rarity)
   // Outline colour by rarity (RGB triplet, also drives the hover glow)
@@ -121,7 +119,6 @@ export function CharacterTile({
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
       onClick={handleClick}
-      disabled={!isRevealed}
     >
       {/* Drawn at page level so the menu's scroll area can't clip it */}
       {!isClaimed && isSelected && showTooltip && !tooltipHidden && tooltipPos &&
@@ -141,7 +138,6 @@ export function CharacterTile({
       <div
         className={cn(
           "absolute inset-0 rounded-md border-2 transition-all duration-300 pointer-events-none",
-          isRevealed ? "opacity-100 scale-100" : "opacity-0 scale-95",
           isClaimed && "opacity-50",
           isClaimed && (outline ? "border-[rgb(var(--glow)/0.4)]" : "border-white/15"),
           !isClaimed && !isSelected && "group-hover:scale-105",
@@ -163,7 +159,7 @@ export function CharacterTile({
 
       {!imageError ? (
         <img
-          src={traitSrc || "/placeholder.svg"}
+          src={traitSrc}
           alt={`Character ${id}`}
           className="absolute inset-0 w-full h-full object-cover"
           crossOrigin="anonymous"

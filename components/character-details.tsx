@@ -1,6 +1,5 @@
 "use client"
 
-import type { CSSProperties } from "react"
 import { getCharacterById } from "@/lib/characters"
 import { cn } from "@/lib/utils"
 
@@ -8,8 +7,6 @@ interface CharacterDetailsProps {
   /** Character to describe, or null when nothing is hovered or selected */
   id: string | null
   isMinted: boolean
-  className?: string
-  style?: CSSProperties
 }
 
 /**
@@ -17,13 +14,12 @@ interface CharacterDetailsProps {
  * and matched to its width so the two read as one block.
  * Fixed height, so the grid never jumps as the content changes.
  */
-export function CharacterDetails({ id, isMinted, className, style }: CharacterDetailsProps) {
+export function CharacterDetails({ id, isMinted }: CharacterDetailsProps) {
   const character = id ? getCharacterById(id) : undefined
 
   return (
     <aside
-      className={cn("text-white select-none h-[92px] pt-2.5 wide:h-[72px] wide:pt-0 flex flex-col justify-start gap-2.5 text-left", className)}
-      style={style}
+      className="text-white select-none h-[92px] pt-2.5 wide:h-[72px] wide:pt-0 flex flex-col justify-start gap-2.5 text-left"
       aria-live="polite"
     >
       {character ? (

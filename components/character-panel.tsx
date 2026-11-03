@@ -131,7 +131,6 @@ export function CharacterPanel({ selectedId, claimedIds, onHover, onLeave, onSel
               traitIds={char.traitIds}
               isSelected={selectedId === char.id}
               isClaimed={claimedIds.includes(char.id)}
-              isRevealed
               tooltipHidden={tooltipHidden}
               onHover={() => onHover(char.id)}
               onLeave={onLeave}

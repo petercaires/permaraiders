@@ -30,8 +30,6 @@ export function Starfield() {
 
     const starCount = 50
     const stars: Star[] = []
-    const centerX = canvas.width / 2
-    const centerY = canvas.height / 2
 
     for (let i = 0; i < starCount; i++) {
       stars.push({
@@ -46,6 +44,8 @@ export function Starfield() {
     let animationId: number
     const animate = () => {
       ctx.clearRect(0, 0, canvas.width, canvas.height)
+      const centerX = canvas.width / 2
+      const centerY = canvas.height / 2
 
       stars.forEach((star) => {
         star.z -= 2

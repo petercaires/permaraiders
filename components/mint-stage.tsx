@@ -38,7 +38,7 @@ interface MintStageProps {
  * The mint sequence, played inside the menu box instead of a popup.
  * Sits over the character sheet; the sheet fades out while this fades in.
  *   minting → portrait under a scanning shimmer, "Minting Raider 042…"
- *   success → MINTED stamp lands, "It's yours!", confetti kept inside the box, "Back to raiders"
+ *   success → MINTED stamp lands, "Mint Complete", confetti kept inside the box, "Back to raiders"
  *   reset   → "Demo reset" confirmation, "Back to raiders"
  */
 export function MintStage({ phase, id, imageSrc, rarity, onBack }: MintStageProps) {

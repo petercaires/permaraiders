@@ -1,30 +1,32 @@
-# Permaraiders Mint Page v2
+# Perma Raiders — PFP mint demo
 
-*Automatically synced with your [v0.app](https://v0.app) deployments*
+A demo mint page for the 165-piece Perma Raiders PFP collection. Nothing is minted on-chain:
+"minted" raiders are remembered in the visitor's browser (localStorage) and can be reset from
+the corner controls.
 
-[![Deployed on Vercel](https://img.shields.io/badge/Deployed%20on-Vercel-black?style=for-the-badge&logo=vercel)](https://vercel.com/peters-projects-97845065/v0-permaraiders-mint-page-v2)
-[![Built with v0](https://img.shields.io/badge/Built%20with-v0.app-black?style=for-the-badge)](https://v0.app/chat/BSzzJH4fHV3)
+Built with Next.js 16, React 19 and Tailwind CSS v4. Raider art and audio are served from ImageKit.
 
-## Overview
+## Run it
 
-This repository will stay in sync with your deployed chats on [v0.app](https://v0.app).
-Any changes you make to your deployed app will be automatically pushed to this repository from [v0.app](https://v0.app).
+```bash
+pnpm install
+pnpm dev     # http://localhost:3000
+pnpm build   # production build (type-checked)
+```
 
-## Deployment
+## Where things live
 
-Your project is live at:
+| What | File |
+|---|---|
+| Page layout, sound, mint flow | `app/page.tsx` |
+| Raider descriptions and rarity lists | `lib/characters.ts` |
+| Desktop character sheet | `components/character-panel.tsx` |
+| One raider tile | `components/character-tile.tsx` |
+| Name, tags and description under the sheet | `components/character-details.tsx` |
+| In-box mint sequence | `components/mint-stage.tsx` |
+| Demo mint storage (swap for real wallet/chain calls) | `lib/mintAdapter.ts` |
+| Image URLs | `lib/hero-urls.ts`, `lib/trait-urls.ts` |
+| Colours, rarity glows, animations, type scale | `app/globals.css` |
 
-**[https://vercel.com/peters-projects-97845065/v0-permaraiders-mint-page-v2](https://vercel.com/peters-projects-97845065/v0-permaraiders-mint-page-v2)**
-
-## Build your app
-
-Continue building your app on:
-
-**[https://v0.app/chat/BSzzJH4fHV3](https://v0.app/chat/BSzzJH4fHV3)**
-
-## How It Works
-
-1. Create and modify your project using [v0.app](https://v0.app)
-2. Deploy your chats from the v0 interface
-3. Changes are automatically pushed to this repository
-4. Vercel deploys the latest version from this repository
+Layout switches on one custom Tailwind variant, `wide:` (landscape and at least 768px wide);
+everything else is the phone layout.
