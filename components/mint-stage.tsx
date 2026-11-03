@@ -57,7 +57,7 @@ export function MintStage({ phase, id, imageSrc, rarity, onBack }: MintStageProp
         <div className="w-full flex flex-col items-center text-center gap-4 wide:gap-5 animate-in fade-in-0 slide-in-from-bottom-2 duration-300">
           <div>
             <h2 className="text-lg wide:text-2xl font-bold leading-tight whitespace-nowrap">Demo reset</h2>
-            <p className="mt-2 wide:mt-3 text-[11px] wide:text-xs text-white/70">All raiders are available to mint again.</p>
+            <p className="mt-2 wide:mt-3 text-xs wide:text-sm text-white/70">All raiders are available to mint again.</p>
           </div>
           <BackButton onClick={onBack} />
         </div>
@@ -101,7 +101,7 @@ export function MintStage({ phase, id, imageSrc, rarity, onBack }: MintStageProp
               <div className="flex flex-col wide:flex-row items-start wide:items-center gap-3 wide:gap-5 text-left animate-in fade-in-0 slide-in-from-bottom-2 duration-300 fill-mode-both [animation-delay:250ms]">
                 <div>
                   <h2 className="text-lg wide:text-2xl font-bold leading-tight whitespace-nowrap">Mint Complete</h2>
-                  <p className="text-[11px] wide:text-xs text-white/70">Raider {id} is now yours.</p>
+                  <p className="text-xs wide:text-sm text-white/70">Raider {id} is now yours.</p>
                 </div>
                 <BackButton onClick={onBack} />
               </div>
