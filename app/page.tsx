@@ -7,7 +7,7 @@ import { CharacterPanel, PANEL_MAX_WIDTH, PANEL_PAD, PANEL_GAP, PANEL_RAIL } fro
 import { Button } from "@/components/ui/button"
 import { Toaster } from "@/components/ui/toaster"
 import { useToast } from "@/hooks/use-toast"
-import { characters } from "@/lib/characters"
+import { characters, getRarity, rarityBgClass } from "@/lib/characters"
 import { getClaimedIds, claimCharacter, clearAllClaimed } from "@/lib/mintAdapter"
 import { ChevronUp, ChevronDown, Volume2, VolumeX, Eye, EyeOff, RotateCcw, Check } from "lucide-react"
 import { Starfield } from "@/components/starfield"
@@ -486,7 +486,7 @@ export default function Home() {
                 onLeave={() => setHoveredId(null)}
                 onSelect={handleTileClick}
               />
-              <MintStage phase={mintPhase} id={mintingId} imageSrc={mintImage} onBack={handleBackToRaiders} />
+              <MintStage phase={mintPhase} id={mintingId} imageSrc={mintImage} rarity={getRarity(mintingId)} onBack={handleBackToRaiders} />
             </div>
           )}
 
@@ -574,7 +574,7 @@ export default function Home() {
                 </div>
               </div>
             </div>
-            <MintStage phase={mintPhase} id={mintingId} imageSrc={mintImage} onBack={handleBackToRaiders} />
+            <MintStage phase={mintPhase} id={mintingId} imageSrc={mintImage} rarity={getRarity(mintingId)} onBack={handleBackToRaiders} />
           </div>
 
           )}
@@ -635,6 +635,8 @@ export default function Home() {
                   className={cn(
                     "relative rounded overflow-hidden shrink-0 h-10 wide:h-12 aspect-square border-2",
                     selectedId ? "border-white" : "border-dashed border-white/25",
+                    selectedId && rarityBgClass(getRarity(selectedId)),
+                    selectedId && rarityBgClass(getRarity(selectedId)) && "rarity-swirl",
                   )}
                 >
                   {selectedId && (
