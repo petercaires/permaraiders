@@ -106,19 +106,16 @@ export function CharacterTile({
   }
 
   return (
+    // The button is the hit area and never scales; the visuals scale inside it.
+    // (If the hit area itself grew/shrank on hover, a cursor right on the edge could
+    // flicker between hovered and not-hovered in a loop.)
     <button
       ref={buttonRef}
       className={cn(
-        "relative aspect-square rounded-md overflow-visible transition-all duration-300 outline-offset-2 group border-2",
-        isRevealed ? "opacity-100 scale-100" : "opacity-0 scale-95",
-        isClaimed && "opacity-50 cursor-not-allowed z-0",
-        isClaimed && (outline ? "border-[rgb(var(--glow)/0.4)]" : "border-white/15"),
-        !isClaimed && "cursor-pointer",
-        !isClaimed && !isSelected && "hover:scale-105 hover:z-[100] hover:relative",
-        !isClaimed && !isSelected && (outline ? "border-[rgb(var(--glow)/0.55)]" : "border-white/15"),
-        !isClaimed && !isSelected && isHovered && "border-glow-animate",
-        !isClaimed && isSelected && "scale-105 z-[100] relative",
-        !isClaimed && isSelected && (outline ? "border-[rgb(var(--glow))]" : "border-white"),
+        "relative aspect-square rounded-md outline-offset-2 group",
+        isClaimed ? "cursor-not-allowed z-0" : "cursor-pointer",
+        !isClaimed && !isSelected && "hover:z-[100]",
+        !isClaimed && isSelected && "z-[100]",
       )}
       style={outline ? ({ ["--glow" as string]: outline } as CSSProperties) : undefined}
       onMouseEnter={handleMouseEnter}
@@ -140,6 +137,20 @@ export function CharacterTile({
           </div>,
           document.body,
         )}
+
+      <div
+        className={cn(
+          "absolute inset-0 rounded-md border-2 transition-all duration-300 pointer-events-none",
+          isRevealed ? "opacity-100 scale-100" : "opacity-0 scale-95",
+          isClaimed && "opacity-50",
+          isClaimed && (outline ? "border-[rgb(var(--glow)/0.4)]" : "border-white/15"),
+          !isClaimed && !isSelected && "group-hover:scale-105",
+          !isClaimed && !isSelected && (outline ? "border-[rgb(var(--glow)/0.55)]" : "border-white/15"),
+          !isClaimed && !isSelected && isHovered && "border-glow-animate",
+          !isClaimed && isSelected && "scale-105",
+          !isClaimed && isSelected && (outline ? "border-[rgb(var(--glow))]" : "border-white"),
+        )}
+      >
 
       {rarityBg ? (
         <div
@@ -197,6 +208,7 @@ export function CharacterTile({
           </svg>
         </div>
       )}
+      </div>
     </button>
   )
 }
