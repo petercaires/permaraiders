@@ -709,7 +709,7 @@ export default function Home() {
           onClick={toggleMusic}
           aria-label="Toggle music"
           // Nudged right for optical balance with the icons below; a transform, so the column itself doesn't move
-          className="cursor-pointer hover:opacity-80 transition-opacity text-white w-5 h-5 sm:w-6 sm:h-6 translate-x-[2px]"
+          className="cursor-pointer hover:opacity-80 transition-opacity text-white w-5 h-5 sm:w-6 sm:h-6 translate-x-[5px]"
         >
           {isMusicPlaying ? <Volume2 className="w-full h-full py-px" /> : <VolumeX className="w-full h-full py-px" />}
         </button>
