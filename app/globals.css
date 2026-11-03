@@ -1,9 +1,7 @@
 @import "tailwindcss";
 @import "tw-animate-css";
-/* Load fonts from Google Fonts CDN - single import with both families */
-@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;700&family=JetBrains+Mono:wght@400;700&display=swap");
-
-/* Removed broken @font-face blocks that were pointing to CSS files instead of actual font files */
+/* JetBrains Mono, the site's one typeface */
+@import url("https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap");
 
 @custom-variant dark (&:is(.dark *));
 
