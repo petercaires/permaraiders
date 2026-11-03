@@ -5,7 +5,7 @@ import { CharacterDetails } from "@/components/character-details"
 import { CharacterPanel, PANEL_MAX_WIDTH, PANEL_PAD, PANEL_GAP, PANEL_RAIL } from "@/components/character-panel"
 import { getCharacterById, getRarity, rarityBgClass, RARITY_RGB } from "@/lib/characters"
 import { getClaimedIds, claimCharacter, clearAllClaimed } from "@/lib/mintAdapter"
-import { Volume2, VolumeX, Eye, EyeOff, RotateCcw, Check } from "lucide-react"
+import { Volume2, VolumeX, RotateCcw, Check } from "lucide-react"
 import { Starfield } from "@/components/starfield"
 import { MintStage, type MintPhase } from "@/components/mint-stage"
 import { TraitLoader } from "@/components/trait-loader"
@@ -54,7 +54,6 @@ export default function Home() {
   const musicRef = useRef<HTMLAudioElement | null>(null)
   const selectSoundRef = useRef<HTMLAudioElement | null>(null)
   const [isTouch, setIsTouch] = useState(false)
-  const [isGridVisible, setIsGridVisible] = useState(true)
   const [heroPopTrigger, setHeroPopTrigger] = useState(0)
   const prefersReducedMotion =
     typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches
@@ -316,14 +315,9 @@ export default function Home() {
         >
           {/* One visual block: character sheet + description in a single box (30% black on desktop), 12px inset all round */}
           <div
-            className={cn(
-              "@container w-full max-w-[651px] wide:max-w-[var(--box-max)] min-h-0 flex flex-col gap-3 p-3 rounded-md wide:bg-black/30 wide:flex-1 transition-opacity duration-300",
-              !isGridVisible && "opacity-0 pointer-events-none",
-            )}
+            className="@container w-full max-w-[651px] wide:max-w-[var(--box-max)] min-h-0 flex flex-col gap-3 p-3 rounded-md wide:bg-black/30 wide:flex-1"
             // Portrait: at most 651px wide, so 3 rows of 5 stay within 360px tall (tablets). Wide: the panel's max + inset
             style={{ ["--box-max" as string]: `${PANEL_MAX_WIDTH + 24}px` } as CSSProperties}
-            // While the menu is hidden, nothing inside (back button, Mint, tiles) can be clicked, tapped or tabbed to
-            inert={!isGridVisible}
           >
           {/* Character sheet; the mint sequence plays over it. Phones: 5 columns, exactly 3 rows tall
               (tile = (width − 60px of rail, gaps and padding) / 5, so 3 rows = 3/5 of that + 20px) */}
@@ -331,14 +325,14 @@ export default function Home() {
             <CharacterPanel
               className={cn(
                 "flex-1 transition-opacity duration-300",
-                (!isGridVisible || isMintActive) && "opacity-0 pointer-events-none",
+                isMintActive && "opacity-0 pointer-events-none",
               )}
               selectedId={selectedId}
               claimedIds={claimedIds}
               onHover={setHoveredId}
               onLeave={() => setHoveredId(null)}
               onSelect={handleTileClick}
-              tooltipHidden={!isGridVisible || isMintActive}
+              tooltipHidden={isMintActive}
             />
             <MintStage phase={mintPhase} id={mintingId} imageSrc={mintImage} rarity={getRarity(mintingId)} onBack={handleBackToRaiders} />
           </div>
@@ -346,10 +340,7 @@ export default function Home() {
           {/* Details + action row, fixed height so nothing shifts. The description spans the tiles and the scroll rail;
               the action row ends at the tiles' right edge */}
           <div
-            className={cn(
-              "w-full shrink-0 flex flex-col gap-1 wide:gap-2 transition-opacity duration-300",
-              !isGridVisible && "opacity-0 pointer-events-none",
-            )}
+            className="w-full shrink-0 flex flex-col gap-1 wide:gap-2"
             style={{ paddingLeft: PANEL_PAD }}
           >
             <CharacterDetails id={displayedHeroId === "000" ? null : displayedHeroId} isMinted={isDisplayedClaimed} />
@@ -447,12 +438,6 @@ export default function Home() {
             <VolumeX className="w-full h-full py-px translate-x-[2px]" />
           )}
         </IconButton>
-        <IconButton
-          label={isGridVisible ? "hide grid" : "show grid"}
-          onClick={() => setIsGridVisible((v) => !v)}
-        >
-          {isGridVisible ? <Eye className="w-full h-full py-px" /> : <EyeOff className="w-full h-full py-px" />}
-        </IconButton>
         <a
           href="https://t.me/permaraidz"
           target="_blank"
@@ -476,7 +461,7 @@ export default function Home() {
           <Tooltip label="telegram" />
         </a>
         {claimedIds.length > 0 && (
-          <IconButton label="reset demo mints" onClick={handleResetMints} disabled={!isGridVisible}>
+          <IconButton label="reset demo mints" onClick={handleResetMints}>
             <RotateCcw className="w-full h-full p-0.5" />
           </IconButton>
         )}
@@ -494,19 +479,19 @@ function IconButton({
   return (
     <button
       aria-label={label}
-      className="cursor-pointer text-white w-5 h-5 sm:w-6 sm:h-6 group relative transition-opacity disabled:opacity-30 disabled:cursor-default"
+      className="cursor-pointer text-white w-5 h-5 sm:w-6 sm:h-6 group relative"
       {...props}
     >
-      <div className="group-enabled:hover:opacity-80 transition-opacity w-full h-full">{children}</div>
+      <div className="group-hover:opacity-80 transition-opacity w-full h-full">{children}</div>
       <Tooltip label={label} />
     </button>
   )
 }
 
-/** Hover label to the left of a corner icon (hidden while a button is disabled) */
+/** Hover label to the left of a corner icon */
 function Tooltip({ label }: { label: string }) {
   return (
-    <div className="absolute right-full mr-2 top-1/2 -translate-y-1/2 hidden group-hover:block group-disabled:!hidden pointer-events-none whitespace-nowrap">
+    <div className="absolute right-full mr-2 top-1/2 -translate-y-1/2 hidden group-hover:block pointer-events-none whitespace-nowrap">
       <div className="bg-white text-black text-[11px] uppercase tracking-wider px-2 py-1 rounded">{label}</div>
     </div>
   )
