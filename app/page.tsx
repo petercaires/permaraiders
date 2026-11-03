@@ -263,6 +263,7 @@ export default function Home() {
     <div className="h-[100svh] overflow-hidden bg-background relative flex flex-col wide:flex-row font-mono">
       <Starfield />
       <div className="fog-container" />
+      <div className="grain" />
       <div className="fixed top-0 left-0 right-0 h-48 bg-gradient-to-b from-black/40 via-black/20 to-transparent z-20 pointer-events-none" />
 
       {/* ---------- Hero ---------- */}
