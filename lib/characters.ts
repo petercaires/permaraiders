@@ -113,7 +113,7 @@ const DESCRIPTIONS: Record<string, string> = {
   "097": "Subject 02. Same tattoo, slightly more FUD.",
   "098": "Subject 03. Escaped the lab. Took the chain.",
   "099": "Subject 04. Still in the lab. Likes it there.",
-  "100": "Dreamed up a permanent web. Still carries the laptop everywhere, just in case.",
+  "100": "Protocol is the way.",
   "101": "Swears he isn't Sam. Same hair, same lanyard, same laptop.",
   "102": "Name tag says WOJAK. Insists it's a coincidence.",
   "103": "Feels every candle. Personally.",
