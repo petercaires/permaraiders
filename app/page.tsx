@@ -226,7 +226,35 @@ export default function Home() {
           }, 50)
         })
         .catch(() => {
-          // Autoplay blocked, will be handled by user interaction
+          // Browsers block sound until the visitor interacts, so start the music on their first click, tap or key press.
+          // A first click on the music button itself is left to that button.
+          const startOnFirstInteraction = (e: Event) => {
+            removeListeners()
+            const target = e.target as Element | null
+            if (target?.closest?.('[aria-label="Toggle music"]')) return
+            const music = musicRef.current
+            if (!music || !music.paused) return
+            music.volume = 0
+            music
+              .play()
+              .then(() => {
+                setIsMusicPlaying(true)
+                let currentVolume = 0
+                const fadeInterval = setInterval(() => {
+                  if (currentVolume < 0.316) {
+                    currentVolume = Math.min(0.316, currentVolume + 0.016)
+                    if (musicRef.current) musicRef.current.volume = currentVolume
+                  } else {
+                    clearInterval(fadeInterval)
+                  }
+                }, 50)
+              })
+              .catch(() => {})
+          }
+          const events = ["pointerdown", "keydown", "touchstart"] as const
+          const removeListeners = () =>
+            events.forEach((ev) => document.removeEventListener(ev, startOnFirstInteraction, true))
+          events.forEach((ev) => document.addEventListener(ev, startOnFirstInteraction, true))
         })
     }
   }, [isLoading])
@@ -680,7 +708,8 @@ export default function Home() {
         <button
           onClick={toggleMusic}
           aria-label="Toggle music"
-          className="cursor-pointer hover:opacity-80 transition-opacity text-white w-5 h-5 sm:w-6 sm:h-6"
+          // Nudged left for optical balance with the icons below; a transform, so the column itself doesn't move
+          className="cursor-pointer hover:opacity-80 transition-opacity text-white w-5 h-5 sm:w-6 sm:h-6 -translate-x-[2px]"
         >
           {isMusicPlaying ? <Volume2 className="w-full h-full py-px" /> : <VolumeX className="w-full h-full py-px" />}
         </button>
