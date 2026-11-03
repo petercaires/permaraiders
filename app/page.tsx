@@ -273,7 +273,7 @@ export default function Home() {
           src={heroUrls[`hero${displayedHeroId}`] || heroUrls["hero000"]}
           alt={displayedHeroId !== "000" ? `Raider ${displayedHeroId}` : ""}
           className={cn(
-            "hero-image absolute bottom-0 max-w-none aspect-square",
+            "absolute bottom-0 max-w-none aspect-square",
             // Height is always tied to the viewport height, never the width.
             // portrait: 55% of the screen height, centred (narrow phones crop both sides equally)
             "h-[55svh] left-1/2 -translate-x-1/2 translate-y-[10svh] wide:translate-y-0",
@@ -419,14 +419,14 @@ export default function Home() {
         </main>
       </div>
 
-      {/* ---------- Creator credit, bottom-right. Type: "meta" (11px uppercase, white/70) ---------- */}
+      {/* ---------- Creator credit, bottom-right. Type: "meta" (11px uppercase), at the dimmed white/30 also used for the empty raider number ---------- */}
       <a
         href="https://www.twitter.com/peterlikesthis"
         target="_blank"
         rel="noopener noreferrer"
-        className="fixed z-40 bottom-2 right-4 wide:bottom-4 text-[11px] uppercase tracking-wider whitespace-nowrap text-white/70 hover:text-white transition-colors"
+        className="fixed z-40 bottom-2 right-4 wide:bottom-4 text-[11px] uppercase tracking-wider whitespace-nowrap text-white/30 hover:text-white transition-colors"
       >
-        built by @peterlikesthis
+        creator @peterlikesthis
       </a>
 
       {/* ---------- Corner controls ---------- */}
