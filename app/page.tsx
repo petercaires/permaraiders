@@ -735,7 +735,7 @@ export default function Home() {
           />
         </a>
         {claimedIds.length > 0 && (
-          <IconButton label="reset demo mints" onClick={handleResetMints}>
+          <IconButton label="reset demo mints" onClick={handleResetMints} disabled={!isGridVisible}>
             <RotateCcw className="w-full h-full p-0.5" />
           </IconButton>
         )}
@@ -749,20 +749,23 @@ export default function Home() {
 function IconButton({
   label,
   onClick,
+  disabled = false,
   children,
 }: {
   label: string
   onClick: () => void
+  disabled?: boolean
   children: React.ReactNode
 }) {
   return (
     <button
       onClick={onClick}
       aria-label={label}
-      className="cursor-pointer text-white w-5 h-5 sm:w-6 sm:h-6 group relative"
+      disabled={disabled}
+      className="cursor-pointer text-white w-5 h-5 sm:w-6 sm:h-6 group relative transition-opacity disabled:opacity-30 disabled:cursor-default"
     >
-      <div className="hover:opacity-80 transition-opacity w-full h-full">{children}</div>
-      <div className="absolute right-full mr-2 top-1/2 -translate-y-1/2 group-hover:block hidden pointer-events-none whitespace-nowrap">
+      <div className="group-enabled:hover:opacity-80 transition-opacity w-full h-full">{children}</div>
+      <div className="absolute right-full mr-2 top-1/2 -translate-y-1/2 group-enabled:group-hover:block hidden pointer-events-none whitespace-nowrap">
         <div className="bg-white text-black text-[11px] uppercase tracking-wider px-2 py-1 rounded">{label}</div>
       </div>
     </button>
