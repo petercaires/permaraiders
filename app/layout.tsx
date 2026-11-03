@@ -1,15 +1,11 @@
 import type React from "react"
 import type { Metadata } from "next"
-import { Inter } from "next/font/google"
 import { Analytics } from "@vercel/analytics/next"
 import "./globals.css"
-
-const inter = Inter({ subsets: ["latin"] })
 
 export const metadata: Metadata = {
   title: "Permaraiders - Character Select",
   description: "Select your fighter from 165 unique Permaraiders NFTs",
-  generator: "v0.app",
   icons: {
     icon: [
       {
@@ -38,16 +34,8 @@ export default function RootLayout({
     <html lang="en">
       <head>
         <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
-        <style>{`
-          @media screen and (max-width: 1024px) {
-            html {
-              transform: rotate(0deg);
-              transform-origin: center center;
-            }
-          }
-        `}</style>
       </head>
-      <body className={`${inter.className} antialiased`}>
+      <body className="antialiased">
         {children}
         <Analytics />
       </body>
