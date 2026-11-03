@@ -68,7 +68,7 @@ export function MintStage({ phase, id, imageSrc, rarity, onBack }: MintStageProp
             <div
               className={cn(
                 "relative w-full h-full rounded-md overflow-hidden border-2 transition-[border-color,filter] duration-500",
-                rarityBg && cn(rarityBg, "rarity-swirl"),
+                rarityBg && cn(rarityBg, "rarity-swirl [--rarity-blur:60px]"),
                 phase === "minting" ? "border-white/30 grayscale-[60%] brightness-75" : "border-white",
               )}
             >
