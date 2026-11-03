@@ -27,7 +27,7 @@ export function MintStage({ phase, id, imageSrc, onBack }: MintStageProps) {
   return (
     <div
       className={cn(
-        "absolute inset-0 z-10 overflow-hidden rounded-md flex flex-row wide:flex-col items-center justify-start wide:justify-center gap-4 wide:gap-3 px-2 wide:px-4 font-mono text-white text-left wide:text-center transition-opacity duration-300",
+        "absolute inset-0 z-10 overflow-hidden rounded-md flex flex-row wide:flex-col items-center justify-start wide:justify-center gap-4 wide:gap-3 px-2 wide:px-4 text-white text-left wide:text-center transition-opacity duration-300",
         active ? "opacity-100" : "opacity-0 pointer-events-none",
       )}
       aria-live="polite"
@@ -36,7 +36,7 @@ export function MintStage({ phase, id, imageSrc, onBack }: MintStageProps) {
         <div className="w-full flex flex-col items-center text-center gap-4 wide:gap-5 animate-in fade-in-0 slide-in-from-bottom-2 duration-300">
           <div>
             <h2 className="text-lg wide:text-2xl font-bold leading-tight whitespace-nowrap">Demo reset</h2>
-            <p className="mt-2 wide:mt-3 text-xs wide:text-sm text-white/80">All raiders are available to mint again.</p>
+            <p className="mt-2 wide:mt-3 text-[11px] wide:text-xs text-white/70">All raiders are available to mint again.</p>
           </div>
           <BackButton onClick={onBack} />
         </div>
@@ -63,7 +63,7 @@ export function MintStage({ phase, id, imageSrc, onBack }: MintStageProps) {
 
             {phase === "success" && (
               <div className="mint-stamp absolute inset-0 flex items-center justify-center pointer-events-none">
-                <span className="px-2 py-0.5 border-[3px] border-amber-300 text-amber-300 font-black tracking-[0.2em] text-[12cqw] leading-none rounded-sm bg-black/50">
+                <span className="px-2 py-0.5 border-[3px] border-amber-300 text-amber-300 font-bold tracking-[0.2em] text-[12cqw] leading-none rounded-sm bg-black/50">
                   MINTED
                 </span>
               </div>
@@ -73,12 +73,12 @@ export function MintStage({ phase, id, imageSrc, onBack }: MintStageProps) {
           {/* Message — same fixed height in both phases, so the portrait never moves */}
           <div className="flex-1 wide:flex-none wide:h-[60px] flex flex-col justify-center wide:justify-start items-start wide:items-center">
             {phase === "minting" ? (
-              <p className="text-sm wide:text-base text-white/80 animate-pulse">Minting Raider {id}…</p>
+              <p className="text-base font-bold leading-tight text-white/70 animate-pulse">Minting Raider {id}…</p>
             ) : (
               <div className="flex flex-col wide:flex-row items-start wide:items-center gap-3 wide:gap-5 text-left animate-in fade-in-0 slide-in-from-bottom-2 duration-300 fill-mode-both [animation-delay:250ms]">
                 <div>
                   <h2 className="text-lg wide:text-2xl font-bold leading-tight whitespace-nowrap">Mint Complete</h2>
-                  <p className="text-xs wide:text-sm text-white/80">Raider {id} is now yours.</p>
+                  <p className="text-[11px] wide:text-xs text-white/70">Raider {id} is now yours.</p>
                 </div>
                 <BackButton onClick={onBack} />
               </div>
