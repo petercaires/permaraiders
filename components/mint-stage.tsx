@@ -118,10 +118,13 @@ function BackButton({ onClick }: { onClick: () => void }) {
     <button
       onClick={onClick}
       aria-label="Back to raiders"
-      title="Back to raiders"
-      className="cursor-pointer flex items-center justify-center rounded-full border-2 border-white/50 w-10 h-10 wide:w-12 wide:h-12 transition-[transform,border-color,background-color] duration-150 hover:scale-110 hover:border-white hover:bg-white/10 active:scale-95 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
+      className="group relative cursor-pointer flex items-center justify-center rounded-full border-2 border-white/50 w-10 h-10 wide:w-12 wide:h-12 transition-[transform,border-color,background-color] duration-150 hover:scale-110 hover:border-white hover:bg-white/10 active:scale-95 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
     >
       <Undo2 className="w-5 h-5 wide:w-6 wide:h-6" />
+      {/* Same tooltip style as the corner icons */}
+      <span className="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 hidden group-hover:block pointer-events-none whitespace-nowrap bg-white text-black text-[11px] uppercase tracking-wider px-2 py-1 rounded">
+        Back to raiders
+      </span>
     </button>
   )
 }
