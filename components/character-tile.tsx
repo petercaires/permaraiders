@@ -6,9 +6,6 @@ import { cn } from "@/lib/utils"
 import { traitUrls } from "@/lib/trait-urls"
 import { getRarity, raiderLabel, rarityBgClass, RARITY_RGB } from "@/lib/characters"
 
-// Same query as the `wide` variant in globals.css
-const WIDE = "(orientation: landscape) and (min-width: 768px)"
-
 // "click to deselect" is a one-time hint: shown on the first selection of each visit only
 let tooltipShownThisVisit = false
 
@@ -39,19 +36,16 @@ export function CharacterTile({
   const buttonRef = useRef<HTMLButtonElement | null>(null)
   const [tooltipPos, setTooltipPos] = useState<{ x: number; y: number } | null>(null)
 
-  // Desktop: pin the tooltip 12px above the tile. Mobile: centred 12px above the menu, so it can't run
-  // off the screen edge. Re-placed on resize. Scrolling the menu fades it out
-  // where it is, rather than letting it drift with the tile.
+  // Centred in the character menu (clear of the logo text and the screen edges). Re-placed on resize.
+  // Scrolling the menu fades it out where it is.
   useLayoutEffect(() => {
     if (!showTooltip) return
     const place = () => {
       const tile = buttonRef.current
       if (!tile) return
-      const r = tile.getBoundingClientRect()
-      if (window.matchMedia(WIDE).matches) return setTooltipPos({ x: r.left + r.width / 2, y: r.top - 12 })
       const grid = tile.parentElement!.getBoundingClientRect()
       const menu = tile.closest(".snap-y")!.parentElement!.getBoundingClientRect()
-      setTooltipPos({ x: grid.left + grid.width / 2, y: menu.top - 12 })
+      setTooltipPos({ x: grid.left + grid.width / 2, y: menu.top + menu.height / 2 })
     }
     let hideTimer: ReturnType<typeof setTimeout> | undefined
     const fadeOut = () => {
@@ -136,7 +130,7 @@ export function CharacterTile({
         createPortal(
           <div
             className={cn(
-              "fixed -translate-x-1/2 -translate-y-full font-mono font-normal bg-white text-black text-[11px] uppercase tracking-wider px-2 py-1 rounded whitespace-nowrap z-[1000] pointer-events-none transition-opacity duration-200",
+              "fixed -translate-x-1/2 -translate-y-1/2 font-mono font-normal bg-white text-black text-[11px] uppercase tracking-wider px-2 py-1 rounded whitespace-nowrap z-[1000] pointer-events-none transition-opacity duration-200",
               tooltipVisible ? "opacity-100" : "opacity-0",
             )}
             style={{ left: tooltipPos.x, top: tooltipPos.y }}
