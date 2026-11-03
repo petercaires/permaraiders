@@ -1,10 +1,8 @@
 export interface Character {
-  index: number
+  /** "001"–"165"; also the key for its art in trait-urls / hero-urls */
   id: string
-  name: string
+  rarity: Rarity
   description: string
-  traits: string[]
-  traitIds: string[]
 }
 
 // Rarity lists — every raider not listed here is Common
@@ -180,29 +178,31 @@ const DESCRIPTIONS: Record<string, string> = {
   "165": "Always player two. Finally got his own rare.",
 }
 
-export const characters: Character[] = Array.from({ length: 165 }, (_, i) => {
-  const index = i + 1
-  const id = String(index).padStart(3, "0")
+export type Rarity = "Common" | "Rare" | "PermaRare"
 
+export const characters: Character[] = Array.from({ length: 165 }, (_, i) => {
+  const id = String(i + 1).padStart(3, "0")
   return {
-    index,
     id,
-    name: `Raider ${id}`,
+    rarity: PERMARARE_IDS.has(id) ? "PermaRare" : RARE_IDS.has(id) ? "Rare" : "Common",
     description: DESCRIPTIONS[id] ?? "",
-    traits: [PERMARARE_IDS.has(id) ? "PermaRare" : RARE_IDS.has(id) ? "Rare" : "Common"],
-    traitIds: [`trait${id}`], // tile art key in trait-urls.ts
   }
 })
 
+/** ids run 001–165, so the id is the position in the list */
 export function getCharacterById(id: string): Character | undefined {
-  return characters.find((char) => char.id === id)
+  return characters[Number(id) - 1]
 }
 
-export type Rarity = "Common" | "Rare" | "PermaRare"
-
 export function getRarity(id: string | null | undefined): Rarity {
-  if (!id) return "Common"
-  return (getCharacterById(id)?.traits[0] as Rarity) ?? "Common"
+  return (id && getCharacterById(id)?.rarity) || "Common"
+}
+
+/** Rarity colour as an RGB triplet (for rgb(var(--glow) / a)); Common has none */
+export const RARITY_RGB: Record<Rarity, string | null> = {
+  Common: null,
+  Rare: "207 213 220",
+  PermaRare: "255 214 92",
 }
 
 /** Background class for a raider's art: silver for Rare, gold for PermaRare, none for Common */

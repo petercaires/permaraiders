@@ -41,7 +41,8 @@ export function Starfield() {
       })
     }
 
-    let animationId: number
+    const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches
+    let animationId = 0
     const animate = () => {
       ctx.clearRect(0, 0, canvas.width, canvas.height)
       const centerX = canvas.width / 2
@@ -71,13 +72,16 @@ export function Starfield() {
         ctx.fill()
       })
 
-      animationId = requestAnimationFrame(animate)
+      if (!reduceMotion) animationId = requestAnimationFrame(animate)
     }
 
     animate()
+    // Reduced motion: a still frame, redrawn after a resize clears the canvas
+    if (reduceMotion) window.addEventListener("resize", animate)
 
     return () => {
       window.removeEventListener("resize", resize)
+      window.removeEventListener("resize", animate)
       cancelAnimationFrame(animationId)
     }
   }, [])

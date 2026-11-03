@@ -17,9 +17,9 @@ export function TraitLoader({ onComplete }: TraitLoaderProps) {
   onCompleteRef.current = onComplete
 
   useEffect(() => {
-    const allTraitUrls = Object.values(traitUrls)
-    const allHeroUrls = Object.values(heroUrls)
-    const allImages = [...allTraitUrls, ...allHeroUrls]
+    // Wait only for the small tile art and the blank hero. The full-size heroes (~50MB) keep
+    // downloading after the page shows; one not loaded yet just appears a moment late on first hover.
+    const allImages = [...Object.values(traitUrls), heroUrls.hero000]
 
     let loadedCount = 0
     const totalImages = allImages.length
@@ -42,6 +42,7 @@ export function TraitLoader({ onComplete }: TraitLoaderProps) {
     }
 
     Promise.all(allImages.map(preloadImage)).then(() => {
+      Object.values(heroUrls).forEach((src) => (new Image().src = src))
       setTimeout(() => {
         setIsFadingOut(true)
         setTimeout(() => {

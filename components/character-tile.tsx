@@ -4,12 +4,10 @@ import { useState, useRef, useEffect, useLayoutEffect, type CSSProperties } from
 import { createPortal } from "react-dom"
 import { cn } from "@/lib/utils"
 import { traitUrls } from "@/lib/trait-urls"
-import { getRarity, rarityBgClass } from "@/lib/characters"
+import { getRarity, rarityBgClass, RARITY_RGB } from "@/lib/characters"
 
 interface CharacterTileProps {
   id: string
-  index: number
-  traitIds: string[]
   isSelected: boolean
   isClaimed: boolean
   /** Hide the "click to deselect" hint (e.g. while the mint sequence is showing) */
@@ -21,8 +19,6 @@ interface CharacterTileProps {
 
 export function CharacterTile({
   id,
-  index,
-  traitIds,
   isSelected,
   isClaimed,
   tooltipHidden = false,
@@ -54,12 +50,10 @@ export function CharacterTile({
     }
   }, [showTooltip])
 
-  const traitId = traitIds.length > 0 ? traitIds[0] : `trait${id}`
-  const traitSrc = traitUrls[traitId]
   const rarity = getRarity(id)
   const rarityBg = rarityBgClass(rarity)
   // Outline colour by rarity (RGB triplet, also drives the hover glow)
-  const outline = rarity === "PermaRare" ? "255 214 92" : rarity === "Rare" ? "207 213 220" : null
+  const outline = RARITY_RGB[rarity]
 
   useEffect(() => {
     if (isSelected && !hasShownTooltipRef.current) {
@@ -159,7 +153,7 @@ export function CharacterTile({
 
       {!imageError ? (
         <img
-          src={traitSrc}
+          src={traitUrls[`trait${id}`]}
           alt={`Character ${id}`}
           className="absolute inset-0 w-full h-full object-cover"
           crossOrigin="anonymous"
@@ -169,7 +163,7 @@ export function CharacterTile({
         />
       ) : (
         <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-accent/50 to-muted">
-          <span className="text-2xl font-bold text-muted-foreground/50">{index}</span>
+          <span className="text-2xl font-bold text-muted-foreground/50">{Number(id)}</span>
         </div>
       )}
 

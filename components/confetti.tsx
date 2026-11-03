@@ -4,13 +4,12 @@ import { useEffect, useState } from "react"
 
 interface ConfettiProps {
   isActive: boolean
-  /** Keep the burst inside the nearest positioned parent instead of the whole screen */
-  contained?: boolean
   /** Particle colours; one is picked per particle */
   colors?: string[]
 }
 
-export function Confetti({ isActive, contained = false, colors = ["#ffffff"] }: ConfettiProps) {
+/** Burst kept inside the nearest positioned parent */
+export function Confetti({ isActive, colors = ["#ffffff"] }: ConfettiProps) {
   const [particles, setParticles] = useState<Array<{ id: number; angle: number; speed: number; delay: number }>>([])
 
   useEffect(() => {
@@ -18,19 +17,19 @@ export function Confetti({ isActive, contained = false, colors = ["#ffffff"] }: 
       const newParticles = Array.from({ length: 40 }, (_, i) => ({
         id: i,
         angle: (Math.PI * 2 * i) / 40 + (Math.random() - 0.5) * 0.3, // Evenly distributed angles with slight randomness
-        speed: (contained ? 120 : 200) + Math.random() * (contained ? 140 : 150), // Speed in pixels
+        speed: 120 + Math.random() * 140, // px
         delay: Math.random() * 0.1,
       }))
       setParticles(newParticles)
     } else {
       setParticles([])
     }
-  }, [isActive, contained])
+  }, [isActive])
 
   if (!isActive) return null
 
   return (
-    <div className={`${contained ? "absolute" : "fixed"} inset-0 pointer-events-none z-40 overflow-hidden`}>
+    <div className="absolute inset-0 pointer-events-none z-40 overflow-hidden">
       {particles.map((particle) => (
         <div
           key={particle.id}

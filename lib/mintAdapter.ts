@@ -3,9 +3,9 @@
 
 const STORAGE_KEY = "claimedCharacterIds"
 
-export function getClaimedIds(): string[] {
-  if (typeof window === "undefined") return []
+// Browser-only: every caller runs in an effect or click handler.
 
+export function getClaimedIds(): string[] {
   // Corrupt or hand-edited storage shouldn't crash the page: fall back to "nothing minted"
   try {
     const parsed: unknown = JSON.parse(localStorage.getItem(STORAGE_KEY) ?? "[]")
@@ -16,8 +16,6 @@ export function getClaimedIds(): string[] {
 }
 
 export function claimCharacter(id: string): boolean {
-  if (typeof window === "undefined") return false
-
   const claimed = getClaimedIds()
   if (!claimed.includes(id)) {
     claimed.push(id)
@@ -28,6 +26,5 @@ export function claimCharacter(id: string): boolean {
 }
 
 export function clearAllClaimed(): void {
-  if (typeof window === "undefined") return
   localStorage.setItem(STORAGE_KEY, JSON.stringify([]))
 }

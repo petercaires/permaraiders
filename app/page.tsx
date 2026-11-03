@@ -1,13 +1,11 @@
 "use client"
 
-import { useState, useEffect, useRef, useCallback } from "react"
-import { CharacterTile } from "@/components/character-tile"
+import { useState, useEffect, useRef, useCallback, type CSSProperties } from "react"
 import { CharacterDetails } from "@/components/character-details"
 import { CharacterPanel, PANEL_MAX_WIDTH, PANEL_PAD, PANEL_GAP, PANEL_RAIL } from "@/components/character-panel"
-import { Button } from "@/components/ui/button"
-import { characters, getRarity, rarityBgClass } from "@/lib/characters"
+import { getRarity, rarityBgClass, RARITY_RGB } from "@/lib/characters"
 import { getClaimedIds, claimCharacter, clearAllClaimed } from "@/lib/mintAdapter"
-import { ChevronUp, ChevronDown, Volume2, VolumeX, Eye, EyeOff, RotateCcw, Check } from "lucide-react"
+import { Volume2, VolumeX, Eye, EyeOff, RotateCcw, Check } from "lucide-react"
 import { Starfield } from "@/components/starfield"
 import { MintStage, type MintPhase } from "@/components/mint-stage"
 import { TraitLoader } from "@/components/trait-loader"
@@ -19,20 +17,12 @@ import { traitUrls } from "@/lib/trait-urls"
  * Layout
  * ------
  * Two layouts, switched purely in CSS by the `wide` variant (see globals.css):
- *   - portrait  : logo, hero, grid, character details, mint bar — stacked.
+ *   - portrait  : logo, hero, character sheet, details, mint bar — stacked.
  *   - wide      : (landscape and at least 768px wide) hero on the left,
- *                 logo / grid / details / mint bar in a column on the right.
- * Inside each layout everything scales fluidly; the character menu keeps a fixed
- * shape (columns × rows) and scales uniformly to fit the space it has.
+ *                 logo / character sheet / details / mint bar in a column on the right.
+ * Both use the same CharacterPanel: 5 fixed columns on phones, as many as fit on desktop.
  */
 
-// Phone character menu: a fixed 5 × 3 shape that scales as one piece —
-// tiles AND gaps grow and shrink together, so it never jumps between column counts.
-// (Desktop uses CharacterPanel, which reflows on its own.)
-const PHONE_MENU = { cols: 5, rows: 3 }
-const GAP_RATIO = 0.09 // gap as a fraction of the tile size
-const RAIL_WIDTH = 28 // scroll arrows + bar beside the menu
-const WIDE_QUERY = "(orientation: landscape) and (min-width: 768px)" // same as the `wide` CSS variant
 const WIDE_BREAKPOINT = 768 // px, where the layout switches to the phone layout
 
 // Desktop hero: the artwork has empty space on its left (~10% of the image width, shared by every
@@ -47,21 +37,8 @@ const MUSIC_VOLUME = 0.316 // about -10 dB
 const SFX_VOLUME = 0.5
 const SUCCESS_VOLUME = 0.398 // about -8 dB
 
-function computeGrid(width: number, height: number) {
-  const { cols, rows } = PHONE_MENU
-  const usableW = Math.max(0, width - RAIL_WIDTH)
-  // largest tile where cols × rows (plus proportional gaps) fits the box, in both directions
-  const fitW = usableW / (cols + (cols - 1) * GAP_RATIO)
-  const fitH = height / (rows + (rows - 1) * GAP_RATIO)
-  const tile = Math.max(20, Math.min(fitW, fitH))
-  const gap = tile * GAP_RATIO
-  const totalRows = Math.ceil(characters.length / cols)
-  return { cols, rows: Math.min(rows, totalRows), tile, gap, totalRows }
-}
-
 export default function Home() {
   const [isLoading, setIsLoading] = useState(true)
-  const [startRow, setStartRow] = useState(0)
   const [selectedId, setSelectedId] = useState<string | null>(null)
   const [claimedIds, setClaimedIds] = useState<string[]>([])
   const [hoveredId, setHoveredId] = useState<string | null>(null)
@@ -69,31 +46,19 @@ export default function Home() {
   const [mintingId, setMintingId] = useState<string | null>(null)
   const successSoundRef = useRef<HTMLAudioElement | null>(null)
   const displayedHeroId = hoveredId || selectedId || "000"
-  const [isSelectionAnimating, setIsSelectionAnimating] = useState(false)
   const hoverSoundRef = useRef<HTMLAudioElement | null>(null)
-  const scrollAccumulator = useRef(0)
   const [isMusicPlaying, setIsMusicPlaying] = useState(false)
   // The volume button mutes everything: music and sound effects
   const soundOnRef = useRef(true)
   const fadeRef = useRef<number | undefined>(undefined)
   const musicRef = useRef<HTMLAudioElement | null>(null)
-  const [isDragging, setIsDragging] = useState(false)
-  const scrollbarRef = useRef<HTMLDivElement | null>(null)
   const selectSoundRef = useRef<HTMLAudioElement | null>(null)
   const [isTouch, setIsTouch] = useState(false)
   const [isGridVisible, setIsGridVisible] = useState(true)
   const [heroPopTrigger, setHeroPopTrigger] = useState(0)
-  const gridAreaRef = useRef<HTMLDivElement | null>(null)
-  const [isWide, setIsWide] = useState(true)
-  const [grid, setGrid] = useState(() => computeGrid(375, 180))
   const prefersReducedMotion =
     typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches
 
-  const { cols: gridCols, rows: visibleRows, tile: tileSize, gap: gridGap, totalRows } = grid
-  const maxStartRow = Math.max(0, totalRows - visibleRows)
-  const visibleCharacters = characters.slice(startRow * gridCols, (startRow + visibleRows) * gridCols)
-  const gridWidthPx = tileSize * gridCols + gridGap * (gridCols - 1)
-  const gridHeightPx = tileSize * visibleRows + gridGap * (visibleRows - 1)
 
   // Demo-level image protection: block right-click, drag and long-press saving on images
   useEffect(() => {
@@ -121,43 +86,6 @@ export default function Home() {
     window.addEventListener("resize", update)
     return () => window.removeEventListener("resize", update)
   }, [])
-
-  // Which layout is active (matches the `wide` CSS variant)
-  useEffect(() => {
-    const mq = window.matchMedia(WIDE_QUERY)
-    const update = () => setIsWide(mq.matches)
-    update()
-    mq.addEventListener("change", update)
-    return () => mq.removeEventListener("change", update)
-  }, [])
-
-  // Phone layout: measure the space the menu has and scale its fixed 5 × 3 shape to fit.
-  // (Desktop uses CharacterPanel, which sizes itself.)
-  useEffect(() => {
-    if (isWide) return
-    const el = gridAreaRef.current
-    if (!el) return
-    const measure = () => {
-      const width = el.getBoundingClientRect().width
-      // Height budget for the menu: 28% of the screen, between 130 and 360px.
-      // The menu area then hugs the menu itself, so the box inset stays even all round.
-      const height = Math.min(360, Math.max(130, window.innerHeight * 0.28))
-      if (width > 0) setGrid(computeGrid(width, height))
-    }
-    measure()
-    const ro = new ResizeObserver(measure)
-    ro.observe(el)
-    window.addEventListener("resize", measure)
-    return () => {
-      ro.disconnect()
-      window.removeEventListener("resize", measure)
-    }
-  }, [isLoading, isWide])
-
-  // Keep the scroll position valid when the grid shape changes.
-  useEffect(() => {
-    setStartRow((prev) => Math.min(prev, maxStartRow))
-  }, [maxStartRow])
 
   useEffect(() => {
     const mq = window.matchMedia("(pointer: coarse)")
@@ -242,10 +170,9 @@ export default function Home() {
     }
   }, [isLoading, startMusic])
 
+  // Selection feedback: the hero pops (and briefly brightens) via the hero-pop animation
   useEffect(() => {
-    if (selectedId && !prefersReducedMotion) {
-      setHeroPopTrigger((prev) => prev + 1)
-    }
+    if (selectedId && !prefersReducedMotion) setHeroPopTrigger((prev) => prev + 1)
   }, [selectedId, prefersReducedMotion])
 
   // The volume button mutes everything: music fades out/in, sound effects stop/start
@@ -260,14 +187,6 @@ export default function Home() {
     }
   }
 
-  const handleScroll = useCallback(
-    (direction: "up" | "down") => {
-      setStartRow((prev) => (direction === "up" ? Math.max(0, prev - 1) : Math.min(maxStartRow, prev + 1)))
-      setHoveredId(null)
-    },
-    [maxStartRow],
-  )
-
   const handleTileClick = (id: string) => {
     if (selectedId === id) setHoveredId(null)
     const newSelectedId = selectedId === id ? null : id
@@ -279,8 +198,6 @@ export default function Home() {
         selectSoundRef.current.currentTime = 0
         selectSoundRef.current.play().catch(() => {})
       }
-      setIsSelectionAnimating(true)
-      setTimeout(() => setIsSelectionAnimating(false), 200)
     }
   }
 
@@ -325,38 +242,6 @@ export default function Home() {
   }
 
   useEffect(() => {
-    if (isWide) return
-    const handleWheel = (e: WheelEvent) => {
-      scrollAccumulator.current += e.deltaY
-      if (Math.abs(scrollAccumulator.current) >= 150) {
-        handleScroll(scrollAccumulator.current > 0 ? "down" : "up")
-        scrollAccumulator.current = 0
-      }
-    }
-    window.addEventListener("wheel", handleWheel, { passive: true })
-    return () => window.removeEventListener("wheel", handleWheel)
-  }, [handleScroll, isWide])
-
-  useEffect(() => {
-    if (!isDragging) return
-    const handleMove = (e: PointerEvent) => {
-      if (!scrollbarRef.current) return
-      const rect = scrollbarRef.current.getBoundingClientRect()
-      const percentage = Math.max(0, Math.min(1, (e.clientY - rect.top) / rect.height))
-      setStartRow(Math.round(percentage * maxStartRow))
-    }
-    const handleUp = () => setIsDragging(false)
-    document.addEventListener("pointermove", handleMove)
-    document.addEventListener("pointerup", handleUp)
-    document.addEventListener("pointercancel", handleUp)
-    return () => {
-      document.removeEventListener("pointermove", handleMove)
-      document.removeEventListener("pointerup", handleUp)
-      document.removeEventListener("pointercancel", handleUp)
-    }
-  }, [isDragging, maxStartRow])
-
-  useEffect(() => {
     if (hoveredId && !isTouch && hoverSoundRef.current && soundOnRef.current) {
       hoverSoundRef.current.pause()
       hoverSoundRef.current.currentTime = 0
@@ -364,44 +249,14 @@ export default function Home() {
     }
   }, [hoveredId, isTouch])
 
-  const touchStartY = useRef(0)
-  const touchAccumulator = useRef(0)
-
-  // Swipe to scroll the grid on touch screens.
-  useEffect(() => {
-    if (!isTouch) return
-    const handleTouchStart = (e: TouchEvent) => {
-      touchStartY.current = e.touches[0].clientY
-      touchAccumulator.current = 0
-    }
-    const handleTouchMove = (e: TouchEvent) => {
-      const touchY = e.touches[0].clientY
-      touchAccumulator.current += touchStartY.current - touchY
-      touchStartY.current = touchY
-      if (Math.abs(touchAccumulator.current) >= 50) {
-        handleScroll(touchAccumulator.current > 0 ? "down" : "up")
-        touchAccumulator.current = 0
-      }
-    }
-    window.addEventListener("touchstart", handleTouchStart, { passive: true })
-    window.addEventListener("touchmove", handleTouchMove, { passive: true })
-    return () => {
-      window.removeEventListener("touchstart", handleTouchStart)
-      window.removeEventListener("touchmove", handleTouchMove)
-    }
-  }, [isTouch, handleScroll])
-
   if (isLoading) {
     return <TraitLoader onComplete={() => setIsLoading(false)} />
   }
 
-  const showUpArrow = startRow > 0
-  const showDownArrow = startRow < maxStartRow
   const isDisplayedClaimed = displayedHeroId !== "000" && claimedIds.includes(displayedHeroId)
   const isSelectedClaimed = selectedId ? claimedIds.includes(selectedId) : false
   // Full hero art (already loaded for the selected raider), scaled down in the mint portrait so it stays sharp
   const mintImage = mintingId ? heroUrls[`hero${mintingId}`] || traitUrls[`trait${mintingId}`] || "" : ""
-  const thumbRatio = visibleRows / totalRows
   const actionId = selectedId ?? (hoveredId || null)
 
   return (
@@ -426,7 +281,7 @@ export default function Home() {
             "wide:h-[100svh] wide:left-0 wide:translate-x-[calc(var(--hero-shift,0px)*-1)]",
             "transition-[opacity,filter] select-none",
             isDisplayedClaimed ? "opacity-50" : "opacity-100",
-            isSelectionAnimating ? "duration-100 ease-out brightness-110" : "duration-500 ease-in",
+            "duration-500 ease-in",
             !prefersReducedMotion && heroPopTrigger > 0 && "animate-hero-pop",
           )}
           style={{ transformOrigin: "bottom center" }}
@@ -461,119 +316,31 @@ export default function Home() {
           {/* One visual block: character sheet + description in a single box (30% black on desktop), 12px inset all round */}
           <div
             className={cn(
-              "w-full min-h-0 flex flex-col gap-3 p-3 rounded-md wide:bg-black/30 wide:flex-1 transition-opacity duration-300",
+              "@container w-full max-w-[651px] wide:max-w-[var(--box-max)] min-h-0 flex flex-col gap-3 p-3 rounded-md wide:bg-black/30 wide:flex-1 transition-opacity duration-300",
               !isGridVisible && "opacity-0 pointer-events-none",
             )}
-            style={{ maxWidth: (isWide ? PANEL_MAX_WIDTH : gridWidthPx + RAIL_WIDTH) + 24 }}
+            // Portrait: at most 651px wide, so 3 rows of 5 stay within 360px tall (tablets). Wide: the panel's max + inset
+            style={{ ["--box-max" as string]: `${PANEL_MAX_WIDTH + 24}px` } as CSSProperties}
             // While the menu is hidden, nothing inside (back button, Mint, tiles) can be clicked, tapped or tabbed to
             inert={!isGridVisible}
           >
-          {isWide && (
-            <div className="relative flex-1 min-h-0 flex">
-              <CharacterPanel
-                className={cn(
-                  "flex-1 transition-opacity duration-300",
-                  (!isGridVisible || isMintActive) && "opacity-0 pointer-events-none",
-                )}
-                selectedId={selectedId}
-                claimedIds={claimedIds}
-                onHover={setHoveredId}
-                onLeave={() => setHoveredId(null)}
-                onSelect={handleTileClick}
-                tooltipHidden={!isGridVisible || isMintActive}
-              />
-              <MintStage phase={mintPhase} id={mintingId} imageSrc={mintImage} rarity={getRarity(mintingId)} onBack={handleBackToRaiders} />
-            </div>
-          )}
-
-          {/* Phone menu: the grid measures this box */}
-          {!isWide && (
-          <div
-            ref={gridAreaRef}
-            style={{ height: gridHeightPx }}
-            className={cn(
-              "relative w-full min-w-0 shrink-0",
-              "transition-opacity duration-300",
-              !isGridVisible && "opacity-0 pointer-events-none",
-            )}
-          >
-            <div
+          {/* Character sheet; the mint sequence plays over it. Phones: 5 columns, exactly 3 rows tall
+              (tile = (width − 60px of rail, gaps and padding) / 5, so 3 rows = 3/5 of that + 20px) */}
+          <div className="relative flex min-h-0 shrink-0 h-[calc((100cqw_-_60px)_*_0.6_+_20px)] wide:h-auto wide:flex-1">
+            <CharacterPanel
               className={cn(
-                "absolute inset-0 flex items-end justify-center transition-opacity duration-300",
-                isMintActive && "opacity-0 pointer-events-none",
+                "flex-1 transition-opacity duration-300",
+                (!isGridVisible || isMintActive) && "opacity-0 pointer-events-none",
               )}
-            >
-              <div className="flex items-stretch" style={{ gap: gridGap }}>
-                <div
-                  className="grid shrink-0"
-                  style={{
-                    gap: `${gridGap}px`,
-                    gridTemplateColumns: `repeat(${gridCols}, ${tileSize}px)`,
-                    gridAutoRows: `${tileSize}px`,
-                    width: gridWidthPx,
-                    height: gridHeightPx,
-                    alignContent: "start",
-                  }}
-                >
-                  {visibleCharacters.map((char) => (
-                    <CharacterTile
-                      key={char.id}
-                      id={char.id}
-                      index={char.index}
-                      traitIds={char.traitIds}
-                      isSelected={selectedId === char.id}
-                      isClaimed={claimedIds.includes(char.id)}
-                      tooltipHidden={!isGridVisible || isMintActive}
-                      onHover={() => setHoveredId(char.id)}
-                      onLeave={() => setHoveredId(null)}
-                      onClick={() => handleTileClick(char.id)}
-                    />
-                  ))}
-                </div>
-
-                <div
-                  className="flex flex-col items-center justify-between shrink-0"
-                  style={{ height: gridHeightPx, width: RAIL_WIDTH - gridGap }}
-                >
-                  <button
-                    className="shrink-0 cursor-pointer text-white hover:text-white/80 disabled:opacity-30 disabled:cursor-default transition flex items-center justify-center w-6 h-6"
-                    onClick={() => handleScroll("up")}
-                    disabled={!showUpArrow}
-                    aria-label="Scroll up"
-                  >
-                    <ChevronUp className="w-5 h-5" />
-                  </button>
-                  <div
-                    ref={scrollbarRef}
-                    className="relative w-1 my-1 bg-white/10 flex-1 cursor-pointer rounded-full touch-none"
-                    onPointerDown={(e) => {
-                      setIsDragging(true)
-                      e.preventDefault()
-                    }}
-                  >
-                    <div
-                      className="absolute left-0 right-0 bg-white/40 transition-all duration-200 rounded-full pointer-events-none"
-                      style={{
-                        height: `${thumbRatio * 100}%`,
-                        top: `${maxStartRow === 0 ? 0 : (startRow / maxStartRow) * (100 - thumbRatio * 100)}%`,
-                      }}
-                    />
-                  </div>
-                  <button
-                    className="shrink-0 cursor-pointer text-white hover:text-white/80 disabled:opacity-30 disabled:cursor-default transition flex items-center justify-center w-6 h-6"
-                    onClick={() => handleScroll("down")}
-                    disabled={!showDownArrow}
-                    aria-label="Scroll down"
-                  >
-                    <ChevronDown className="w-5 h-5" />
-                  </button>
-                </div>
-              </div>
-            </div>
+              selectedId={selectedId}
+              claimedIds={claimedIds}
+              onHover={setHoveredId}
+              onLeave={() => setHoveredId(null)}
+              onSelect={handleTileClick}
+              tooltipHidden={!isGridVisible || isMintActive}
+            />
             <MintStage phase={mintPhase} id={mintingId} imageSrc={mintImage} rarity={getRarity(mintingId)} onBack={handleBackToRaiders} />
           </div>
-
-          )}
 
           {/* Details + action row: flush with the tiles' edges (not the scroll rail), fixed height so nothing shifts */}
           <div
@@ -581,11 +348,7 @@ export default function Home() {
               "w-full shrink-0 flex flex-col gap-1 wide:gap-2 transition-opacity duration-300",
               !isGridVisible && "opacity-0 pointer-events-none",
             )}
-            style={
-              isWide
-                ? { paddingLeft: PANEL_PAD, paddingRight: PANEL_PAD + PANEL_GAP + PANEL_RAIL }
-                : { paddingRight: RAIL_WIDTH }
-            }
+            style={{ paddingLeft: PANEL_PAD, paddingRight: PANEL_PAD + PANEL_GAP + PANEL_RAIL }}
           >
             <CharacterDetails id={displayedHeroId === "000" ? null : displayedHeroId} isMinted={isDisplayedClaimed} />
 
@@ -605,8 +368,9 @@ export default function Home() {
               </p>
 
               <div className="flex items-center gap-2">
-                <Button
+                <button
                   className={cn(
+                    "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md transition-all shrink-0 outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50 disabled:pointer-events-none disabled:opacity-50",
                     "relative overflow-hidden h-10 wide:h-12 font-mono text-base font-bold bg-zinc-700 hover:bg-zinc-600 text-white border-2 cursor-pointer px-4 wide:px-6 min-w-[108px] wide:min-w-[132px]",
                     selectedId && !isSelectedClaimed ? "border-white" : "border-transparent",
                     mintPhase === "minting" && "disabled:opacity-100",
@@ -626,20 +390,16 @@ export default function Home() {
                   ) : (
                     "Mint PFP"
                   )}
-                </Button>
+                </button>
                 <div
                   className={cn(
                     "relative rounded overflow-hidden shrink-0 h-10 wide:h-12 aspect-square border-2",
                     !selectedId && "border-dashed border-white/25",
-                    selectedId &&
-                      (getRarity(selectedId) === "PermaRare"
-                        ? "border-[rgb(255_214_92)]"
-                        : getRarity(selectedId) === "Rare"
-                          ? "border-[rgb(207_213_220)]"
-                          : "border-white"),
+                    selectedId && "border-[rgb(var(--outline))]",
                     selectedId && rarityBgClass(getRarity(selectedId)),
                     selectedId && rarityBgClass(getRarity(selectedId)) && "rarity-swirl [--rarity-blur:10px]",
                   )}
+                  style={{ ["--outline" as string]: RARITY_RGB[getRarity(selectedId)] ?? "255 255 255" } as CSSProperties}
                 >
                   {selectedId && (
                     <img

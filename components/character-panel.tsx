@@ -1,13 +1,13 @@
 "use client"
 
-import { useCallback, useEffect, useRef, useState } from "react"
+import { useCallback, useEffect, useRef, useState, type CSSProperties } from "react"
 import { ChevronUp, ChevronDown } from "lucide-react"
 import { CharacterTile } from "@/components/character-tile"
 import { characters } from "@/lib/characters"
 import { cn } from "@/lib/utils"
 
 /*
- * Desktop character sheet.
+ * The character sheet (phone and desktop).
  *
  * The panel is a fixed frame: it fills the space between the pinned logo block and the
  * pinned description/mint block, so its edges only ever track the window size.
@@ -76,7 +76,7 @@ export function CharacterPanel({ selectedId, claimedIds, onHover, onLeave, onSel
   // Dragging the custom scrollbar
   useEffect(() => {
     if (!isDragging) return
-    const move = (e: MouseEvent) => {
+    const move = (e: PointerEvent) => {
       const el = scrollRef.current
       const track = trackRef.current
       if (!el || !track) return
@@ -85,11 +85,13 @@ export function CharacterPanel({ selectedId, claimedIds, onHover, onLeave, onSel
       el.scrollTop = pct * (el.scrollHeight - el.clientHeight)
     }
     const up = () => setIsDragging(false)
-    document.addEventListener("mousemove", move)
-    document.addEventListener("mouseup", up)
+    document.addEventListener("pointermove", move)
+    document.addEventListener("pointerup", up)
+    document.addEventListener("pointercancel", up)
     return () => {
-      document.removeEventListener("mousemove", move)
-      document.removeEventListener("mouseup", up)
+      document.removeEventListener("pointermove", move)
+      document.removeEventListener("pointerup", up)
+      document.removeEventListener("pointercancel", up)
     }
   }, [isDragging])
 
@@ -106,29 +108,30 @@ export function CharacterPanel({ selectedId, claimedIds, onHover, onLeave, onSel
         className={cn(
           "relative flex-1 min-w-0 h-full overflow-y-auto overscroll-contain",
           "snap-y snap-mandatory [scrollbar-width:none] [&::-webkit-scrollbar]:hidden",
+          // Edge fades on desktop only: the phone sheet shows exactly 3 whole rows
+          "wide:[mask-image:var(--fade)] wide:[-webkit-mask-image:var(--fade)]",
           isDragging && "snap-none",
         )}
         style={{
           padding: PANEL_PAD,
           scrollPaddingTop: PANEL_PAD,
-          maskImage: mask,
-          WebkitMaskImage: mask,
-        }}
+          ["--fade" as string]: mask,
+        } as CSSProperties}
       >
         <div
-          className="grid [&>*]:snap-start"
-          style={{
-            gap: PANEL_GAP,
-            // At least TILE_MIN wide, and never so narrow that more than MAX_COLS fit; stretch to fill
-            gridTemplateColumns: `repeat(auto-fill, minmax(max(${TILE_MIN}px, calc((100% - ${(MAX_COLS - 1) * PANEL_GAP}px) / ${MAX_COLS})), 1fr))`,
-          }}
+          // Phones: 5 fixed columns. Desktop: tiles at least TILE_MIN wide, never more than MAX_COLS, stretched to fill
+          className="grid [&>*]:snap-start grid-cols-5 wide:[grid-template-columns:var(--desktop-cols)]"
+          style={
+            {
+              gap: PANEL_GAP,
+              ["--desktop-cols" as string]: `repeat(auto-fill, minmax(max(${TILE_MIN}px, calc((100% - ${(MAX_COLS - 1) * PANEL_GAP}px) / ${MAX_COLS})), 1fr))`,
+            } as CSSProperties
+          }
         >
           {characters.map((char) => (
             <CharacterTile
               key={char.id}
               id={char.id}
-              index={char.index}
-              traitIds={char.traitIds}
               isSelected={selectedId === char.id}
               isClaimed={claimedIds.includes(char.id)}
               tooltipHidden={tooltipHidden}
@@ -152,8 +155,8 @@ export function CharacterPanel({ selectedId, claimedIds, onHover, onLeave, onSel
         </button>
         <div
           ref={trackRef}
-          className="relative w-1 my-1 bg-white/10 flex-1 cursor-pointer rounded-full"
-          onMouseDown={(e) => {
+          className="relative w-1 my-1 bg-white/10 flex-1 cursor-pointer rounded-full touch-none"
+          onPointerDown={(e) => {
             setIsDragging(true)
             e.preventDefault()
           }}
