@@ -454,11 +454,19 @@ export default function Home() {
           className="group relative select-none cursor-pointer w-5 h-5 sm:w-6 sm:h-6 p-0.5"
           aria-label="telegram"
         >
-          <img
-            src="https://ik.imagekit.io/peterlikesthis/permaraiderz/telegram.png"
-            alt=""
-            className="select-none brightness-0 invert w-full h-full group-hover:opacity-80 transition-opacity"
-          />
+          {/* Paper-plane outline, traced from the original telegram.png so it looks the same */}
+          <svg
+            viewBox="0 0 100 100"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="7"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            className="text-white w-full h-full group-hover:opacity-80 transition-opacity"
+            aria-hidden
+          >
+            <path d="M76.3 18.3L16.7 43.7Q2 50 16.6 56.5L36 65L64.5 83.3Q78 92 80.6 76.2L88.4 27.8Q91 12 76.3 18.3ZM36 65L61 40" />
+          </svg>
           <Tooltip label="telegram" />
         </a>
         {claimedIds.length > 0 && (
