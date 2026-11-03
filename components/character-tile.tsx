@@ -34,18 +34,20 @@ export function CharacterTile({
   const [showTooltip, setShowTooltip] = useState(false)
   const [tooltipVisible, setTooltipVisible] = useState(false)
   const buttonRef = useRef<HTMLButtonElement | null>(null)
-  const [tooltipPos, setTooltipPos] = useState<{ x: number; y: number } | null>(null)
+  const [tooltipPos, setTooltipPos] = useState<{ x: number; y: number; align: "left" | "center" | "right" } | null>(null)
 
-  // Centred in the character menu (clear of the logo text and the screen edges). Re-placed on resize.
-  // Scrolling the menu fades it out where it is.
+  // Pinned 12px above the tile. On the first/last column it lines up with the tile's outer edge instead of
+  // centring, so it can't run off the screen. Re-placed on resize. Scrolling the menu fades it out where it is.
   useLayoutEffect(() => {
     if (!showTooltip) return
     const place = () => {
       const tile = buttonRef.current
       if (!tile) return
+      const r = tile.getBoundingClientRect()
       const grid = tile.parentElement!.getBoundingClientRect()
-      const menu = tile.closest(".snap-y")!.parentElement!.getBoundingClientRect()
-      setTooltipPos({ x: grid.left + grid.width / 2, y: menu.top + menu.height / 2 })
+      const align = r.left - grid.left < 1 ? "left" : grid.right - r.right < 1 ? "right" : "center"
+      const x = align === "left" ? r.left : align === "right" ? r.right : r.left + r.width / 2
+      setTooltipPos({ x, y: r.top - 12, align })
     }
     let hideTimer: ReturnType<typeof setTimeout> | undefined
     const fadeOut = () => {
@@ -130,7 +132,9 @@ export function CharacterTile({
         createPortal(
           <div
             className={cn(
-              "fixed -translate-x-1/2 -translate-y-1/2 font-mono font-normal bg-white text-black text-[11px] uppercase tracking-wider px-2 py-1 rounded whitespace-nowrap z-[1000] pointer-events-none transition-opacity duration-200",
+              "fixed -translate-y-full font-mono font-normal bg-white text-black text-[11px] uppercase tracking-wider px-2 py-1 rounded whitespace-nowrap z-[1000] pointer-events-none transition-opacity duration-200",
+              tooltipPos.align === "center" && "-translate-x-1/2",
+              tooltipPos.align === "right" && "-translate-x-full",
               tooltipVisible ? "opacity-100" : "opacity-0",
             )}
             style={{ left: tooltipPos.x, top: tooltipPos.y }}
