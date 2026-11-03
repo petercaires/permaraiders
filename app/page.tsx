@@ -412,7 +412,7 @@ export default function Home() {
   const actionId = selectedId ?? (hoveredId || null)
 
   return (
-    <div className="h-[100svh] overflow-hidden bg-background relative flex flex-col wide:flex-row">
+    <div className="h-[100svh] overflow-hidden bg-background relative flex flex-col wide:flex-row font-mono">
       <Starfield />
       <div className="fog-container" />
       <div className="fixed top-0 left-0 right-0 h-48 bg-gradient-to-b from-black/40 via-black/20 to-transparent z-20 pointer-events-none" />
@@ -454,8 +454,8 @@ export default function Home() {
           className="order-1 wide:order-none relative z-30 flex flex-col items-center w-full shrink-0 select-none gap-1 pt-4 pb-[clamp(12px,3svh,32px)] wide:pb-[clamp(8px,1.5svh,16px)]"
         >
           <img src="/header.png" alt="Perma Raiders" className="object-contain select-none h-[clamp(36px,7.5svh,112px)]" />
-          <p className="hidden wide:block text-white/80 font-mono tracking-wide text-xs">pfp collection</p>
-          <p className="hidden wide:block text-white/60 font-mono text-[11px]">select character to mint</p>
+          <p className="hidden wide:block text-white text-xs">pfp collection</p>
+          <p className="hidden wide:block text-white/70 text-xs">select character to mint</p>
         </header>
 
         <main
@@ -611,7 +611,7 @@ export default function Home() {
               <div className="flex items-center gap-2">
                 <Button
                   className={cn(
-                    "relative overflow-hidden h-10 wide:h-12 text-sm wide:text-base font-semibold bg-zinc-700 hover:bg-zinc-600 text-white border-2 cursor-pointer px-4 wide:px-6 min-w-[108px] wide:min-w-[132px]",
+                    "relative overflow-hidden h-10 wide:h-12 font-mono text-base font-bold bg-zinc-700 hover:bg-zinc-600 text-white border-2 cursor-pointer px-4 wide:px-6 min-w-[108px] wide:min-w-[132px]",
                     selectedId && !isSelectedClaimed ? "border-white" : "border-transparent",
                     mintPhase === "minting" && "disabled:opacity-100",
                   )}
@@ -711,7 +711,7 @@ function IconButton({
     >
       <div className="hover:opacity-80 transition-opacity w-full h-full">{children}</div>
       <div className="absolute right-full mr-2 top-1/2 -translate-y-1/2 group-hover:block hidden pointer-events-none whitespace-nowrap">
-        <div className="bg-white text-black text-[9px] px-2 py-1 rounded font-mono">{label}</div>
+        <div className="bg-white text-black text-[11px] uppercase tracking-wider px-2 py-1 rounded">{label}</div>
       </div>
     </button>
   )
