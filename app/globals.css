@@ -309,14 +309,15 @@ img {
   animation: hero-pop 400ms ease-in-out forwards;
 }
 
-/* Film grain over the background (hero, stars, fog), under the menu and text.
-   Static, faint and monochrome (grey only, fully opaque noise), so it reads as film grain. */
-.grain {
-  position: fixed;
-  inset: 0;
-  z-index: 6;
-  pointer-events: none;
-  opacity: 0.025;
-  background-size: 160px;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='matrix' values='0.33 0.33 0.33 0 0 0.33 0.33 0.33 0 0 0.33 0.33 0.33 0 0 0 0 0 0 1'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+/* Hero edge: a soft transparency ramp on the side facing the character menu
+   (bottom on phones, right on desktop), eased so it doesn't show steps. */
+.hero-fade {
+  --fade: linear-gradient(to bottom, rgb(0 0 0 / 1.000) 80.0%, rgb(0 0 0 / 0.957) 82.5%, rgb(0 0 0 / 0.844) 85.0%, rgb(0 0 0 / 0.684) 87.5%, rgb(0 0 0 / 0.500) 90.0%, rgb(0 0 0 / 0.316) 92.5%, rgb(0 0 0 / 0.156) 95.0%, rgb(0 0 0 / 0.043) 97.5%, rgb(0 0 0 / 0.000) 100.0%);
+  -webkit-mask-image: var(--fade);
+  mask-image: var(--fade);
+}
+@media (orientation: landscape) and (min-width: 768px) {
+  .hero-fade {
+    --fade: linear-gradient(to right, rgb(0 0 0 / 1.000) 76.0%, rgb(0 0 0 / 0.957) 78.8%, rgb(0 0 0 / 0.844) 81.5%, rgb(0 0 0 / 0.684) 84.2%, rgb(0 0 0 / 0.500) 87.0%, rgb(0 0 0 / 0.316) 89.8%, rgb(0 0 0 / 0.156) 92.5%, rgb(0 0 0 / 0.043) 95.2%, rgb(0 0 0 / 0.000) 98.0%);
+  }
 }

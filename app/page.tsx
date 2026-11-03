@@ -263,7 +263,6 @@ export default function Home() {
     <div className="h-[100svh] overflow-hidden bg-background relative flex flex-col wide:flex-row font-mono">
       <Starfield />
       <div className="fog-container" />
-      <div className="grain" />
 
       {/* ---------- Hero ---------- */}
       <section className="relative order-2 wide:order-none flex-1 min-h-0 wide:min-w-0 z-0 pointer-events-none select-none">
@@ -272,7 +271,7 @@ export default function Home() {
           src={heroUrls[`hero${displayedHeroId}`] || heroUrls["hero000"]}
           alt={displayedHeroId !== "000" ? `Raider ${displayedHeroId}` : ""}
           className={cn(
-            "absolute bottom-0 max-w-none aspect-square",
+            "hero-fade absolute bottom-0 max-w-none aspect-square",
             // Height is always tied to the viewport height, never the width.
             // portrait: 55% of the screen height, centred (narrow phones crop both sides equally)
             "h-[55svh] left-1/2 -translate-x-1/2 translate-y-[10svh] wide:translate-y-0",
