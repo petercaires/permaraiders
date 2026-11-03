@@ -39,7 +39,7 @@ export function CharacterTile({
   const rarity = getRarity(id)
   const rarityBg = rarityBgClass(rarity)
   // Outline colour by rarity (RGB triplet, also drives the hover glow)
-  const outline = rarity === "PermaRare" ? "242 205 92" : rarity === "Rare" ? "207 213 220" : null
+  const outline = rarity === "PermaRare" ? "255 214 92" : rarity === "Rare" ? "207 213 220" : null
 
   useEffect(() => {
     if (isSelected && !hasShownTooltipRef.current) {
