@@ -117,7 +117,7 @@ export function CharacterTile({
       {rarityBg ? (
         <div
           className={cn("absolute inset-0 rounded-[4px]", rarityBg, (isHovered || isSelected) && !isClaimed && "rarity-swirl")}
-          style={{ ["--rarity-blur" as string]: "14px", ["--rarity-opacity" as string]: (isHovered || isSelected) && !isClaimed ? 1 : 0.25 } as CSSProperties}
+          style={{ ["--rarity-blur" as string]: "14px", ["--rarity-opacity" as string]: (isHovered || isSelected) && !isClaimed ? 1 : 0.8 } as CSSProperties}
         />
       ) : (
         <div className="absolute inset-0 bg-gradient-to-br from-secondary via-muted to-secondary opacity-50" />
@@ -138,6 +138,9 @@ export function CharacterTile({
           <span className="text-2xl font-bold text-muted-foreground/50">{index}</span>
         </div>
       )}
+
+      {/* Soft shade behind the number so it reads on bright raiders */}
+      <div className="absolute inset-x-0 bottom-0 h-1/2 rounded-b-[4px] bg-gradient-to-t from-black/20 to-transparent pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-200" />
 
       <div className="absolute bottom-0.5 left-1/2 -translate-x-1/2 text-[11px] leading-none pb-0.5 font-bold text-white opacity-0 group-hover:opacity-100 transition-opacity duration-200">
         {id}
