@@ -5,8 +5,6 @@ import { CharacterTile } from "@/components/character-tile"
 import { CharacterDetails } from "@/components/character-details"
 import { CharacterPanel, PANEL_MAX_WIDTH, PANEL_PAD, PANEL_GAP, PANEL_RAIL } from "@/components/character-panel"
 import { Button } from "@/components/ui/button"
-import { Toaster } from "@/components/ui/toaster"
-import { useToast } from "@/hooks/use-toast"
 import { characters, getRarity, rarityBgClass } from "@/lib/characters"
 import { getClaimedIds, claimCharacter, clearAllClaimed } from "@/lib/mintAdapter"
 import { ChevronUp, ChevronDown, Volume2, VolumeX, Eye, EyeOff, RotateCcw, Check } from "lucide-react"
@@ -62,7 +60,6 @@ export default function Home() {
   const [startRow, setStartRow] = useState(0)
   const [selectedId, setSelectedId] = useState<string | null>(null)
   const [claimedIds, setClaimedIds] = useState<string[]>([])
-  const { toast } = useToast()
   const [hoveredId, setHoveredId] = useState<string | null>(null)
   const [mintPhase, setMintPhase] = useState<MintPhase>("idle")
   const [mintingId, setMintingId] = useState<string | null>(null)
@@ -72,13 +69,13 @@ export default function Home() {
   const hoverSoundRef = useRef<HTMLAudioElement | null>(null)
   const scrollAccumulator = useRef(0)
   const [isMusicPlaying, setIsMusicPlaying] = useState(false)
+  // The volume button mutes everything: music and sound effects
+  const soundOnRef = useRef(true)
   const musicRef = useRef<HTMLAudioElement | null>(null)
   const [isDragging, setIsDragging] = useState(false)
   const scrollbarRef = useRef<HTMLDivElement | null>(null)
   const selectSoundRef = useRef<HTMLAudioElement | null>(null)
   const [isTouch, setIsTouch] = useState(false)
-  const [showScrollOverlay, setShowScrollOverlay] = useState(false)
-  const [hasShownScrollOverlay, setHasShownScrollOverlay] = useState(false)
   const [isGridVisible, setIsGridVisible] = useState(true)
   const [heroPopTrigger, setHeroPopTrigger] = useState(0)
   const gridAreaRef = useRef<HTMLDivElement | null>(null)
@@ -203,12 +200,6 @@ export default function Home() {
   }, [])
 
   useEffect(() => {
-    if (localStorage.getItem("scroll-hint-shown") === "true") {
-      setHasShownScrollOverlay(true)
-    }
-  }, [])
-
-  useEffect(() => {
     if (!isLoading && musicRef.current) {
       musicRef.current.volume = 0
       musicRef.current
@@ -268,6 +259,7 @@ export default function Home() {
   const toggleMusic = () => {
     if (!musicRef.current) return
     if (isMusicPlaying) {
+      soundOnRef.current = false
       let currentVolume = musicRef.current.volume
       const fadeOutInterval = setInterval(() => {
         if (currentVolume > 0) {
@@ -280,6 +272,7 @@ export default function Home() {
       }, 30)
       setIsMusicPlaying(false)
     } else {
+      soundOnRef.current = true
       musicRef.current.volume = 0
       musicRef.current
         .play()
@@ -313,7 +306,7 @@ export default function Home() {
     setSelectedId(newSelectedId)
 
     if (newSelectedId !== null) {
-      if (selectSoundRef.current) {
+      if (selectSoundRef.current && soundOnRef.current) {
         selectSoundRef.current.pause()
         selectSoundRef.current.currentTime = 0
         selectSoundRef.current.play().catch(() => {})
@@ -336,7 +329,7 @@ export default function Home() {
       await claimCharacter(mintingId)
       setClaimedIds(getClaimedIds())
       setMintPhase("success")
-      if (successSoundRef.current) {
+      if (successSoundRef.current && soundOnRef.current) {
         successSoundRef.current.currentTime = 0
         successSoundRef.current.play().catch(() => {})
       }
@@ -365,13 +358,6 @@ export default function Home() {
 
   const handleTileHover = (id: string) => {
     setHoveredId(id)
-    if (isTouch && !hasShownScrollOverlay && !showScrollOverlay) setShowScrollOverlay(true)
-  }
-
-  const handleCloseScrollOverlay = () => {
-    setShowScrollOverlay(false)
-    setHasShownScrollOverlay(true)
-    localStorage.setItem("scroll-hint-shown", "true")
   }
 
   useEffect(() => {
@@ -405,7 +391,7 @@ export default function Home() {
   }, [isDragging, maxStartRow])
 
   useEffect(() => {
-    if (hoveredId && hoverSoundRef.current) {
+    if (hoveredId && hoverSoundRef.current && soundOnRef.current) {
       hoverSoundRef.current.pause()
       hoverSoundRef.current.currentTime = 0
       hoverSoundRef.current.play().catch(() => {})
@@ -741,7 +727,6 @@ export default function Home() {
         )}
       </div>
 
-      <Toaster />
     </div>
   )
 }
