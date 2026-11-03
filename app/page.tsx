@@ -303,7 +303,7 @@ export default function Home() {
           className="order-1 wide:order-none relative z-30 flex flex-col items-center w-full shrink-0 select-none gap-1 pt-4 pb-[clamp(12px,3svh,32px)] wide:pb-[clamp(8px,1.5svh,16px)]"
         >
           <img src="/header.png" alt="Perma Raiders" className="object-contain select-none h-[clamp(36px,7.5svh,112px)]" />
-          <p className="hidden wide:block text-white text-sm">pfp collection (demo)</p>
+          <p className="hidden wide:block text-white text-sm">pfp collection demo</p>
           <p className="hidden wide:block text-white/70 text-sm">mint your character</p>
         </header>
 
@@ -343,17 +343,18 @@ export default function Home() {
             <MintStage phase={mintPhase} id={mintingId} imageSrc={mintImage} rarity={getRarity(mintingId)} onBack={handleBackToRaiders} />
           </div>
 
-          {/* Details + action row: flush with the tiles' edges (not the scroll rail), fixed height so nothing shifts */}
+          {/* Details + action row, fixed height so nothing shifts. The description spans the tiles and the scroll rail;
+              the action row ends at the tiles' right edge */}
           <div
             className={cn(
               "w-full shrink-0 flex flex-col gap-1 wide:gap-2 transition-opacity duration-300",
               !isGridVisible && "opacity-0 pointer-events-none",
             )}
-            style={{ paddingLeft: PANEL_PAD, paddingRight: PANEL_PAD + PANEL_GAP + PANEL_RAIL }}
+            style={{ paddingLeft: PANEL_PAD }}
           >
             <CharacterDetails id={displayedHeroId === "000" ? null : displayedHeroId} isMinted={isDisplayedClaimed} />
 
-            <div className="flex items-center justify-between gap-3 h-10 wide:h-12">
+            <div className="flex items-center justify-between gap-3 h-10 wide:h-12" style={{ paddingRight: PANEL_PAD + PANEL_GAP + PANEL_RAIL }}>
               <p
                 key={actionId ?? "none"}
                 className={cn(
