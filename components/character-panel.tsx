@@ -32,10 +32,12 @@ interface CharacterPanelProps {
   onHover: (id: string) => void
   onLeave: () => void
   onSelect: (id: string) => void
+  /** Hide the tiles' "click to deselect" hint */
+  tooltipHidden?: boolean
   className?: string
 }
 
-export function CharacterPanel({ selectedId, claimedIds, onHover, onLeave, onSelect, className }: CharacterPanelProps) {
+export function CharacterPanel({ selectedId, claimedIds, onHover, onLeave, onSelect, tooltipHidden, className }: CharacterPanelProps) {
   const scrollRef = useRef<HTMLDivElement | null>(null)
   const trackRef = useRef<HTMLDivElement | null>(null)
   const [scroll, setScroll] = useState({ pos: 0, size: 1, atStart: true, atEnd: true })
@@ -130,6 +132,7 @@ export function CharacterPanel({ selectedId, claimedIds, onHover, onLeave, onSel
               isSelected={selectedId === char.id}
               isClaimed={claimedIds.includes(char.id)}
               isRevealed
+              tooltipHidden={tooltipHidden}
               onHover={() => onHover(char.id)}
               onLeave={onLeave}
               onClick={() => onSelect(char.id)}

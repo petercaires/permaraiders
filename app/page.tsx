@@ -514,6 +514,7 @@ export default function Home() {
                 onHover={handleTileHover}
                 onLeave={() => setHoveredId(null)}
                 onSelect={handleTileClick}
+                tooltipHidden={!isGridVisible || isMintActive}
               />
               <MintStage phase={mintPhase} id={mintingId} imageSrc={mintImage} rarity={getRarity(mintingId)} onBack={handleBackToRaiders} />
             </div>
@@ -557,6 +558,7 @@ export default function Home() {
                       isSelected={selectedId === char.id}
                       isClaimed={claimedIds.includes(char.id)}
                       isRevealed
+                      tooltipHidden={!isGridVisible || isMintActive}
                       onHover={() => handleTileHover(char.id)}
                       onLeave={() => setHoveredId(null)}
                       onClick={() => handleTileClick(char.id)}

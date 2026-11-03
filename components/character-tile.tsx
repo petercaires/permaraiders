@@ -13,6 +13,8 @@ interface CharacterTileProps {
   isSelected: boolean
   isClaimed: boolean
   isRevealed: boolean
+  /** Hide the "click to deselect" hint (e.g. while the mint sequence is showing) */
+  tooltipHidden?: boolean
   onHover: () => void
   onLeave: () => void
   onClick: () => void
@@ -25,6 +27,7 @@ export function CharacterTile({
   isSelected,
   isClaimed,
   isRevealed,
+  tooltipHidden = false,
   onHover,
   onLeave,
   onClick,
@@ -124,11 +127,11 @@ export function CharacterTile({
       disabled={!isRevealed}
     >
       {/* Drawn at page level so the menu's scroll area can't clip it */}
-      {!isClaimed && isSelected && showTooltip && tooltipPos &&
+      {!isClaimed && isSelected && showTooltip && !tooltipHidden && tooltipPos &&
         createPortal(
           <div
             className={cn(
-              "fixed -translate-x-1/2 -translate-y-full bg-white text-black px-2 py-1 rounded text-[11px] uppercase tracking-wider whitespace-nowrap z-[1000] pointer-events-none transition-opacity duration-200",
+              "fixed -translate-x-1/2 -translate-y-full font-mono font-normal bg-white text-black text-[11px] uppercase tracking-wider px-2 py-1 rounded whitespace-nowrap z-[1000] pointer-events-none transition-opacity duration-200",
               tooltipVisible ? "opacity-100" : "opacity-0",
             )}
             style={{ left: tooltipPos.x, top: tooltipPos.y }}

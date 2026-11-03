@@ -67,8 +67,11 @@ export function MintStage({ phase, id, imageSrc, rarity, onBack }: MintStageProp
         <>
           <Confetti isActive={phase === "success"} contained colors={CONFETTI[rarity]} />
 
-          {/* Desktop: invisible spacer matching the message below, so the portrait itself sits at the vertical centre */}
-          <div aria-hidden className="hidden wide:block shrink-0 h-[60px]" />
+          {/* Desktop: spacer matching the message below, so the portrait itself sits at the vertical centre.
+              Holds the "Demo mode" label, which sits just above the portrait */}
+          <div className="hidden wide:flex shrink-0 h-[60px] flex-col justify-end items-center">
+            <DemoLabel />
+          </div>
 
           {/* Portrait */}
           <div className="@container relative shrink-0 h-[96%] wide:h-[max(160px,calc(100%-144px))] max-h-[480px] min-h-[72px] aspect-square">
@@ -94,7 +97,9 @@ export function MintStage({ phase, id, imageSrc, rarity, onBack }: MintStageProp
           </div>
 
           {/* Message — same fixed height in both phases, so the portrait never moves */}
-          <div className="flex-1 wide:flex-none wide:h-[60px] flex flex-col justify-center wide:justify-start items-start wide:items-center">
+          <div className="flex-1 wide:flex-none wide:h-[60px] flex flex-col justify-center wide:justify-start items-start wide:items-center gap-2">
+            {/* Phone: the portrait fills the box height, so the label leads the message instead */}
+            <DemoLabel className="wide:hidden" />
             {phase === "minting" ? (
               <p className="text-base font-bold leading-tight text-white/70 animate-pulse">Minting Raider {id}…</p>
             ) : (
@@ -111,6 +116,10 @@ export function MintStage({ phase, id, imageSrc, rarity, onBack }: MintStageProp
       )}
     </div>
   )
+}
+
+function DemoLabel({ className }: { className?: string }) {
+  return <p className={cn("text-[11px] uppercase tracking-wider text-white/70 leading-none", className)}>Demo mode</p>
 }
 
 function BackButton({ onClick }: { onClick: () => void }) {

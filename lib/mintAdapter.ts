@@ -6,8 +6,13 @@ const STORAGE_KEY = "claimedCharacterIds"
 export function getClaimedIds(): string[] {
   if (typeof window === "undefined") return []
 
-  const stored = localStorage.getItem(STORAGE_KEY)
-  return stored ? JSON.parse(stored) : []
+  // Corrupt or hand-edited storage shouldn't crash the page: fall back to "nothing minted"
+  try {
+    const parsed: unknown = JSON.parse(localStorage.getItem(STORAGE_KEY) ?? "[]")
+    return Array.isArray(parsed) ? parsed.filter((x): x is string => typeof x === "string") : []
+  } catch {
+    return []
+  }
 }
 
 export async function claimCharacter(id: string): Promise<boolean> {
