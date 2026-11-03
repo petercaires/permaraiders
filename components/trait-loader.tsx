@@ -54,13 +54,13 @@ export function TraitLoader({ onComplete }: TraitLoaderProps) {
 
   return (
     <div
-      className={`fixed inset-0 z-50 h-screen flex flex-col items-center justify-center pb-[33svh] wide:pb-[8svh] bg-gradient-to-b from-zinc-900 via-zinc-950 to-black transition-opacity duration-400 ${
+      className={`fixed inset-0 z-50 h-screen flex flex-col items-center justify-center pb-[8svh] bg-gradient-to-b from-zinc-900 via-zinc-950 to-black transition-opacity duration-400 ${
         isFadingOut ? "opacity-0" : "opacity-100"
       }`}
     >
       <div className="fog-container" />
 
-      {/* Mobile: upper third. Desktop: optical centre (a touch above the true middle, which reads as centred) */}
+      {/* At the optical centre: a touch above the true middle, which reads as centred */}
       <div className="relative z-10 flex flex-col items-center justify-center gap-5 wide:gap-8">
         <img src="/header.png" alt="Perma Raiders" className="h-20 wide:h-[clamp(120px,18svh,180px)] w-auto object-contain" />
 
