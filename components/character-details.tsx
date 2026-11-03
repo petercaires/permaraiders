@@ -22,7 +22,7 @@ export function CharacterDetails({ id, isMinted, className, style }: CharacterDe
 
   return (
     <aside
-      className={cn("text-white select-none h-[88px] wide:h-[76px] flex flex-col justify-start gap-1 text-left", className)}
+      className={cn("text-white select-none h-[88px] wide:h-[72px] flex flex-col justify-start gap-2.5 text-left", className)}
       style={style}
       aria-live="polite"
     >
@@ -56,7 +56,7 @@ export function CharacterDetails({ id, isMinted, className, style }: CharacterDe
               ))}
             </ul>
           </div>
-          <p className="text-[11px] wide:text-xs leading-snug text-white line-clamp-4 wide:line-clamp-3">{character.description}</p>
+          <p className="text-xs wide:text-sm leading-snug text-white line-clamp-3 wide:line-clamp-2">{character.description}</p>
         </>
       ) : null}
     </aside>
