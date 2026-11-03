@@ -45,9 +45,9 @@ export function CharacterDetails({ id, isMinted, className, style }: CharacterDe
                   className={cn(
                     "text-[11px] uppercase tracking-wider px-1.5 py-0.5 rounded border whitespace-nowrap",
                     trait === "PermaRare"
-                      ? "rarity-gold border-transparent text-black font-bold"
+                      ? "relative rarity-gold [--rarity-blur:5px] border-transparent text-black font-bold"
                       : trait === "Rare"
-                        ? "rarity-silver border-transparent text-black font-bold"
+                        ? "relative rarity-silver [--rarity-blur:5px] border-transparent text-black font-bold"
                         : "border-white/20 text-white/70",
                   )}
                 >
