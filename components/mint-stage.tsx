@@ -1,5 +1,6 @@
 "use client"
 
+import type { CSSProperties } from "react"
 import { Undo2 } from "lucide-react"
 import { Confetti } from "@/components/confetti"
 import { cn } from "@/lib/utils"
@@ -9,6 +10,12 @@ const STAMP: Record<Rarity, string> = {
   Common: "border-white text-white",
   Rare: "border-slate-200 text-slate-100",
   PermaRare: "border-amber-300 text-amber-300",
+}
+/** Outline colour by rarity (RGB triplet), matching the menu tiles */
+const OUTLINE: Record<Rarity, string> = {
+  Common: "255 255 255",
+  Rare: "207 213 220",
+  PermaRare: "255 214 92",
 }
 const CONFETTI: Record<Rarity, string[]> = {
   Common: ["#ffffff"],
@@ -69,8 +76,9 @@ export function MintStage({ phase, id, imageSrc, rarity, onBack }: MintStageProp
               className={cn(
                 "relative w-full h-full rounded-md overflow-hidden border-2 transition-[border-color,filter] duration-500",
                 rarityBg && cn(rarityBg, "rarity-swirl [--rarity-blur:60px]"),
-                phase === "minting" ? "border-white/30 grayscale-[60%] brightness-75" : "border-white",
+                phase === "minting" ? "border-[rgb(var(--outline)/0.35)] grayscale-[60%] brightness-75" : "border-[rgb(var(--outline))]",
               )}
+              style={{ ["--outline" as string]: OUTLINE[rarity] } as CSSProperties}
             >
               <img src={imageSrc} alt={`Raider ${id}`} className="w-full h-full object-cover select-none" crossOrigin="anonymous" />
               {phase === "minting" && <div className="mint-scan absolute inset-0" />}
