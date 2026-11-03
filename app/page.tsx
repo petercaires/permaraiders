@@ -625,7 +625,7 @@ export default function Home() {
           {/* Details + action row: flush with the tiles' edges (not the scroll rail), fixed height so nothing shifts */}
           <div
             className={cn(
-              "w-full shrink-0 flex flex-col gap-2 transition-opacity duration-300",
+              "w-full shrink-0 flex flex-col gap-1 wide:gap-2 transition-opacity duration-300",
               !isGridVisible && "opacity-0 pointer-events-none",
             )}
             style={
