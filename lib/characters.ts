@@ -9,8 +9,8 @@ export interface Character {
 
 // Generate 165 characters with zero-padded IDs, each with ONE corresponding trait
 // Rarity list — every raider not listed here is Common
-const RARE_IDS = new Set(["071", "066", "161", "122", "165", "060", "056", "154", "133", "148"])
-const PERMARARE_IDS = new Set(["042", "100", "020", "117", "076"])
+const RARE_IDS = new Set(["071", "066", "161", "122", "165", "060", "056", "154", "133", "148", "027", "032", "038", "155", "102", "093", "106", "121", "044", "082"])
+const PERMARARE_IDS = new Set(["042", "100", "020", "117", "076", "147", "096"])
 
 /** One-line bio per raider, shown under the menu */
 const DESCRIPTIONS: Record<string, string> = {
