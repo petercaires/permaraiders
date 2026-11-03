@@ -32,7 +32,7 @@ interface MintStageProps {
  * The mint sequence, played inside the menu box instead of a popup.
  * Sits over the character sheet; the sheet fades out while this fades in.
  *   minting → portrait under a scanning shimmer, "Minting Raider 042…"
- *   success → MINTED stamp lands, "Mint Complete", confetti kept inside the box, "Back to raiders"
+ *   success → MINTED stamp lands, "Claimed!", confetti kept inside the box, "Back to raiders"
  *   reset   → "Demo reset" confirmation, "Back to raiders"
  */
 export function MintStage({ phase, id, imageSrc, rarity, onBack }: MintStageProps) {
@@ -99,7 +99,7 @@ export function MintStage({ phase, id, imageSrc, rarity, onBack }: MintStageProp
             ) : (
               <div className="flex flex-col wide:flex-row items-start wide:items-center gap-3 wide:gap-5 text-left animate-in fade-in-0 slide-in-from-bottom-2 duration-300 fill-mode-both [animation-delay:250ms]">
                 <div>
-                  <h2 className="text-lg wide:text-2xl font-bold leading-tight whitespace-nowrap">Mint Complete</h2>
+                  <h2 className="text-lg wide:text-2xl font-bold leading-tight whitespace-nowrap">Claimed!</h2>
                   <p className="text-xs wide:text-sm text-white/70">Raider {id} is now yours.</p>
                 </div>
                 <BackButton onClick={onBack} />
