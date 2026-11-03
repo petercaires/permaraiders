@@ -60,7 +60,7 @@ export function TraitLoader({ onComplete }: TraitLoaderProps) {
     >
       <div className="fog-container" />
 
-      <div className="relative z-10 flex flex-col items-center justify-center gap-8 md:gap-12">
+      <div className="relative z-10 flex flex-col items-center justify-center gap-4 md:gap-5">
         <img src="/header.png" alt="Perma Raiders" className="h-16 md:h-20 w-auto object-contain" />
 
         <div className="w-48 md:w-64 h-3 md:h-3.5 border border-white/80 rounded p-1">
