@@ -495,8 +495,8 @@ export default function Home() {
           className="order-1 wide:order-none relative z-30 flex flex-col items-center w-full shrink-0 select-none gap-1 pt-4 pb-[clamp(12px,3svh,32px)] wide:pb-[clamp(8px,1.5svh,16px)]"
         >
           <img src="/header.png" alt="Perma Raiders" className="object-contain select-none h-[clamp(36px,7.5svh,112px)]" />
-          <p className="hidden wide:block text-white text-xs">pfp collection</p>
-          <p className="hidden wide:block text-white/70 text-xs">select character to mint</p>
+          <p className="hidden wide:block text-white text-sm">pfp collection</p>
+          <p className="hidden wide:block text-white/70 text-sm">select character to mint</p>
         </header>
 
         <main
