@@ -19,6 +19,9 @@ import { cn } from "@/lib/utils"
 export const PANEL_GAP = 6 // px between tiles
 export const PANEL_PAD = 4 // px inset so hover/selected tiles aren't clipped
 export const PANEL_RAIL = 22 // px scroll rail beside the sheet
+// The scroll area reaches this far past the tiles (negative margin + matching padding, so the tiles
+// don't move) so hover/rarity glows can spill out instead of being clipped at the sheet's edge
+const GLOW_ROOM = 32
 const TILE_MIN = 68
 const TILE_MAX = 84
 const MAX_COLS = 11
@@ -95,10 +98,13 @@ export function CharacterPanel({ selectedId, claimedIds, onHover, onLeave, onSel
     }
   }, [isDragging])
 
-  // Fade whichever edge has more raiders beyond it
-  const top = scroll.atStart ? "black 0" : "transparent 0, black 28px"
-  const bottom = scroll.atEnd ? "black 100%" : "black calc(100% - 56px), transparent 100%"
-  const mask = `linear-gradient(to bottom, ${top}, ${bottom})`
+  // Hide raiders scrolled past the sheet's edge (desktop: with a fade). An edge with nothing beyond it
+  // stays open, so the glow of the first/last row can spill out.
+  const R = GLOW_ROOM
+  const edges = (fadeTop: number, fadeBottom: number) =>
+    `linear-gradient(to bottom, ${scroll.atStart ? "black 0" : `transparent ${R}px, black ${R + fadeTop}px`}, ${
+      scroll.atEnd ? "black 100%" : `black calc(100% - ${R + fadeBottom}px), transparent calc(100% - ${R}px)`
+    })`
 
   return (
     <div className={cn("flex min-h-0 w-full", className)} style={{ gap: PANEL_GAP, maxWidth: PANEL_MAX_WIDTH }}>
@@ -108,14 +114,15 @@ export function CharacterPanel({ selectedId, claimedIds, onHover, onLeave, onSel
         className={cn(
           "relative flex-1 min-w-0 h-full overflow-y-auto overscroll-contain",
           "snap-y snap-mandatory [scrollbar-width:none] [&::-webkit-scrollbar]:hidden",
-          // Edge fades on desktop only: the phone sheet shows exactly 3 whole rows
-          "wide:[mask-image:var(--fade)] wide:[-webkit-mask-image:var(--fade)]",
+          "[mask-image:var(--clip)] [-webkit-mask-image:var(--clip)] wide:[mask-image:var(--fade)] wide:[-webkit-mask-image:var(--fade)]",
           isDragging && "snap-none",
         )}
         style={{
-          padding: PANEL_PAD,
-          scrollPaddingTop: PANEL_PAD,
-          ["--fade" as string]: mask,
+          margin: -GLOW_ROOM,
+          padding: PANEL_PAD + GLOW_ROOM,
+          scrollPaddingTop: PANEL_PAD + GLOW_ROOM,
+          ["--clip" as string]: edges(0, 0), // phone: hard edge, it shows exactly 3 whole rows
+          ["--fade" as string]: edges(28, 56),
         } as CSSProperties}
       >
         <div
@@ -144,7 +151,8 @@ export function CharacterPanel({ selectedId, claimedIds, onHover, onLeave, onSel
       </div>
 
       {/* Scroll rail */}
-      <div className="flex flex-col items-center justify-between shrink-0 py-1" style={{ width: PANEL_RAIL }}>
+      {/* relative z-10: stays clickable above the scroll area's glow room */}
+      <div className="relative z-10 flex flex-col items-center justify-between shrink-0 py-1" style={{ width: PANEL_RAIL }}>
         <button
           className="shrink-0 cursor-pointer text-white hover:text-white/80 disabled:opacity-30 disabled:cursor-default transition-[color,opacity] flex items-center justify-center w-6 h-6"
           onClick={() => scrollRows(-1)}
