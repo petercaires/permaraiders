@@ -161,7 +161,7 @@ export function RarityShine({ src, rgb, className }: { src: string; rgb: string;
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return
     const canvas = canvasRef.current!
     const ctx = canvas.getContext("2d")!
-    const sparks: { x: number; y: number; vy: number; age: number; life: number }[] = []
+    const sparks: { x: number; y: number; vy: number; age: number; life: number; s: number; white: boolean }[] = []
     let start = 0, last = 0, spawn = 0, frame = 0
 
     const tick = (now: number) => {
@@ -178,21 +178,21 @@ export function RarityShine({ src, rgb, className }: { src: string; rgb: string;
       const pos = 0.95 - 0.9 * (1 - (1 - u) ** 2)
       const bandX = size * (1.25 - 1.5 * pos)
       if (u < 1) {
-        spawn += dt * 40
+        spawn += dt * 90
         while (spawn >= 1) {
           spawn--
           const y = Math.random() * size
-          sparks.push({ x: bandX - (y - size / 2) * 0.27 + (Math.random() - 0.5) * size * 0.06, y, vy: -10 - Math.random() * 20, age: 0, life: 0.4 + Math.random() * 0.4 })
+          sparks.push({ x: bandX - (y - size / 2) * 0.27 + (Math.random() - 0.5) * size * 0.08, y, vy: -15 - Math.random() * 30, age: 0, life: 0.5 + Math.random() * 0.5, s: 4 + Math.random() * 3, white: Math.random() < 0.5 })
         }
       }
-      ctx.fillStyle = `rgb(${rgb})`
       for (let i = sparks.length - 1; i >= 0; i--) {
         const s = sparks[i]
         s.age += dt
         if (s.age >= s.life) { sparks.splice(i, 1); continue }
         s.y += s.vy * dt
-        ctx.globalAlpha = 0.9 * (1 - s.age / s.life)
-        ctx.fillRect(s.x - 1.5, s.y - 1.5, 3, 3)
+        ctx.globalAlpha = 1 - s.age / s.life
+        ctx.fillStyle = s.white ? "#fff" : `rgb(${rgb})` // half white, half the rarity colour, like the mint confetti
+        ctx.fillRect(s.x - s.s / 2, s.y - s.s / 2, s.s, s.s)
       }
       if (u < 1 || sparks.length) frame = requestAnimationFrame(tick) // stops by itself once it's played
     }
@@ -205,7 +205,9 @@ export function RarityShine({ src, rgb, className }: { src: string; rgb: string;
       <div
         className="hero-shine absolute inset-0"
         style={{ ["--silhouette" as string]: `url("${src}")`, ["--trace-rgb" as string]: rgb } as CSSProperties}
-      >
+      />
+      {/* Sparkles on their own layer (not blended, so they stay visible on gold/silver art), cut to the art's shape */}
+      <div className="hero-sparks absolute inset-0" style={{ ["--silhouette" as string]: `url("${src}")` } as CSSProperties}>
         <canvas ref={canvasRef} className="absolute inset-0 w-full h-full" />
       </div>
     </div>

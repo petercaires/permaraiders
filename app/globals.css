@@ -330,12 +330,20 @@ img {
 .hero-shine {
   -webkit-mask: var(--silhouette) center / 100% 100% no-repeat;
   mask: var(--silhouette) center / 100% 100% no-repeat;
-  background: linear-gradient(105deg, transparent 42%, rgb(var(--trace-rgb) / 0.35) 50%, transparent 58%) 95% 0 / 250% 100% no-repeat;
+  /* a band of the rarity colour with a thin bright white streak through the middle, like light on metal */
+  background: linear-gradient(105deg, transparent 41%, rgb(var(--trace-rgb) / 0.4) 47.5%, rgb(255 255 255 / 0.75) 49.6%, rgb(255 255 255 / 0.75) 50.4%, rgb(var(--trace-rgb) / 0.4) 52.5%, transparent 59%) 95% 0 / 250% 100% no-repeat;
   mix-blend-mode: screen;
   animation: hero-shine 0.7s ease-out forwards; /* keep in step with SHINE_MS in edge-trace.tsx */
 }
 
+.hero-sparks {
+  -webkit-mask: var(--silhouette) center / 100% 100% no-repeat;
+  mask: var(--silhouette) center / 100% 100% no-repeat;
+  filter: drop-shadow(0 0 3px rgb(255 255 255 / 0.6));
+}
+
 @media (prefers-reduced-motion: reduce) {
+  .hero-sparks,
   .hero-shine {
     display: none;
   }
