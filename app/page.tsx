@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef, useCallback, type CSSProperties } from "react"
 import { CharacterDetails } from "@/components/character-details"
-import { HeroTrace, RarityShine } from "@/components/edge-trace"
+import { SilhouetteParticles } from "@/components/silhouette-particles"
 import { CharacterPanel, PANEL_MAX_WIDTH, PANEL_PAD, RAIL_GAP, PANEL_RAIL } from "@/components/character-panel"
 import { getCharacterById, getRarity, rarityBgClass, RARITY_RGB } from "@/lib/characters"
 import { getClaimedIds, claimCharacter, clearAllClaimed } from "@/lib/mintAdapter"
@@ -38,7 +38,7 @@ const MUSIC_VOLUME = 0.316 // about -10 dB
 const SFX_VOLUME = 0.5
 const SUCCESS_VOLUME = 0.398 // about -8 dB
 
-// Where the hero art sits (shared with the silhouette's edge light behind it)
+// Where the hero art sits (shared with the silhouette's particles)
 const HERO_BOX = cn(
   "hero-fade absolute bottom-0 max-w-none aspect-square",
   // Height is always tied to the viewport height, never the width.
@@ -271,7 +271,6 @@ export default function Home() {
   // Full hero art (already loaded for the selected raider), scaled down in the mint portrait so it stays sharp
   const mintImage = mintingId ? heroUrls[`hero${mintingId}`] || traitUrls[`trait${mintingId}`] || "" : ""
   const actionId = selectedId ?? (hoveredId || null)
-  const shineRgb = displayedHeroId === "000" || isDisplayedClaimed ? null : RARITY_RGB[getRarity(displayedHeroId)]
 
   return (
     <div className="h-[100svh] overflow-hidden bg-background relative flex flex-col wide:flex-row font-mono">
@@ -281,13 +280,7 @@ export default function Home() {
       {/* ---------- Hero ---------- */}
       <section className="relative order-2 wide:order-none flex-1 min-h-0 wide:min-w-0 z-0 pointer-events-none select-none">
         {/* Empty silhouette: particles drifting off its edge, so it reads at first glance */}
-        <HeroTrace
-          trace={
-            displayedHeroId === "000"
-              ? { id: "000", src: heroUrls["hero000"], rgb: "255 255 255", className: cn(HERO_BOX, "silhouette") }
-              : null
-          }
-        />
+        <SilhouetteParticles show={displayedHeroId === "000"} src={heroUrls["hero000"]} className={cn(HERO_BOX, "silhouette")} />
         <img
           key={heroPopTrigger}
           src={heroUrls[`hero${displayedHeroId}`] || heroUrls["hero000"]}
@@ -305,16 +298,6 @@ export default function Home() {
             if (e.currentTarget.src !== heroUrls["hero000"]) e.currentTarget.src = heroUrls["hero000"]
           }}
         />
-        {/* Rare / PermaRare art: a one-off silver / gold shine as it appears */}
-        {shineRgb && (
-          <RarityShine
-            key={`${displayedHeroId}-${heroPopTrigger}`}
-            src={heroUrls[`hero${displayedHeroId}`]}
-            rgb={shineRgb}
-            // never scales (unlike the art's little pop)
-            className={HERO_BOX}
-          />
-        )}
       </section>
 
       {/* ---------- Content column (flattened into the page in portrait) ---------- */}
