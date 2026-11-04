@@ -456,7 +456,7 @@ export default function Home() {
           className="group relative select-none cursor-pointer w-11 h-11 p-2.5 wide:w-6 wide:h-6 wide:p-0.5"
           aria-label="telegram"
         >
-          {/* Paper-plane outline, traced from the original telegram.png so it looks the same; nudged 2px left for
+          {/* Paper-plane outline, traced from the original telegram.png so it looks the same; nudged 1px left for
               optical balance (the link and its tooltip stay put) */}
           <svg
             viewBox="0 0 100 100"
@@ -465,7 +465,7 @@ export default function Home() {
             strokeWidth="7"
             strokeLinecap="round"
             strokeLinejoin="round"
-            className="text-white w-full h-full -translate-x-[2px] group-hover:opacity-80 transition-opacity"
+            className="text-white w-full h-full -translate-x-px group-hover:opacity-80 transition-opacity"
             aria-hidden
           >
             <path d="M76.3 18.3L16.7 43.7Q2 50 16.6 56.5L36 65L64.5 83.3Q78 92 80.6 76.2L88.4 27.8Q91 12 76.3 18.3ZM36 65L61 40" />
