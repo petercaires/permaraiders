@@ -47,7 +47,7 @@ export function HeroTrace({ trace }: { trace: Trace | null }) {
 }
 
 /**
- * Edge glow for the hero art (the empty silhouette in white; Rare and PermaRare raiders in their colour).
+ * Edge glow for the empty silhouette.
  * The glow layer is the art's own shape (as a mask) in a solid colour, slowly warped by an SVG noise filter
  * and blurred out with drop-shadows; the art drawn on top hides everything inside it, so only a soft,
  * shifting rim shows. Confetti-style squares drift off the edge, sweeping over the top of the outline.
@@ -114,7 +114,7 @@ function EdgeTrace({ src, rgb, className, leaving }: { src: string; /** "r g b" 
       const p = ((now - start) % LAP_MS) / LAP_MS
       const deg = START + p * SPAN
       // Warp: the noise slowly drifts, so the rim gently ripples
-      noise.setAttribute("baseFrequency", `${(0.012 + 0.004 * Math.sin(t * 0.9)).toFixed(4)} ${(0.016 + 0.004 * Math.cos(t * 0.7)).toFixed(4)}`)
+      noise.setAttribute("baseFrequency", `${(0.012 + 0.004 * Math.sin(t * 0.4)).toFixed(4)} ${(0.016 + 0.004 * Math.cos(t * 0.3)).toFixed(4)}`)
       const out = leavingAt.current === null ? 1 : Math.min(1, Math.max(0, 1 - (now - leavingAt.current) / FADE_OUT_MS))
       wrap.style.opacity = String(Math.min(1, (now - start) / FADE_IN_MS) * out)
       const sweep = Math.min(1, p / 0.1, (1 - p) / 0.1) // particles fade in and out at the ends of each sweep

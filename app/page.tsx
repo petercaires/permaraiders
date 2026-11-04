@@ -271,7 +271,7 @@ export default function Home() {
   // Full hero art (already loaded for the selected raider), scaled down in the mint portrait so it stays sharp
   const mintImage = mintingId ? heroUrls[`hero${mintingId}`] || traitUrls[`trait${mintingId}`] || "" : ""
   const actionId = selectedId ?? (hoveredId || null)
-  const traceRgb = displayedHeroId === "000" ? "255 255 255" : isDisplayedClaimed ? null : RARITY_RGB[getRarity(displayedHeroId)]
+  const shineRgb = displayedHeroId === "000" || isDisplayedClaimed ? null : RARITY_RGB[getRarity(displayedHeroId)]
 
   return (
     <div className="h-[100svh] overflow-hidden bg-background relative flex flex-col wide:flex-row font-mono">
@@ -280,19 +280,12 @@ export default function Home() {
 
       {/* ---------- Hero ---------- */}
       <section className="relative order-2 wide:order-none flex-1 min-h-0 wide:min-w-0 z-0 pointer-events-none select-none">
-        {/* A soft light travelling around the edge: white on the empty silhouette (so it reads at first glance),
-            silver on Rare raiders, gold on PermaRare */}
+        {/* Empty silhouette: a soft rippling glow around its edge, so it reads at first glance */}
         <HeroTrace
           trace={
-            traceRgb ? {
-              id: displayedHeroId,
-              src: heroUrls[`hero${displayedHeroId}`],
-              rgb: traceRgb,
-              className: cn(
-                HERO_BOX,
-                displayedHeroId === "000" && "silhouette",
-              ),
-            } : null
+            displayedHeroId === "000"
+              ? { id: "000", src: heroUrls["hero000"], rgb: "255 255 255", className: cn(HERO_BOX, "silhouette") }
+              : null
           }
         />
         <img
@@ -312,11 +305,12 @@ export default function Home() {
             if (e.currentTarget.src !== heroUrls["hero000"]) e.currentTarget.src = heroUrls["hero000"]
           }}
         />
-        {traceRgb && displayedHeroId !== "000" && (
+        {/* Rare / PermaRare art: a one-off silver / gold shine as it appears */}
+        {shineRgb && (
           <RarityShine
             key={`${displayedHeroId}-${heroPopTrigger}`}
             src={heroUrls[`hero${displayedHeroId}`]}
-            rgb={traceRgb}
+            rgb={shineRgb}
             // pops with the art, so the shine stays on it
             className={cn(HERO_BOX, "origin-bottom", !prefersReducedMotion && heroPopTrigger > 0 && "animate-hero-pop")}
           />
@@ -345,9 +339,10 @@ export default function Home() {
             "flex flex-col items-center",
           )}
         >
-          {/* One visual block: character sheet + description in a single box (30% black on desktop), 12px inset all round */}
+          {/* One visual block: character sheet + description in a single box, 12px inset all round. Desktop: a solid
+              fill (the same shade 30% black gave over the background), so the hero art never shows through it */}
           <div
-            className="@container w-full max-w-[651px] wide:max-w-[var(--box-max)] min-h-0 flex flex-col gap-3 p-3 rounded-md wide:bg-black/30 wide:flex-1 translate-x-[var(--nudge)] wide:translate-x-0"
+            className="@container w-full max-w-[651px] wide:max-w-[var(--box-max)] min-h-0 flex flex-col gap-3 p-3 rounded-md wide:bg-[#0d0d0d] wide:flex-1 translate-x-[var(--nudge)] wide:translate-x-0"
             // Portrait: at most 651px wide, so 3 rows of 5 stay within 360px tall (tablets). Wide: the panel's max + inset
             // Mobile: nudged right by half the rail, so the tiles (not tiles + rail) sit centred on screen
             style={{ ["--box-max" as string]: `${PANEL_MAX_WIDTH + 24}px`, ["--nudge" as string]: `${(RAIL_GAP + PANEL_RAIL) / 2}px` } as CSSProperties}
