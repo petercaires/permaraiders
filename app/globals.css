@@ -317,9 +317,9 @@ img {
   animation: hero-pop 400ms ease-in-out forwards;
 }
 
-/* Empty-state silhouette edge light (driven by components/silhouette-trace.tsx, which sets --trace) */
+/* Hero edge light (driven by components/edge-trace.tsx, which sets --trace, --cx/--cy and --trace-rgb) */
 .hero-trace {
-  filter: drop-shadow(0 0 2px rgb(255 255 255 / 0.8)) drop-shadow(0 0 8px rgb(255 255 255 / 0.35));
+  filter: drop-shadow(0 0 2px rgb(var(--trace-rgb) / 0.8)) drop-shadow(0 0 8px rgb(var(--trace-rgb) / 0.35));
 }
 
 .hero-trace > div {
@@ -327,13 +327,13 @@ img {
   inset: 0;
   -webkit-mask: var(--silhouette) center / 100% 100% no-repeat;
   mask: var(--silhouette) center / 100% 100% no-repeat;
-  background: conic-gradient(from var(--trace, 0deg) at 52% 55%, transparent 0deg 285deg, white 330deg, transparent 345deg);
+  background: conic-gradient(from var(--trace, 0deg) at var(--cx, 50%) var(--cy, 55%), transparent 0deg 285deg, rgb(var(--trace-rgb)) 330deg, transparent 345deg);
 }
 
 @media (prefers-reduced-motion: reduce) {
   /* No movement: a still, faint rim all the way round */
   .hero-trace > div {
-    background: rgb(255 255 255 / 0.35);
+    background: rgb(var(--trace-rgb) / 0.35);
   }
 }
 

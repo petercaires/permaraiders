@@ -1,24 +1,63 @@
 "use client"
 
-import { useEffect, useRef, type CSSProperties } from "react"
+import { useEffect, useRef, useState, type CSSProperties } from "react"
 import { cn } from "@/lib/utils"
 
 // The sweep runs over the top of the outline only: from lower-left, over the head, to lower-right
-// (angles clockwise from straight up, around the silhouette's centre), then fades and starts again.
+// (angles clockwise from straight up, around the shape's centre), then fades and starts again.
 const START = 235
 const SPAN = 250
 const LAP_MS = 4500
-const CENTRE = { x: 0.52, y: 0.55 } // of the image box
-const SAMPLE = 256 // px; the silhouette is scanned at this size to find its edge
+const SAMPLE = 256 // px; the art is scanned at this size to find its outline
+const FADE_OUT_MS = 200
+
+export interface Trace {
+  /** Changes whenever the light should restart (new raider, or the same one re-selected) */
+  id: string
+  src: string
+  rgb: string
+  className?: string
+}
 
 /**
- * Empty-state silhouette edge light. The inner layer is the silhouette's own shape (as a mask) filled with
- * a short bright arc; the outer layer's drop-shadow lets that arc spill just past the edge, and the
- * (opaque) silhouette drawn on top hides everything inside it. A few white confetti-style squares drift
- * off the edge where the light is.
+ * The current edge light, plus the previous one fading out for FADE_OUT_MS after a change.
+ * At most one is ever fading, so quick hovering can't pile them up.
  */
-export function SilhouetteTrace({ src, className }: { src: string; className: string }) {
+export function HeroTrace({ trace }: { trace: Trace | null }) {
+  const [shown, setShown] = useState(trace)
+  const [leaving, setLeaving] = useState<Trace | null>(null)
+
+  // Noticed during render (not in an effect), so the outgoing light is never unmounted, even for a frame
+  if (trace?.id !== shown?.id) {
+    setLeaving(shown)
+    setShown(trace)
+  }
+
+  useEffect(() => {
+    if (!leaving) return
+    const t = setTimeout(() => setLeaving(null), FADE_OUT_MS)
+    return () => clearTimeout(t)
+  }, [leaving])
+
+  // Keyed by id, so the outgoing light keeps its running instance (and just fades) rather than restarting
+  return [leaving, trace].map(
+    (t) => t && <EdgeTrace key={t.id} src={t.src} rgb={t.rgb} className={t.className} leaving={t === leaving && t.id !== trace?.id} />,
+  )
+}
+
+/**
+ * Edge light for the hero art (the empty silhouette in white; Rare and PermaRare raiders in their colour).
+ * The inner layer is the art's own shape (as a mask) filled with a short bright arc; the outer layer's
+ * drop-shadow lets that arc spill just past the edge, and the art drawn on top hides everything inside it.
+ * A few confetti-style squares drift off the edge where the light is.
+ */
+function EdgeTrace({ src, rgb, className, leaving }: { src: string; /** "r g b" */ rgb: string; className?: string; leaving: boolean }) {
   const wrapRef = useRef<HTMLDivElement>(null)
+  const leavingAt = useRef<number | null>(null)
+  useEffect(() => {
+    // (if it comes back before it has gone, e.g. hovering away and straight back, it just shows again)
+    leavingAt.current = leaving ? (leavingAt.current ?? performance.now()) : null
+  }, [leaving])
   const arcRef = useRef<HTMLDivElement>(null)
   const canvasRef = useRef<HTMLCanvasElement>(null)
 
@@ -39,6 +78,16 @@ export function SilhouetteTrace({ src, className }: { src: string; className: st
       const g = c.getContext("2d")!
       g.drawImage(img, 0, 0, SAMPLE, SAMPLE)
       const alpha = g.getImageData(0, 0, SAMPLE, SAMPLE).data
+      // Centre of the shape: middle of its bounding box
+      let x0 = SAMPLE, y0 = SAMPLE, x1 = 0, y1 = 0
+      for (let i = 0; i < SAMPLE * SAMPLE; i++)
+        if (alpha[i * 4 + 3] > 128) {
+          const x = i % SAMPLE, y = (i - x) / SAMPLE
+          x0 = Math.min(x0, x); x1 = Math.max(x1, x); y0 = Math.min(y0, y); y1 = Math.max(y1, y)
+        }
+      const CENTRE = { x: (x0 + x1) / 2 / SAMPLE, y: (y0 + y1) / 2 / SAMPLE }
+      arc.style.setProperty("--cx", `${CENTRE.x * 100}%`)
+      arc.style.setProperty("--cy", `${CENTRE.y * 100}%`)
       edge = Array.from({ length: 360 }, (_, deg) => {
         const dx = Math.sin((deg * Math.PI) / 180), dy = -Math.cos((deg * Math.PI) / 180)
         for (let r = SAMPLE; r > 0; r--) {
@@ -46,21 +95,22 @@ export function SilhouetteTrace({ src, className }: { src: string; className: st
           if (x >= 0 && y >= 0 && x < SAMPLE && y < SAMPLE && alpha[(y * SAMPLE + x) * 4 + 3] > 128)
             return { x: x / SAMPLE, y: y / SAMPLE }
         }
-        return { x: CENTRE.x, y: CENTRE.y }
+        return CENTRE
       })
     }).catch(() => {})
 
     const particles: { x: number; y: number; vx: number; vy: number; age: number; life: number }[] = []
-    let last = performance.now(), spawn = 0
-    const start = last
+    let last = 0, start = 0, spawn = 0
 
     const tick = (now: number) => {
+      if (!start) start = last = now // timed from the first frame, so it always starts faded out
       const dt = Math.min(now - last, 50) / 1000
       last = now
       const p = ((now - start) % LAP_MS) / LAP_MS
       const deg = START + p * SPAN
       arc.style.setProperty("--trace", `${deg - 330}deg`) // the arc's brightest point sits at +330°
-      wrap.style.opacity = String(Math.min(1, p / 0.1, (1 - p) / 0.1)) // fade in and out at the ends
+      const out = leavingAt.current === null ? 1 : Math.min(1, Math.max(0, 1 - (now - leavingAt.current) / FADE_OUT_MS))
+      wrap.style.opacity = String(Math.min(1, p / 0.1, (1 - p) / 0.1) * out) // fade in and out at the ends
 
       // Canvas matches the box at device resolution
       const size = wrap.clientWidth, dpr = window.devicePixelRatio || 1
@@ -69,7 +119,7 @@ export function SilhouetteTrace({ src, className }: { src: string; className: st
       ctx.clearRect(0, 0, size, size)
 
       // A few particles per second, shed from the lit part of the edge and drifting outward
-      if (edge) {
+      if (edge && leavingAt.current === null) {
         spawn += dt * 14
         while (spawn >= 1) {
           spawn--
@@ -79,7 +129,7 @@ export function SilhouetteTrace({ src, className }: { src: string; className: st
           particles.push({ x: edge[d].x * size, y: edge[d].y * size, vx: Math.sin(out) * speed, vy: -Math.cos(out) * speed, age: 0, life: 0.7 + Math.random() * 0.7 })
         }
       }
-      ctx.fillStyle = "#fff"
+      ctx.fillStyle = `rgb(${rgb})`
       for (let i = particles.length - 1; i >= 0; i--) {
         const q = particles[i]
         q.age += dt
@@ -93,10 +143,10 @@ export function SilhouetteTrace({ src, className }: { src: string; className: st
     }
     frame = requestAnimationFrame(tick)
     return () => cancelAnimationFrame(frame)
-  }, [src])
+  }, [src, rgb])
 
   return (
-    <div ref={wrapRef} aria-hidden className={cn("hero-trace", className)}>
+    <div ref={wrapRef} aria-hidden className={cn("hero-trace", className)} style={{ ["--trace-rgb" as string]: rgb } as CSSProperties}>
       <div ref={arcRef} style={{ ["--silhouette" as string]: `url("${src}")` } as CSSProperties} />
       <canvas ref={canvasRef} className="absolute inset-0 w-full h-full" />
     </div>
