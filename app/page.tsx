@@ -433,8 +433,10 @@ export default function Home() {
         creator @peterlikesthis
       </a>
 
-      {/* ---------- Corner controls ---------- */}
-      <div className="fixed right-4 top-4 z-40 flex flex-col gap-1">
+      {/* ---------- Corner controls ----------
+          Phones: each is a full 44px tap target (the recommended minimum), edge to edge, with a 26px icon,
+          so a slightly-off tap still hits the right one. Desktop: compact 24px icons. */}
+      <div className="fixed right-1 top-1 wide:right-4 wide:top-4 z-40 flex flex-col wide:gap-1">
         <IconButton
           label={isMusicPlaying ? "mute" : "unmute"}
           onClick={toggleMusic}
@@ -451,7 +453,7 @@ export default function Home() {
           href="https://t.me/permaraidz"
           target="_blank"
           rel="noopener noreferrer"
-          className="group relative select-none cursor-pointer w-5 h-5 sm:w-6 sm:h-6 p-0.5"
+          className="group relative select-none cursor-pointer w-11 h-11 p-2.5 wide:w-6 wide:h-6 wide:p-0.5"
           aria-label="telegram"
         >
           {/* Paper-plane outline, traced from the original telegram.png so it looks the same */}
@@ -488,7 +490,7 @@ function IconButton({
   return (
     <button
       aria-label={label}
-      className="cursor-pointer text-white w-5 h-5 sm:w-6 sm:h-6 group relative"
+      className="cursor-pointer text-white w-11 h-11 p-[9px] wide:w-6 wide:h-6 wide:p-0 group relative"
       {...props}
     >
       <div className="group-hover:opacity-80 transition-opacity w-full h-full">{children}</div>
