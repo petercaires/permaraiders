@@ -280,7 +280,7 @@ export default function Home() {
 
       {/* ---------- Hero ---------- */}
       <section className="relative order-2 wide:order-none flex-1 min-h-0 wide:min-w-0 z-0 pointer-events-none select-none">
-        {/* Empty silhouette: a soft rippling glow around its edge, so it reads at first glance */}
+        {/* Empty silhouette: particles drifting off its edge, so it reads at first glance */}
         <HeroTrace
           trace={
             displayedHeroId === "000"

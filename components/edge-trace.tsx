@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useId, useRef, useState, type CSSProperties } from "react"
+import { useEffect, useRef, useState, type CSSProperties } from "react"
 import { cn } from "@/lib/utils"
 
 // The particles sweep over the top of the outline only: from lower-left, over the head, to lower-right
@@ -47,10 +47,8 @@ export function HeroTrace({ trace }: { trace: Trace | null }) {
 }
 
 /**
- * Edge glow for the empty silhouette.
- * The glow layer is the art's own shape (as a mask) in a solid colour, slowly warped by an SVG noise filter
- * and blurred out with drop-shadows; the art drawn on top hides everything inside it, so only a soft,
- * shifting rim shows. Confetti-style squares drift off the edge, sweeping over the top of the outline.
+ * Edge particles for the empty silhouette: confetti-style squares drifting off its outline, sweeping over the
+ * top from one side to the other.
  */
 function EdgeTrace({ src, rgb, className, leaving }: { src: string; /** "r g b" */ rgb: string; className?: string; leaving: boolean }) {
   const wrapRef = useRef<HTMLDivElement>(null)
@@ -59,17 +57,11 @@ function EdgeTrace({ src, rgb, className, leaving }: { src: string; /** "r g b" 
     // (if it comes back before it has gone, e.g. hovering away and straight back, it just shows again)
     leavingAt.current = leaving ? (leavingAt.current ?? performance.now()) : null
   }, [leaving])
-  const noiseRef = useRef<SVGFETurbulenceElement>(null)
   const canvasRef = useRef<HTMLCanvasElement>(null)
-  const warpId = `warp${useId().replace(/[^a-zA-Z0-9_-]/g, "")}`
 
   useEffect(() => {
-    const wrap = wrapRef.current!
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
-      wrap.style.opacity = "1" // a still rim: no ripple, no particles
-      return
-    }
-    const noise = noiseRef.current!, canvas = canvasRef.current!
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return // no particles
+    const wrap = wrapRef.current!, canvas = canvasRef.current!
     const ctx = canvas.getContext("2d")!
     let edge: { x: number; y: number }[] | null = null // outline point for each whole degree (0–1 of the box)
     let frame = 0
@@ -110,11 +102,8 @@ function EdgeTrace({ src, rgb, className, leaving }: { src: string; /** "r g b" 
       if (!start) start = last = now // timed from the first frame, so it always starts faded out
       const dt = Math.min(now - last, 50) / 1000
       last = now
-      const t = (now - start) / 1000
       const p = ((now - start) % LAP_MS) / LAP_MS
       const deg = START + p * SPAN
-      // Warp: the noise slowly drifts, so the rim gently ripples
-      noise.setAttribute("baseFrequency", `${(0.012 + 0.004 * Math.sin(t * 0.4)).toFixed(4)} ${(0.016 + 0.004 * Math.cos(t * 0.3)).toFixed(4)}`)
       const out = leavingAt.current === null ? 1 : Math.min(1, Math.max(0, 1 - (now - leavingAt.current) / FADE_OUT_MS))
       wrap.style.opacity = String(Math.min(1, (now - start) / FADE_IN_MS) * out)
       const sweep = Math.min(1, p / 0.1, (1 - p) / 0.1) // particles fade in and out at the ends of each sweep
@@ -154,19 +143,6 @@ function EdgeTrace({ src, rgb, className, leaving }: { src: string; /** "r g b" 
 
   return (
     <div ref={wrapRef} aria-hidden className={className} style={{ opacity: 0 }}>
-      <svg width="0" height="0" className="absolute">
-        <filter id={warpId}>
-          <feTurbulence ref={noiseRef} type="fractalNoise" baseFrequency="0.012 0.016" numOctaves={2} seed={3} />
-          <feDisplacementMap in="SourceGraphic" scale={10} xChannelSelector="R" yChannelSelector="G" />
-          <feGaussianBlur stdDeviation={1.5} />
-        </filter>
-      </svg>
-      <div
-        className="hero-trace absolute inset-0"
-        style={{ ["--trace-rgb" as string]: rgb, ["--warp" as string]: `url(#${warpId})` } as CSSProperties}
-      >
-        <div style={{ ["--silhouette" as string]: `url("${src}")` } as CSSProperties} />
-      </div>
       <canvas ref={canvasRef} className="absolute inset-0 w-full h-full" />
     </div>
   )

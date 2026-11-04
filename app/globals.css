@@ -317,42 +317,25 @@ img {
   animation: hero-pop 400ms ease-in-out forwards;
 }
 
-/* Hero edge glow (components/edge-trace.tsx sets --trace-rgb, and --warp to its rippling noise filter) */
-.hero-trace {
-  filter: var(--warp) drop-shadow(0 0 2px rgb(var(--trace-rgb) / 0.5)) drop-shadow(0 0 8px rgb(var(--trace-rgb) / 0.3));
-}
-
-.hero-trace > div {
-  position: absolute;
-  inset: 0;
-  -webkit-mask: var(--silhouette) center / 100% 100% no-repeat;
-  mask: var(--silhouette) center / 100% 100% no-repeat;
-  background: rgb(var(--trace-rgb) / 0.5);
-}
-
 /* Rare / PermaRare art: one soft band of their colour sweeping across as it appears */
 @keyframes hero-shine {
   from {
-    background-position: 130% 0;
+    background-position: 95% 0;
   }
   to {
-    background-position: -30% 0;
+    background-position: 5% 0;
   }
 }
 
 .hero-shine {
   -webkit-mask: var(--silhouette) center / 100% 100% no-repeat;
   mask: var(--silhouette) center / 100% 100% no-repeat;
-  background: linear-gradient(105deg, transparent 42%, rgb(var(--trace-rgb) / 0.35) 50%, transparent 58%) 130% 0 / 250% 100% no-repeat;
+  background: linear-gradient(105deg, transparent 42%, rgb(var(--trace-rgb) / 0.35) 50%, transparent 58%) 95% 0 / 250% 100% no-repeat;
   mix-blend-mode: screen;
-  animation: hero-shine 1.2s ease-out 0.15s forwards;
+  animation: hero-shine 1.2s ease-out forwards;
 }
 
 @media (prefers-reduced-motion: reduce) {
-  /* No movement: a still, faint rim all the way round */
-  .hero-trace {
-    filter: drop-shadow(0 0 2px rgb(var(--trace-rgb) / 0.5)) drop-shadow(0 0 8px rgb(var(--trace-rgb) / 0.3));
-  }
   .hero-shine {
     display: none;
   }
