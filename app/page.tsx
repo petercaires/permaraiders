@@ -435,8 +435,9 @@ export default function Home() {
 
       {/* ---------- Corner controls ----------
           Phones: each is a full 44px tap target (the recommended minimum), edge to edge, with a 26px icon,
-          so a slightly-off tap still hits the right one. Desktop: compact 24px icons. */}
-      <div className="fixed right-1 top-1 wide:right-4 wide:top-4 z-40 flex flex-col wide:gap-1">
+          so a slightly-off tap still hits the right one. Placed so the icons sit 16px from the top and right edges
+          (7px + the 9px inner padding), matching the page's other edge spacing. Desktop: compact 24px icons. */}
+      <div className="fixed right-[7px] top-[7px] wide:right-4 wide:top-4 z-40 flex flex-col wide:gap-1">
         <IconButton
           label={isMusicPlaying ? "mute" : "unmute"}
           onClick={toggleMusic}
