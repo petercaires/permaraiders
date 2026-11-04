@@ -1,6 +1,6 @@
 "use client"
 
-import { getCharacterById, RARITY_RGB } from "@/lib/characters"
+import { characters, getCharacterById, RARITY_RGB } from "@/lib/characters"
 import type { CSSProperties } from "react"
 import { cn } from "@/lib/utils"
 
@@ -52,7 +52,20 @@ export function CharacterDetails({ id, isMinted }: CharacterDetailsProps) {
           </div>
           <p className="text-xs wide:text-sm leading-snug text-white line-clamp-3 wide:line-clamp-2">{character.description}</p>
         </>
-      ) : null}
+      ) : (
+        // Nothing hovered or selected: introduce the collection (goes with the empty silhouette)
+        <>
+          <div className="flex items-center gap-2 min-w-0">
+            <span className="text-base font-bold leading-tight shrink-0">Raider ???</span>
+            <span className="text-[11px] uppercase tracking-wider px-1.5 py-0.5 rounded border whitespace-nowrap border-white/20 text-white/70">
+              {characters.length} raiders
+            </span>
+          </div>
+          <p className="text-xs wide:text-sm leading-snug text-white line-clamp-3 wide:line-clamp-2">
+            {characters.length} raiders had their home planet erased. Now they need somewhere permanent.
+          </p>
+        </>
+      )}
     </aside>
   )
 }
