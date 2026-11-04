@@ -329,7 +329,7 @@ img {
 .back-countdown {
   stroke-dasharray: 100;
   stroke-dashoffset: 100;
-  animation: back-countdown 4s linear 250ms forwards; /* duration set from AUTO_BACK_MS; the delay matches MESSAGE_DELAY_MS */
+  animation: back-countdown 3s linear 250ms forwards; /* duration set from AUTO_BACK_MS; the delay matches MESSAGE_DELAY_MS */
 }
 
 /* "Rotate your phone": only on touch phones held sideways (short landscape screens), never on desktops or tablets */

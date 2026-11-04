@@ -21,7 +21,7 @@ export type MintPhase = "idle" | "minting" | "success" | "reset"
 
 // After a successful mint, it returns to the raiders on its own after this long (the back button's ring counts it down).
 // The wait starts once the message has faded in (it appears 250ms after the stamp).
-const AUTO_BACK_MS = 4000
+const AUTO_BACK_MS = 3000
 const MESSAGE_DELAY_MS = 250
 
 interface MintStageProps {
