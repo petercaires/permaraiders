@@ -1,15 +1,16 @@
 "use client"
 
-import { useEffect, useRef, useState, type CSSProperties } from "react"
+import { useEffect, useId, useRef, useState, type CSSProperties } from "react"
 import { cn } from "@/lib/utils"
 
-// The sweep runs over the top of the outline only: from lower-left, over the head, to lower-right
-// (angles clockwise from straight up, around the shape's centre), then fades and starts again.
+// The particles sweep over the top of the outline only: from lower-left, over the head, to lower-right
+// (angles clockwise from straight up, around the shape's centre), then fade and start again.
 const START = 235
 const SPAN = 250
 const LAP_MS = 4500
 const SAMPLE = 256 // px; the art is scanned at this size to find its outline
 const FADE_OUT_MS = 200
+const FADE_IN_MS = 300
 
 export interface Trace {
   /** Changes whenever the light should restart (new raider, or the same one re-selected) */
@@ -46,10 +47,10 @@ export function HeroTrace({ trace }: { trace: Trace | null }) {
 }
 
 /**
- * Edge light for the hero art (the empty silhouette in white; Rare and PermaRare raiders in their colour).
- * The inner layer is the art's own shape (as a mask) filled with a short bright arc; the outer layer's
- * drop-shadow lets that arc spill just past the edge, and the art drawn on top hides everything inside it.
- * A few confetti-style squares drift off the edge where the light is.
+ * Edge glow for the hero art (the empty silhouette in white; Rare and PermaRare raiders in their colour).
+ * The glow layer is the art's own shape (as a mask) in a solid colour, slowly warped by an SVG noise filter
+ * and blurred out with drop-shadows; the art drawn on top hides everything inside it, so only a soft,
+ * shifting rim shows. Confetti-style squares drift off the edge, sweeping over the top of the outline.
  */
 function EdgeTrace({ src, rgb, className, leaving }: { src: string; /** "r g b" */ rgb: string; className?: string; leaving: boolean }) {
   const wrapRef = useRef<HTMLDivElement>(null)
@@ -58,12 +59,17 @@ function EdgeTrace({ src, rgb, className, leaving }: { src: string; /** "r g b" 
     // (if it comes back before it has gone, e.g. hovering away and straight back, it just shows again)
     leavingAt.current = leaving ? (leavingAt.current ?? performance.now()) : null
   }, [leaving])
-  const arcRef = useRef<HTMLDivElement>(null)
+  const noiseRef = useRef<SVGFETurbulenceElement>(null)
   const canvasRef = useRef<HTMLCanvasElement>(null)
+  const warpId = `warp${useId().replace(/[^a-zA-Z0-9_-]/g, "")}`
 
   useEffect(() => {
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return // CSS shows a still rim instead
-    const wrap = wrapRef.current!, arc = arcRef.current!, canvas = canvasRef.current!
+    const wrap = wrapRef.current!
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      wrap.style.opacity = "1" // a still rim: no ripple, no particles
+      return
+    }
+    const noise = noiseRef.current!, canvas = canvasRef.current!
     const ctx = canvas.getContext("2d")!
     let edge: { x: number; y: number }[] | null = null // outline point for each whole degree (0–1 of the box)
     let frame = 0
@@ -86,8 +92,6 @@ function EdgeTrace({ src, rgb, className, leaving }: { src: string; /** "r g b" 
           x0 = Math.min(x0, x); x1 = Math.max(x1, x); y0 = Math.min(y0, y); y1 = Math.max(y1, y)
         }
       const CENTRE = { x: (x0 + x1) / 2 / SAMPLE, y: (y0 + y1) / 2 / SAMPLE }
-      arc.style.setProperty("--cx", `${CENTRE.x * 100}%`)
-      arc.style.setProperty("--cy", `${CENTRE.y * 100}%`)
       edge = Array.from({ length: 360 }, (_, deg) => {
         const dx = Math.sin((deg * Math.PI) / 180), dy = -Math.cos((deg * Math.PI) / 180)
         for (let r = SAMPLE; r > 0; r--) {
@@ -106,11 +110,14 @@ function EdgeTrace({ src, rgb, className, leaving }: { src: string; /** "r g b" 
       if (!start) start = last = now // timed from the first frame, so it always starts faded out
       const dt = Math.min(now - last, 50) / 1000
       last = now
+      const t = (now - start) / 1000
       const p = ((now - start) % LAP_MS) / LAP_MS
       const deg = START + p * SPAN
-      arc.style.setProperty("--trace", `${deg - 330}deg`) // the arc's brightest point sits at +330°
+      // Warp: the noise slowly drifts, so the rim gently ripples
+      noise.setAttribute("baseFrequency", `${(0.012 + 0.004 * Math.sin(t * 0.9)).toFixed(4)} ${(0.016 + 0.004 * Math.cos(t * 0.7)).toFixed(4)}`)
       const out = leavingAt.current === null ? 1 : Math.min(1, Math.max(0, 1 - (now - leavingAt.current) / FADE_OUT_MS))
-      wrap.style.opacity = String(Math.min(1, p / 0.1, (1 - p) / 0.1) * out) // fade in and out at the ends
+      wrap.style.opacity = String(Math.min(1, (now - start) / FADE_IN_MS) * out)
+      const sweep = Math.min(1, p / 0.1, (1 - p) / 0.1) // particles fade in and out at the ends of each sweep
 
       // Canvas matches the box at device resolution
       const size = wrap.clientWidth, dpr = window.devicePixelRatio || 1
@@ -136,7 +143,7 @@ function EdgeTrace({ src, rgb, className, leaving }: { src: string; /** "r g b" 
         if (q.age >= q.life) { particles.splice(i, 1); continue }
         q.x += q.vx * dt
         q.y += q.vy * dt
-        ctx.globalAlpha = 0.8 * (1 - q.age / q.life) * Number(wrap.style.opacity)
+        ctx.globalAlpha = 0.8 * (1 - q.age / q.life) * sweep
         ctx.fillRect(q.x - 1.5, q.y - 1.5, 3, 3)
       }
       frame = requestAnimationFrame(tick)
@@ -146,9 +153,33 @@ function EdgeTrace({ src, rgb, className, leaving }: { src: string; /** "r g b" 
   }, [src, rgb])
 
   return (
-    <div ref={wrapRef} aria-hidden className={cn("hero-trace", className)} style={{ ["--trace-rgb" as string]: rgb } as CSSProperties}>
-      <div ref={arcRef} style={{ ["--silhouette" as string]: `url("${src}")` } as CSSProperties} />
+    <div ref={wrapRef} aria-hidden className={className} style={{ opacity: 0 }}>
+      <svg width="0" height="0" className="absolute">
+        <filter id={warpId}>
+          <feTurbulence ref={noiseRef} type="fractalNoise" baseFrequency="0.012 0.016" numOctaves={2} seed={3} />
+          <feDisplacementMap in="SourceGraphic" scale={10} xChannelSelector="R" yChannelSelector="G" />
+          <feGaussianBlur stdDeviation={1.5} />
+        </filter>
+      </svg>
+      <div
+        className="hero-trace absolute inset-0"
+        style={{ ["--trace-rgb" as string]: rgb, ["--warp" as string]: `url(#${warpId})` } as CSSProperties}
+      >
+        <div style={{ ["--silhouette" as string]: `url("${src}")` } as CSSProperties} />
+      </div>
       <canvas ref={canvasRef} className="absolute inset-0 w-full h-full" />
+    </div>
+  )
+}
+
+/** A single soft band of light crossing Rare (silver) and PermaRare (gold) art as it appears */
+export function RarityShine({ src, rgb, className }: { src: string; rgb: string; className?: string }) {
+  return (
+    <div aria-hidden className={className}>
+      <div
+        className="hero-shine absolute inset-0"
+        style={{ ["--silhouette" as string]: `url("${src}")`, ["--trace-rgb" as string]: rgb } as CSSProperties}
+      />
     </div>
   )
 }

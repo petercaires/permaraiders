@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef, useCallback, type CSSProperties } from "react"
 import { CharacterDetails } from "@/components/character-details"
-import { HeroTrace } from "@/components/edge-trace"
+import { HeroTrace, RarityShine } from "@/components/edge-trace"
 import { CharacterPanel, PANEL_MAX_WIDTH, PANEL_PAD, RAIL_GAP, PANEL_RAIL } from "@/components/character-panel"
 import { getCharacterById, getRarity, rarityBgClass, RARITY_RGB } from "@/lib/characters"
 import { getClaimedIds, claimCharacter, clearAllClaimed } from "@/lib/mintAdapter"
@@ -285,15 +285,12 @@ export default function Home() {
         <HeroTrace
           trace={
             traceRgb ? {
-              id: `${displayedHeroId}-${heroPopTrigger}`,
+              id: displayedHeroId,
               src: heroUrls[`hero${displayedHeroId}`],
               rgb: traceRgb,
               className: cn(
                 HERO_BOX,
                 displayedHeroId === "000" && "silhouette",
-                // pops with the art when a raider is selected
-                "origin-bottom",
-                !prefersReducedMotion && heroPopTrigger > 0 && "animate-hero-pop",
               ),
             } : null
           }
@@ -315,6 +312,15 @@ export default function Home() {
             if (e.currentTarget.src !== heroUrls["hero000"]) e.currentTarget.src = heroUrls["hero000"]
           }}
         />
+        {traceRgb && displayedHeroId !== "000" && (
+          <RarityShine
+            key={`${displayedHeroId}-${heroPopTrigger}`}
+            src={heroUrls[`hero${displayedHeroId}`]}
+            rgb={traceRgb}
+            // pops with the art, so the shine stays on it
+            className={cn(HERO_BOX, "origin-bottom", !prefersReducedMotion && heroPopTrigger > 0 && "animate-hero-pop")}
+          />
+        )}
       </section>
 
       {/* ---------- Content column (flattened into the page in portrait) ---------- */}
