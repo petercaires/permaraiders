@@ -332,7 +332,7 @@ img {
   mask: var(--silhouette) center / 100% 100% no-repeat;
   background: linear-gradient(105deg, transparent 42%, rgb(var(--trace-rgb) / 0.35) 50%, transparent 58%) 95% 0 / 250% 100% no-repeat;
   mix-blend-mode: screen;
-  animation: hero-shine 1.2s ease-out forwards;
+  animation: hero-shine 0.7s ease-out forwards; /* keep in step with SHINE_MS in edge-trace.tsx */
 }
 
 @media (prefers-reduced-motion: reduce) {

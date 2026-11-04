@@ -148,14 +148,66 @@ function EdgeTrace({ src, rgb, className, leaving }: { src: string; /** "r g b" 
   )
 }
 
-/** A single soft band of light crossing Rare (silver) and PermaRare (gold) art as it appears */
+const SHINE_MS = 700 // keep in step with .hero-shine in globals.css
+
+/**
+ * A single soft band of light crossing Rare (silver) and PermaRare (gold) art as it appears, with a few
+ * confetti-style sparkles trailing it. Both are cut to the art's shape.
+ */
 export function RarityShine({ src, rgb, className }: { src: string; rgb: string; className?: string }) {
+  const canvasRef = useRef<HTMLCanvasElement>(null)
+
+  useEffect(() => {
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return
+    const canvas = canvasRef.current!
+    const ctx = canvas.getContext("2d")!
+    const sparks: { x: number; y: number; vy: number; age: number; life: number }[] = []
+    let start = 0, last = 0, spawn = 0, frame = 0
+
+    const tick = (now: number) => {
+      if (!start) start = last = now
+      const dt = Math.min(now - last, 50) / 1000
+      last = now
+      const size = canvas.clientWidth, dpr = window.devicePixelRatio || 1
+      if (canvas.width !== Math.round(size * dpr)) canvas.width = canvas.height = Math.round(size * dpr)
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0)
+      ctx.clearRect(0, 0, size, size)
+
+      // Where the band is: it eases across from left to right, slanted 15° like the gradient
+      const u = Math.min(1, (now - start) / SHINE_MS)
+      const pos = 0.95 - 0.9 * (1 - (1 - u) ** 2)
+      const bandX = size * (1.25 - 1.5 * pos)
+      if (u < 1) {
+        spawn += dt * 40
+        while (spawn >= 1) {
+          spawn--
+          const y = Math.random() * size
+          sparks.push({ x: bandX - (y - size / 2) * 0.27 + (Math.random() - 0.5) * size * 0.06, y, vy: -10 - Math.random() * 20, age: 0, life: 0.4 + Math.random() * 0.4 })
+        }
+      }
+      ctx.fillStyle = `rgb(${rgb})`
+      for (let i = sparks.length - 1; i >= 0; i--) {
+        const s = sparks[i]
+        s.age += dt
+        if (s.age >= s.life) { sparks.splice(i, 1); continue }
+        s.y += s.vy * dt
+        ctx.globalAlpha = 0.9 * (1 - s.age / s.life)
+        ctx.fillRect(s.x - 1.5, s.y - 1.5, 3, 3)
+      }
+      if (u < 1 || sparks.length) frame = requestAnimationFrame(tick) // stops by itself once it's played
+    }
+    frame = requestAnimationFrame(tick)
+    return () => cancelAnimationFrame(frame)
+  }, [rgb])
+
   return (
     <div aria-hidden className={className}>
       <div
         className="hero-shine absolute inset-0"
         style={{ ["--silhouette" as string]: `url("${src}")`, ["--trace-rgb" as string]: rgb } as CSSProperties}
-      />
+      >
+        <canvas ref={canvasRef} className="absolute inset-0 w-full h-full" />
+      </div>
     </div>
   )
 }

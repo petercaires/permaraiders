@@ -311,8 +311,8 @@ export default function Home() {
             key={`${displayedHeroId}-${heroPopTrigger}`}
             src={heroUrls[`hero${displayedHeroId}`]}
             rgb={shineRgb}
-            // pops with the art, so the shine stays on it
-            className={cn(HERO_BOX, "origin-bottom", !prefersReducedMotion && heroPopTrigger > 0 && "animate-hero-pop")}
+            // never scales (unlike the art's little pop)
+            className={HERO_BOX}
           />
         )}
       </section>
