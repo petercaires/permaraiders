@@ -62,7 +62,7 @@ export function CharacterDetails({ id, isMinted }: CharacterDetailsProps) {
             </span>
           </div>
           <p className="text-xs wide:text-sm leading-snug text-white line-clamp-3 wide:line-clamp-2">
-            {characters.length} raiders had their home planet erased. Now they need somewhere permanent.
+            They lost their home planet in the Great 404 Disaster. Now they need somewhere permanent.
           </p>
         </>
       )}
