@@ -1,5 +1,6 @@
 import type React from "react"
 import type { Metadata } from "next"
+import { RotateCw } from "lucide-react"
 import "./globals.css"
 
 const title = "Permaraiders: PFP Collection Demo"
@@ -30,6 +31,15 @@ export default function RootLayout({
     <html lang="en">
       <body className="antialiased">
         {children}
+        {/* Phones held sideways: covers the whole page (hero, grid, loader) until it's turned back upright */}
+        <div className="rotate-notice fixed inset-0 z-[2000] flex-col items-center justify-center gap-4 bg-background text-center select-none">
+          <img src="/header.png" alt="Perma Raiders" className="h-14 w-auto object-contain" />
+          <RotateCw aria-hidden className="w-6 h-6 text-white" />
+          <div className="flex flex-col gap-1">
+            <p className="text-base font-bold text-white">Rotate your phone</p>
+            <p className="text-xs text-white/70">Permaraiders works best upright.</p>
+          </div>
+        </div>
       </body>
     </html>
   )

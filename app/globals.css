@@ -317,6 +317,16 @@ img {
   animation: hero-pop 400ms ease-in-out forwards;
 }
 
+/* "Rotate your phone": only on touch phones held sideways (short landscape screens), never on desktops or tablets */
+.rotate-notice {
+  display: none;
+}
+@media (orientation: landscape) and (max-height: 500px) and (pointer: coarse) {
+  .rotate-notice {
+    display: flex;
+  }
+}
+
 /* Hero edge: a soft transparency ramp on the side facing the character menu
    (bottom on phones, right on desktop), eased so it doesn't show steps. */
 .hero-fade {
