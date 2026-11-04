@@ -317,6 +317,21 @@ img {
   animation: hero-pop 400ms ease-in-out forwards;
 }
 
+/* Back button countdown ring (mint-stage.tsx): the edge fills up, starting once the message has faded in */
+@keyframes back-countdown {
+  from {
+    stroke-dashoffset: 100;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+.back-countdown {
+  stroke-dasharray: 100;
+  stroke-dashoffset: 100;
+  animation: back-countdown 6s linear 250ms forwards; /* duration set from AUTO_BACK_MS; the delay matches MESSAGE_DELAY_MS */
+}
+
 /* "Rotate your phone": only on touch phones held sideways (short landscape screens), never on desktops or tablets */
 .rotate-notice {
   display: none;

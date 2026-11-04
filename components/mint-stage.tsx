@@ -1,6 +1,6 @@
 "use client"
 
-import type { CSSProperties } from "react"
+import { useEffect, useRef, type CSSProperties } from "react"
 import { Undo2 } from "lucide-react"
 import { Confetti } from "@/components/confetti"
 import { cn } from "@/lib/utils"
@@ -19,6 +19,11 @@ const CONFETTI: Record<Rarity, string[]> = {
 
 export type MintPhase = "idle" | "minting" | "success" | "reset"
 
+// After a successful mint, it returns to the raiders on its own after this long (the back button's ring counts it down).
+// The wait starts once the message has faded in (it appears 250ms after the stamp).
+const AUTO_BACK_MS = 6000
+const MESSAGE_DELAY_MS = 250
+
 interface MintStageProps {
   phase: MintPhase
   /** Raider being minted */
@@ -33,11 +38,22 @@ interface MintStageProps {
  * Sits over the character sheet; the sheet fades out while this fades in.
  *   minting → portrait under a scanning shimmer, "Minting Raider 042…"
  *   success → MINTED stamp lands, "Claimed!", confetti kept inside the box, "Back to raiders"
+ *             (returns by itself after AUTO_BACK_MS; the button's ring fills up as it counts down)
  *   reset   → "Demo reset" confirmation, "Back to raiders"
  */
 export function MintStage({ phase, id, imageSrc, rarity, onBack }: MintStageProps) {
   const rarityBg = rarityBgClass(rarity)
   const active = phase === "reset" || (phase !== "idle" && !!id)
+
+  // Auto-return after a successful mint. Pressing the button first still returns straight away (and this timer is
+  // cleared when the phase changes).
+  const onBackRef = useRef(onBack)
+  onBackRef.current = onBack
+  useEffect(() => {
+    if (phase !== "success") return
+    const t = setTimeout(() => onBackRef.current(), MESSAGE_DELAY_MS + AUTO_BACK_MS)
+    return () => clearTimeout(t)
+  }, [phase])
 
   return (
     <div
@@ -102,7 +118,7 @@ export function MintStage({ phase, id, imageSrc, rarity, onBack }: MintStageProp
                   <h2 className="text-lg wide:text-2xl font-bold leading-tight whitespace-nowrap">Claimed!</h2>
                   <p className="text-xs wide:text-sm text-white/70">Raider {id} is now yours.</p>
                 </div>
-                <BackButton onClick={onBack} />
+                <BackButton onClick={onBack} countdownMs={AUTO_BACK_MS} />
               </div>
             )}
           </div>
@@ -116,7 +132,7 @@ function DemoLabel({ className }: { className?: string }) {
   return <p className={cn("text-[11px] uppercase tracking-wider text-white/70 leading-none", className)}>Demo mode</p>
 }
 
-function BackButton({ onClick }: { onClick: () => void }) {
+function BackButton({ onClick, countdownMs }: { onClick: () => void; /** draw the ring filling over this long */ countdownMs?: number }) {
   return (
     <button
       onClick={onClick}
@@ -124,6 +140,22 @@ function BackButton({ onClick }: { onClick: () => void }) {
       className="group relative cursor-pointer flex items-center justify-center rounded-full border-2 border-white/50 w-10 h-10 wide:w-12 wide:h-12 transition-[transform,border-color,background-color] duration-150 hover:scale-110 hover:border-white hover:bg-white/10 active:scale-95 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
     >
       <Undo2 className="w-5 h-5 wide:w-6 wide:h-6" />
+      {/* Countdown: the circle's edge fills clockwise from the top, over the faint border */}
+      {countdownMs && (
+        <svg viewBox="0 0 100 100" className="absolute -inset-[2px] -rotate-90 pointer-events-none" aria-hidden>
+          <circle
+            cx="50"
+            cy="50"
+            r="47.5"
+            pathLength={100}
+            fill="none"
+            stroke="white"
+            strokeWidth="5"
+            className="back-countdown"
+            style={{ animationDuration: `${countdownMs}ms` }}
+          />
+        </svg>
+      )}
       {/* Same tooltip style as the corner icons */}
       <span className="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 hidden group-hover:block pointer-events-none whitespace-nowrap bg-white text-black text-[11px] uppercase tracking-wider px-1.5 py-0.5 rounded">
         Back to raiders
