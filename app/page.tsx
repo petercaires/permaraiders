@@ -321,10 +321,10 @@ export default function Home() {
             "flex flex-col items-center",
           )}
         >
-          {/* One visual block: character sheet + description in a single box, 12px inset all round. Desktop: a solid
-              fill (the same shade 30% black gave over the background), so the hero art never shows through it */}
+          {/* One visual block: character sheet + description in a single box, 12px inset all round. Desktop: a 90%
+              fill (of the shade 30% black gave over the background), so the hero art only faintly shows through */}
           <div
-            className="@container w-full max-w-[651px] wide:max-w-[var(--box-max)] min-h-0 flex flex-col gap-3 p-3 rounded-md wide:bg-[#0d0d0d] wide:flex-1 translate-x-[var(--nudge)] wide:translate-x-0"
+            className="@container w-full max-w-[651px] wide:max-w-[var(--box-max)] min-h-0 flex flex-col gap-3 p-3 rounded-md wide:bg-[#0d0d0d]/90 wide:flex-1 translate-x-[var(--nudge)] wide:translate-x-0"
             // Portrait: at most 651px wide, so 3 rows of 5 stay within 360px tall (tablets). Wide: the panel's max + inset
             // Mobile: nudged right by half the rail, so the tiles (not tiles + rail) sit centred on screen
             style={{ ["--box-max" as string]: `${PANEL_MAX_WIDTH + 24}px`, ["--nudge" as string]: `${(RAIL_GAP + PANEL_RAIL) / 2}px` } as CSSProperties}
