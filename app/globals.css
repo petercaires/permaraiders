@@ -318,17 +318,18 @@ img {
 }
 
 /* Back button countdown ring (mint-stage.tsx): the edge fills up, starting once the message has faded in */
+/* 298.45 = the circle's circumference (2 × π × r 47.5, in the ring's 100-unit drawing) */
 @keyframes back-countdown {
   from {
-    stroke-dashoffset: 100;
+    stroke-dashoffset: 298.45;
   }
   to {
     stroke-dashoffset: 0;
   }
 }
 .back-countdown {
-  stroke-dasharray: 100;
-  stroke-dashoffset: 100;
+  stroke-dasharray: 298.45;
+  stroke-dashoffset: 298.45;
   animation: back-countdown 3.5s linear 250ms forwards; /* duration set from AUTO_BACK_MS; the delay matches MESSAGE_DELAY_MS */
 }
 

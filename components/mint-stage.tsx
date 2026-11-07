@@ -140,14 +140,22 @@ function BackButton({ onClick, countdownMs }: { onClick: () => void; /** draw th
       className="group relative cursor-pointer flex items-center justify-center rounded-full border-2 border-white/50 w-10 h-10 wide:w-12 wide:h-12 transition-[transform,border-color,background-color] duration-150 hover:scale-110 hover:border-white hover:bg-white/10 active:scale-95 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
     >
       <Undo2 className="w-5 h-5 wide:w-6 wide:h-6" />
-      {/* Countdown: the circle's edge fills clockwise from the top, over the faint border */}
+      {/* Countdown: the circle's edge fills clockwise from the top, over the faint border. Sized and positioned
+          explicitly over the whole button (border included), with the start turned to the top inside the drawing and
+          real circle lengths for the dash, so it traces the circle the same way in Safari as everywhere else */}
       {countdownMs && (
-        <svg viewBox="0 0 100 100" className="absolute -inset-[2px] -rotate-90 pointer-events-none" aria-hidden>
+        <svg
+          viewBox="0 0 100 100"
+          width="100%"
+          height="100%"
+          className="absolute -top-[2px] -left-[2px] w-[calc(100%+4px)] h-[calc(100%+4px)] overflow-visible pointer-events-none"
+          aria-hidden
+        >
           <circle
             cx="50"
             cy="50"
             r="47.5"
-            pathLength={100}
+            transform="rotate(-90 50 50)"
             fill="none"
             stroke="white"
             strokeWidth="5"
